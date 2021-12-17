@@ -44,24 +44,10 @@
   setwd(main.wd)
   
 # ========================================================================================  
-# Plot the mean %protein/fat/carb of each participant
+# 
 # ========================================================================================
 
-# Calculate the mean kcal from carb/protein/fat per participant
-  CalcKcal() 
 
-# Show normalized stacked barchart per participant
-  NormalizedPercentKcal()
-
-# show a stacked barchart per participant with standard deviations as error bars.
-  NonNormalizedPercentKcal()
-  NonNormalizedPercentKcal(show.sd = TRUE)
- 
-# show a stacked barchart per participant without error bars.
-  NonNormalizedPercentKcal(show.sd = FALSE)
-
- 
-  
   
   
   
