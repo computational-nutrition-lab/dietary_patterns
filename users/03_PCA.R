@@ -39,23 +39,16 @@
   
 # Load the totals.csv
   totals <- read.table("Totals_to_use.txt",  sep = "\t", header = T)
-
+  
+  # If totals data is a csv:
+  # totals <- read.csv("Totals.csv", sep = ",", header = T)
+  
 # Come back to the main directory
   setwd(main.wd)
   
 # ========================================================================================  
 # 
 # ========================================================================================
+  ggplot2::theme_set(theme_bw(14))
 
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
- 
+# Subset nutrition data.
