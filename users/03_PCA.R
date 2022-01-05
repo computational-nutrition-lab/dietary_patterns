@@ -18,7 +18,7 @@
 #                          |
 #                          |----- users
 #  Main -------------------|
-#  (dietary_patterns)      |----- 
+#  (dietary_patterns)      |----- results
 #                          |
 #                          |----- ...
 #
@@ -56,27 +56,33 @@
 
 # Subset nutrition data.
 # The columns specified as start.col, end.col, and all columns in between will be selected.
-# Nutrient analysis --> start.col = "PROT",    end.col = "B12_ADD"
-# Nutrient analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
+# Nutrient analysis   --> start.col = "PROT",    end.col = "B12_ADD"
+# Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
+  SubsetColumns(data = totals, start.col = "PROT", end.col = "B12_ADD")  
   SubsetColumns(data = totals, start.col = "F_TOTAL", end.col = "A_DRINKS")  
 
-# Pick up only the columns with non-zero variance, in order to do PCA.
+# Pick up only the columns with non-zero variance, in order to do a PCA.
 # The removed columns will be shown if any.
   KeepNonZeroVarColumns(data = subsetted)
 
-# Perform PCA with all the nutrients, scaled.
+# Perform PCA with the subset data, scaled.
   scaled_pca <- prcomp(x = subsetted_non0var, scale = T)   
 
 # Create a scree plot.
   LineScreePlot(pca.result = scaled_pca)
 
 # Create a biplot.
-  # A biplot with the individuals as black dots.
-  BiplotDots(   pca.result = scaled_pca, pca.data = subsetted_non0var)
+  # A biplot with the individuals as black dots and variables labelled.
+  BiplotDots(pca.result = scaled_pca, pca.data = subsetted_non0var)
   
   # A biplot with the individuals labeled.
   BiplotLabeled(pca.result = scaled_pca, pca.data = subsetted_non0var, individuals.label = TRUE)
   
-#
+# calculate loadings of each PC to the variables and 
+# save it as a csv file in the results folder.
+  # Change the name of the csv file to be saved if necessary. 
+  SaveLoadings(pca.result = scaled_pca, name = "PC_loadings_nutrients")
+  SaveLoadings(pca.result = scaled_pca, name = "PC_loadings_fooditems")
+  
 
   

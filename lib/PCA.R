@@ -25,6 +25,7 @@
   }
 # ---------------------------------------------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------------------------------------------
 # Keep only the columns with non-zero variance in order to perform PCA.
   KeepNonZeroVarColumns <- function(data = subsetted){
     subsetted_non0var <<- subsetted[, which(apply(subsetted, 2, var) != 0)] 
@@ -98,12 +99,21 @@
   
 # ---------------------------------------------------------------------------------------------------------------
   
+# ---------------------------------------------------------------------------------------------------------------
+# Function to calculate loadings of each PC to the variables and save it as a csv file
+#  in the results folder.
   
+  SaveLoadings <- function(pca.result = scaled_pca, name){
+    # Calculate the loadings.  sweep function is similar to apply.
+    fc.l <<- sweep(pca.result$rotation, MARGIN = 2, pca.result$sdev, FUN = "*") 
+    # Convert the matrix to a dataframe. 
+    fc.l.df <<- as.data.frame(fc.l)
+    # Save it as a csv file.
+    write.csv(fc.l.df, paste("results/", name, ".csv", sep = ""))
+  }
+# ---------------------------------------------------------------------------------------------------------------
   
-  
-  
-  
-  
+ 
   
   
   
