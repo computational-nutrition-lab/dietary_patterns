@@ -7,29 +7,17 @@
 # Created on 01.06.2022 by Rie Sadohara
 # ========================================================================================
 
-data("USArrests")      # Loading the data set
-df <- scale(USArrests) # Scaling the data
-dim(df)
-# View the firt 3 rows of the data
-head(df, n = 3)
+# Codes to build:
+# Collapse variables by correlation. 
+# option to average by participants or not.
+# Find the optimum k. 
 
-set.seed(123)
-?set.seed
-km.res <- kmeans(df, 4, nstart = 25)
-km.res
-aggregate(USArrests, by=list(cluster=km.res$cluster), mean)
-dd <- cbind(USArrests, cluster = km.res$cluster)
-head(dd)
-head(km.res$cluster, 8)
-# install.packages('factoextra')
-library(factoextra)
-factoextra::fviz_cluster(km.res, data = df, ellipse = T,  ggtheme = theme_bw(base_size = 10),
-                         ellipse.alpha = 0.1, repel = T, labelsize = 10)
+# Collapse variables by correlation. 
+# == decrease the number of variables that are highly correlated.
 
-# use dietary data.
 # Calculate k-means, start with 4.
   km.results <- kmeans(x = subsetted_non0var, centers = 4, nstart = 25)
-# Calculate means of each variable for each cluster. 
+# Calculate the means of each variable for each cluster. 
   aggregate(subsetted_non0var, by=list(cluster=km.results$cluster), mean)
 # Add the cluster assignment to the original (subsetted) data. 
   dd <- cbind(subsetted_non0var, cluster = km.results$cluster)

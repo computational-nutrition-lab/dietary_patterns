@@ -76,7 +76,9 @@
   BiplotDots(pca.result = scaled_pca, pca.data = subsetted_non0var)
   
   # A biplot with the individuals labeled.
-  BiplotLabeled(pca.result = scaled_pca, pca.data = subsetted_non0var, individuals.label = TRUE)
+  BiplotLabeled(pca.result = scaled_pca, 
+                pca.data = subsetted_non0var, 
+                individuals.label = TRUE)
   
 # calculate loadings of each PC to the variables and 
 # save it as a csv file in the results folder.

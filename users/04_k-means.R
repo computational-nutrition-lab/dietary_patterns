@@ -32,7 +32,7 @@
 # Import source code to run the analyses to follow.
   source("lib/load_and_check.R")
   source("lib/PCA.R")
-  source("lib/k-means.R")
+  # source("lib/k-means.R")
 
 # Load example totals data =============================================================== 
 # Specify the directory where the data is.
