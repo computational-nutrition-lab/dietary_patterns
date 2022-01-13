@@ -7,7 +7,7 @@
 # ========================================================================================
 
 
-# returns vector of cluster ids for clusters with internal
+# returns a vector of cluster ids for clusters with internal
 # complete-linkage correlation of min.cor
 "cluster.by.correlation" <- function(x, min.cor=0.75){
   #     library('fastcluster')
@@ -19,16 +19,19 @@
   names(res) <<- colnames(x)
   return(res)
 }
-is(hc)
-length(cc)
-mycc <- cor(x = subsetted_non0var, use = 'pairwise.complete.obs', method = 'pearson')
-head(mycc,1)
-mycc <- as.dist(1-mycc)
-head(mycc)
-myhc <- hclust(mycc)
-res05 <- cutree(myhc, h=0.5)
-names(res05) <- colnames(res05)
-res05
+
+  cluster.by.correlation(x=subsetted_non0var, min.cor = 0.75)
+
+  is(hc)
+  length(cc)
+  mycc <- cor(x = subsetted_non0var, use = 'pairwise.complete.obs', method = 'pearson')
+  head(mycc,1)
+  mycc <- as.dist(1-mycc)
+  head(mycc)
+  myhc <- hclust(mycc)
+  res05 <- cutree(myhc, h=0.5)
+  names(res05) <- colnames(res05)
+  res05
 
 # returns vector of cluster ids for clusters with internal
 # complete-linkage correlation of min.cor
@@ -59,10 +62,16 @@ res05
   return(list(reps=reps, groups=gr))
 }
 
-cor(subsetted_non0var$PROT, subsetted_non0var$PHOS)
-head(subsetted_non0var)
-cluster.by.correlation(x=subsetted_non0var, 
-                       min.cor = 0.75)
-collapse.by.correlation(x=subsetted_non0var,
-                        min.cor=0.5, 
-                        select.rep.fcn = 'mean', verbose = T)
+  cor(subsetted_non0var$PROT, subsetted_non0var$PHOS)
+  head(subsetted_non0var)
+  
+  cluster.by.correlation(x=subsetted_non0var, 
+                         min.cor = 0.75)
+  collapse.by.correlation(x=subsetted_non0var,
+                          min.cor=0.5, 
+                          select.rep.fcn = 'mean', verbose = T)
+  
+#   hmm... how can I use this??? Asking on GitHub. 
+  
+  
+  

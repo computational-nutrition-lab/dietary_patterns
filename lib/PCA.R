@@ -7,40 +7,8 @@
 # Created on 12.17.2021 by Rie Sadohara
 # ========================================================================================
 
-# ---------------------------------------------------------------------------------------------------------------
-# Function to subset specific data from the totals.
 
-  SubsetColumns <- function(data, start.col, end.col){
-    # Column Variables of "totals" dataframe.
-    colvars <- names(data)
-    # Get the first ID
-    start.col <- match(start.col, colvars)
-    # Get the second ID
-    end.col <- match(end.col, colvars)
-    # Subset range
-    subsetted <<- data[, start.col:end.col]
-    # Print what was loaded.
-    cat("'subsetted' contains the following", length(colnames(subsetted)), "columns.", "\n")
-    print(colnames(subsetted))
-  }
-# ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# Keep only the columns with non-zero variance in order to perform PCA.
-  KeepNonZeroVarColumns <- function(data = subsetted){
-    subsetted_non0var <<- subsetted[, which(apply(subsetted, 2, var) != 0)] 
-      # Print which column(s) were removed.
-      if(ncol(subsetted) == ncol(subsetted_non0var)){
-        cat("No columns were removed.", "\n")
-      }
-      if(ncol(subsetted) != ncol(subsetted_non0var)){
-        cat("The following column(s) in ", deparse(substitute(data)), " had zero variance and were removed.", "\n")
-        print(which(apply(subsetted, 2, var) == 0))
-      }
-    }
-# ---------------------------------------------------------------------------------------------------------------
-  
-   
+# PCA ===========================================================================================================
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a scree plot.
 

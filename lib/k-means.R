@@ -16,14 +16,16 @@
 # == decrease the number of variables that are highly correlated.
 
 # Calculate k-means, start with 4.
-  km.results <- kmeans(x = subsetted_non0var, centers = 4, nstart = 25)
+  km.results <- kmeans(x = subsetted_non0var, centers = 5, nstart = 25)
 # Calculate the means of each variable for each cluster. 
   aggregate(subsetted_non0var, by=list(cluster=km.results$cluster), mean)
 # Add the cluster assignment to the original (subsetted) data. 
   dd <- cbind(subsetted_non0var, cluster = km.results$cluster)
 # Take a look
   dd$cluster
+
 # Use factoextra package for now, but I could just use ggplot2.
+  library(ggplot2)
   factoextra::fviz_cluster(km.results, 
                            data = subsetted_non0var, 
                            ellipse = T, ellipse.alpha = 0.1,  
@@ -31,10 +33,13 @@
                            repel = F, labelsize = 10)
   
   # This clusters 580 datapoints: participants x days.  Should have average of each participant? 
+  # Abby: good to have an option to take average or not.
+
+
   
   
 # ---------------------------------------------------------------------------------------------------------------
-# Function to 
+# Function to find the ideal k
 
 
 # ---------------------------------------------------------------------------------------------------------------
