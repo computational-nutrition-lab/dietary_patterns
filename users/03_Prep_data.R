@@ -7,9 +7,10 @@
 # ========================================================================================
 
 # ========================================================================================
-# Import data from your data directory 
+# Import data and prepare them for analyses
 # ========================================================================================
-# 
+
+# ---------------------------------------------------------------------------------------------------------------# 
 # Folder structure 
 # 
 #                          |----- eg_data 
@@ -31,9 +32,10 @@
 
 # Import source code to run the analyses to follow.
   source("lib/load_and_check.R")
-  # source("lib/PCA.R")
+  source("lib/prep_data.R")
 
-# Load example totals data =============================================================== 
+# ---------------------------------------------------------------------------------------------------------------
+# Load example totals data  
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
 # SpecifyDataDirectory(directory.name = "eg_data/salt/")
@@ -46,28 +48,36 @@
 
 # Come back to the main directory
   setwd(main.wd)
-# ========================================================================================  
+# ---------------------------------------------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------------------------------------------
+# If using each dataponit as is without averaging, 
 
-# If using each dataponits as is without averaging ======================================
-# Pick up only the columns with non-zero variance, in order to do a PCA.
+# Subset nutrients or food items data.
+# The columns specified as start.col, end.col, and all columns in between will be selected.
+# Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD"
+  SubsetColumns(data = totals, start.col = "PROT",    end.col = "B12_ADD")  
+# Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
+  SubsetColumns(data = totals, start.col = "F_TOTAL", end.col = "A_DRINKS")  
+
+# pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
   KeepNonZeroVarColumns(data = subsetted)
 
-# Subset nutrition data.
-# The columns specified as start.col, end.col, and all columns in between will be selected.
-# Nutrient analysis   --> start.col = "PROT",    end.col = "B12_ADD"
-# Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
-  SubsetColumns(data = totals, start.col = "PROT",    end.col = "B12_ADD")  
-  SubsetColumns(data = totals, start.col = "F_TOTAL", end.col = "A_DRINKS")  
-# ========================================================================================    
-
-# Take average by each category (user in this case)=======================================
+  # "subsetted_non0var" is the dataframe to be used in the subsequent
+  # collapse by correlation procedure.
+# ---------------------------------------------------------------------------------------------------------------
+  
+# ---------------------------------------------------------------------------------------------------------------
+# If taking average by each category (user or other treatment(s))
 # Specify the data to be used, category to group by, and the range of columns (variables) 
 # to calculate the means of each variables
+# Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD"
   AverageBy(data = totals, by = "UserName", start.col = "PROT", end.col = "B12_ADD")
+# Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
+  AverageBy(data = totals, by = "UserName", start.col = "F_TOTAL", end.col = "A_DRINKS")
 
-# Results are saved in this dataframe.  Probably too large to see as it is.
+# Results are saved in this dataframe.  Probably too large to see as is.
   meansbycategorydf
 
 # The column names should be the same as start.col-end.col. 
@@ -76,10 +86,39 @@
 # The row names should be each category entry to calculate means for.
   rownames(meansbycategorydf)
 
-# Remove variables with zero variance for PCA.   
- RESUME FROM HERE
-# ========================================================================================
+# pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
+  # The removed columns will be shown if any.
+  KeepNonZeroVarColumns(data = meansbycategorydf)
+  
+  # "subsetted_non0var" is the dataframe to be used in the subsequent 
+  # collapse by correlation procedure.
+# ---------------------------------------------------------------------------------------------------------------
 
- 
- 
+# ---------------------------------------------------------------------------------------------------------------
+# Collapse variables by correlation: take only one variables if they are highly correlated.
+  cbc_res <- CollapseByCorrelation(x = subsetted_non0var,
+                                   min.cor = 0.75, 
+                                   select.rep.fcn = 'mean', verbose = T)
+  
+# Filter out highly correlated variables from the original dataset.  
+  selected_variables <-  subsetted_non0var[, cbc_res$reps]
+
+# ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+  
+# Check to see the name of the original and filtered variables. 
+  # Among the variabels in the same group, the one with the highest variance is kept 
+  #  (according to the explanation above.)
+  head(subsetted_non0var, 1)      # original
+  head(selected_variables, 1)     # filtered
+# ---------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------
+# Save the correlation matrix for record in the results folder.
+# cc is the correlation matrix produced when variables are collapsed by correlation. 
+  SaveCorrMatrix(x=cc, name = "corr_matrix")
+# ---------------------------------------------------------------------------------------------------------------
+  
+  
+  
+  
  

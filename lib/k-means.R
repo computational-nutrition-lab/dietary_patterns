@@ -8,13 +8,21 @@
 # ========================================================================================
 
 # Codes to build:
-# Collapse variables by correlation. 
-# option to average by participants or not.
+# Collapse variables by correlation.  --OK!
+# option to average by participants or not. --> prep_data. -- OK!
 # Find the optimum k. 
 
-# Collapse variables by correlation. 
-# == decrease the number of variables that are highly correlated.
+# ---------------------------------------------------------------------------------------------------------------
+# Function to find the ideal k
+# Define your input file. 
+  kmeans_input <- 
+  
 
+# ---------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------
+# Define your input file. 
+  kmeans_input <- 
 # Calculate k-means, start with 4.
   km.results <- kmeans(x = subsetted_non0var, centers = 5, nstart = 25)
 # Calculate the means of each variable for each cluster. 
@@ -23,7 +31,9 @@
   dd <- cbind(subsetted_non0var, cluster = km.results$cluster)
 # Take a look
   dd$cluster
+# ---------------------------------------------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------------------------------------------
 # Use factoextra package for now, but I could just use ggplot2.
   library(ggplot2)
   factoextra::fviz_cluster(km.results, 
@@ -34,12 +44,10 @@
   
   # This clusters 580 datapoints: participants x days.  Should have average of each participant? 
   # Abby: good to have an option to take average or not.
-
-
-  
+# ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
-# Function to find the ideal k
+# Function to 
 
 
 # ---------------------------------------------------------------------------------------------------------------

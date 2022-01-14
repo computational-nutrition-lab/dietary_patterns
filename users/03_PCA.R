@@ -10,6 +10,8 @@
 # Import data from your data directory 
 # ========================================================================================
 # 
+# ---------------------------------------------------------------------------------------------------------------
+# Load necessary functions and data
 # Folder structure 
 # 
 #                          |----- eg_data 
@@ -34,50 +36,45 @@
   source("lib/prep_data.R")
   source("lib/PCA.R")
 
-# May not need this section since data are loaded in 03.prep_data first.===================  
-# Load example totals data ==(may not needed because data are loaded in prep_data.R)======= 
-# Specify the directory where the data is.
-  SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
-  # SpecifyDataDirectory(directory.name = "eg_data/salt/")
-  
-# Load the totals.csv
-  totals <- read.table("Totals_to_use.txt",  sep = "\t", header = T)
-  
-  # If totals data is a csv:
-  # totals <- read.csv(list.files(pattern = '\\Totals.csv$'))
-  
-# Come back to the main directory
-  setwd(main.wd)
-# ========================================================================================  
-  
- 
 
-  
-# PCA ====================================================================================
+# ========================================================================================
+# Perform Principal Component Analysis.
+# ========================================================================================
+# 
+# ---------------------------------------------------------------------------------------------------------------  
 # Specify the plot theme and base font size to use.
   library(ggplot2)
   ggplot2::theme_set(theme_bw(base_size = 14))
-
+  
+# Name your input data.
+# Your input data should be a data frame with variables with non-zero variance. 
+  my_input <- selected_variables
+  my_input <- selected_variables[, 1:8]
+  
 # Perform PCA with the subset data, scaled.
-  scaled_pca <- prcomp(x = subsetted_non0var, scale = T)   
+  # scaled_pca <- prcomp(x = subsetted_non0var, scale = T)   
+  scaled_pca <- prcomp(x = my_input, scale = T)   
 
 # Create a scree plot.
-  LineScreePlot(pca.result = scaled_pca)
+  LineScreePlot(pca.data = my_input, pca.result = scaled_pca)
 
 # Create a biplot.
   # A biplot with the individuals as black dots and variables labelled.
-  BiplotDots(pca.result = scaled_pca, pca.data = subsetted_non0var)
+  BiplotDots(pca.result = scaled_pca, pca.data = my_input)
   
   # A biplot with the individuals labeled.
   BiplotLabeled(pca.result = scaled_pca, 
-                pca.data = subsetted_non0var, 
+                pca.data = my_input, 
                 individuals.label = TRUE)
   
+# Save the variance explained by each PC in the result folder.
+  # Change the file name as necessary.  
+  SaveVarExplained(x=var_explained_df, name = "PC_var_explained")
+
 # calculate loadings of each PC to the variables and 
 # save it as a csv file in the results folder.
-  # Change the name of the csv file to be saved if necessary. 
-  SaveLoadings(pca.result = scaled_pca, name = "PC_loadings_nutrients")
-  SaveLoadings(pca.result = scaled_pca, name = "PC_loadings_fooditems")
-# ========================================================================================    
+  # Change the file name as necessary.  
+  SaveLoadings(pca.result = scaled_pca, name = "PC_loadings")
+# ---------------------------------------------------------------------------------------------------------------  
 
-  
+    
