@@ -55,16 +55,16 @@
 
 # Subset nutrients or food items data.
 # The columns specified as start.col, end.col, and all columns in between will be selected.
-# Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD"
+# Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD", 64 variablees in total.
   SubsetColumns(data = totals, start.col = "PROT",    end.col = "B12_ADD")  
-# Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
+# Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS", 37 varialbes in total.
   SubsetColumns(data = totals, start.col = "F_TOTAL", end.col = "A_DRINKS")  
 
 # pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
   KeepNonZeroVarColumns(data = subsetted)
-
   # "subsetted_non0var" is the dataframe to be used in the subsequent
+  colnames(subsetted_non0var)
   # collapse by correlation procedure.
 # ---------------------------------------------------------------------------------------------------------------
   
@@ -108,8 +108,13 @@
 # Check to see the name of the original and filtered variables. 
   # Among the variabels in the same group, the one with the highest variance is kept 
   #  (according to the explanation above.)
-  head(subsetted_non0var, 1)      # original
-  head(selected_variables, 1)     # filtered
+  # filtered
+  head(selected_variables, 1)     
+  dim(selected_variables)     
+  
+  # original
+  head(subsetted_non0var, 1)
+  dim(subsetted_non0var)
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
