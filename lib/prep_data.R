@@ -11,6 +11,24 @@
 # ========================================================================================
 
 # ---------------------------------------------------------------------------------------------------------------
+# Function to QC rows of 'totals' by Metadata
+# Show which has "yes" in the "Remove" column, and remove them. 
+  RemoveRows <- function(data=totals, metadata.file=metadata){
+    toberemoved <<- subset(metadata.file, Remove=="yes")
+    cat(nrow(toberemoved), "rows below are to be removed:", "\n")
+    print(toberemoved)    
+    # Merge the data and metadata.
+    merged <<- merge(x=data, y=metadata.file, by="UserName", all.x=T)
+    # Remove the rows that have "yes" in the "Remove" column.
+    totals_selected <<- subset(merged, Remove!="yes")
+    cat("The resulting file, totals_selected, has", 
+        nrow(totals_selected), "rows and",
+        ncol(totals_selected), "columns.")
+  }
+# ---------------------------------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------------------------------
 # Function to subset specific data from the totals.
 
   SubsetColumns <- function(data, start.col, end.col){
@@ -49,7 +67,7 @@
 
 # Function to take average by a specified column. 
   AverageBy <- function(data, by, start.col, end.col){
-    library(dplyr)
+    # library(dplyr)
     # Column Variables of "totals" as a dataframe.
     colvars <<- names(data)
     # Get the first ID
@@ -137,3 +155,15 @@
     write.csv(as.data.frame(as.matrix(x)), paste("results/", name, ".csv", sep = ""))
   } 
 # ---------------------------------------------------------------------------------------------------------------  
+  
+  
+# ---------------------------------------------------------------------------------------------------------------
+  
+# ---------------------------------------------------------------------------------------------------------------
+  
+    
+
+  
+  
+    
+    

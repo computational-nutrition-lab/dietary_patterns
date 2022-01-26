@@ -25,7 +25,7 @@
 #
 
 # Set your working directory as to the main directory.
-# Session --> Set working directory --> Choose directory.
+  Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
   main.wd <- file.path(getwd())
@@ -46,26 +46,37 @@
 # If totals data is a csv:
 # totals <- read.csv(list.files(pattern = '\\Totals.csv$'))
 
+# Load your metadata if you have one. 
+  metadata <- read.csv("Metadata_1.csv", header=T)
+  
 # Come back to the main directory
   setwd(main.wd)
 # ---------------------------------------------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------------------------------------------
+# Remove specified rows of 'totals' in Metadata
+
+  # Show which has "yes" in the "Remove" column, and remove them.  
+  RemoveRows(data = totals, metadata.file = metadata)
+  # The resulting dataset, totals_selected, can be used for further analyses.
+# ---------------------------------------------------------------------------------------------------------------
+  
 # ---------------------------------------------------------------------------------------------------------------
 # If using each dataponit as is without averaging, 
 
 # Subset nutrients or food items data.
 # The columns specified as start.col, end.col, and all columns in between will be selected.
 # Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD", 64 variablees in total.
-  SubsetColumns(data = totals, start.col = "PROT",    end.col = "B12_ADD")  
+  SubsetColumns(data = totals_selected, start.col = "PROT",    end.col = "B12_ADD")  
 # Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS", 37 varialbes in total.
-  SubsetColumns(data = totals, start.col = "F_TOTAL", end.col = "A_DRINKS")  
+  SubsetColumns(data = totals_selected, start.col = "F_TOTAL", end.col = "A_DRINKS")  
 
 # pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
   KeepNonZeroVarColumns(data = subsetted)
   # "subsetted_non0var" is the dataframe to be used in the subsequent
-  colnames(subsetted_non0var)
   # collapse by correlation procedure.
+  colnames(subsetted_non0var)
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -73,9 +84,9 @@
 # Specify the data to be used, category to group by, and the range of columns (variables) 
 # to calculate the means of each variables
 # Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD"
-  AverageBy(data = totals, by = "UserName", start.col = "PROT", end.col = "B12_ADD")
+  AverageBy(data = totals_selected, by = "UserName", start.col = "PROT", end.col = "B12_ADD")
 # Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
-  AverageBy(data = totals, by = "UserName", start.col = "F_TOTAL", end.col = "A_DRINKS")
+  AverageBy(data = totals_selected, by = "UserName", start.col = "F_TOTAL", end.col = "A_DRINKS")
 
 # Results are saved in this dataframe.  Probably too large to see as is.
   meansbycategorydf
@@ -122,8 +133,15 @@
 # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc, name = "corr_matrix")
 # ---------------------------------------------------------------------------------------------------------------
+
+
+
   
   
   
   
+  
+  
+  
+    
  

@@ -13,7 +13,7 @@
 # Find the optimum k. 
 
 # ---------------------------------------------------------------------------------------------------------------
-# Define your input file. Need to scale it to accomodate mesurements in different units.  
+# Define your input file. Need to scale it to accommodate measurements in different units.  
   colnames(selected_variables)  
   kmeans_input <- scale(selected_variables) # correlated variables removed.
   # kmeans_input <- subsetted_non0var  # before removing correlated variables.
@@ -193,9 +193,10 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Loop through multiple Ks
-  plots <- km.results <- list()
+  plots <- list()
+  km.results <- list()
   myKs <- c(2, 3, 15) 
-  myKs <- c(2, 3, 10, 15) 
+  myKs <- c(2, 3, 6, 15) 
   # Perform the k-means analysis, with the optimum number you found above as the 'centers'. 
   for(i in 1:length(myKs)){
     km.results[[i]] <- kmeans(x=kmeans_input, centers = myKs[i], nstart = 25)
@@ -207,15 +208,18 @@
   }
   # Name each element and make a combined plot.
   names(plots) <- c("K2", "K3", "K15")
-  grid.arrange(plots[[1]], plots[[2]], plots[[3]], nrow = 2)
+  gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], nrow = 2)
   
-  names(plots) <- c("K2", "K3", "K10", "K15")
-  grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], nrow = 2)
+  names(plots) <- c("K2", "K3", "K6", "K15")
+  gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], nrow = 2)
 
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
-# Function to 
+# Check the dependency packages of an R package
+  pack <- available.packages()
+  pack["ggplot2","Depends"]
+  pack["factoextra","Depends"]
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
