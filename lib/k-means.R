@@ -7,151 +7,134 @@
 # Created on 01.06.2022 by Rie Sadohara
 # ========================================================================================
 
-# Codes to build:
-# Collapse variables by correlation.  --OK!
-# option to average by participants or not. --> prep_data. -- OK!
-# Find the optimum k. 
-
-# ---------------------------------------------------------------------------------------------------------------
-# Define your input file. Need to scale it to accommodate measurements in different units.  
-  colnames(selected_variables)  
-  kmeans_input <- scale(selected_variables) # correlated variables removed.
-  # kmeans_input <- subsetted_non0var  # before removing correlated variables.
-
-# Set your ggplot2 theme.
-  require(ggplot2)
-  theme_set(theme_bw(base_size = 14))
-# ---------------------------------------------------------------------------------------------------------------
 
 # ========================================================================================
 # Find the ideal k
 #  Modified code from https://uc-r.github.io/kmeans_clustering
 # ========================================================================================
 # ---------------------------------------------------------------------------------------------------------------
-# Function to find the ideal k: Elbow method
-  set.seed(123)
-  
-  # function to compute total within-cluster sum of square 
-  wss <- function(k, data) {
-    kmeans(data, k, nstart = 25)$tot.withinss
+# Function to do the Elbow method.
+  ElbowMethod <- function(k.values=1:15){
+    set.seed(123)
+    
+    # Define a function to compute total within-cluster sum of square 
+    wss <- function(k, data) {
+      kmeans(data, k, nstart = 25)$tot.withinss
+    }
+
+    # extract wss for 2-15 clusters
+    wsstable <- data.frame(K=k.values, WithinClusterSS=NA)
+    for(i in k.values){
+      wssvalue <- wss(k.values[i], data = kmeans_input)
+      wsstable[i, 2] <- wssvalue
+    }
+    
+    # create a wss value plot 
+    ggplot(wsstable, aes(x = K, y = WithinClusterSS)) + 
+      geom_line() + 
+      geom_point() +
+      scale_x_continuous(breaks = 1:nrow(wsstable)) +
+      labs(x = "Number of clusters K",
+           y = "Total within-clusters sum of squares") +
+      theme(panel.grid.major = element_blank()) +
+      theme(panel.grid.minor = element_blank()) +
+      theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+      theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+      theme(aspect.ratio = 0.9)
   }
-  
-  # Compute and plot wss for k = 1 to k = 15
-  k.values <- 1:15
-  
-  # extract wss for 2-15 clusters
-  wsstable <- data.frame(K=k.values, WithinClusterSS=NA)
-  for(i in k.values){
-    wssvalue <- wss(k.values[i], data = kmeans_input)
-    wsstable[i, 2] <- wssvalue
-  }
-  wsstable
-  
-  # Plot the within-clusters SS for each K, and look for the elbow 
-  # (= the first k at which the SS of k+1 is minimal)
-  require(ggplot2)
-  ggplot(wsstable, aes(x = K, y = WithinClusterSS)) + 
-    geom_line() + 
-    geom_point() +
-    scale_x_continuous(breaks = 1:nrow(wsstable)) +
-    labs(x = "Number of clusters K",
-         y = "Total within-clusters sum of squares") +
-    theme(panel.grid.major = element_blank()) +
-    theme(panel.grid.minor = element_blank()) +
-    theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
-    theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
-    theme(aspect.ratio = 0.9)
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
 # Find the ideal k: the Silhouette method
-  # need cluster package
-  library(cluster)
  
-  # function to compute average silhouette for k clusters
-  avg_sil <- function(k) {
-    km.res <- kmeans(kmeans_input, centers=k, nstart=25)
-    ss <<- silhouette(km.res$cluster, dist(kmeans_input))
-    mean(ss[, 3])
-  }
+ SilhouetteMethod <- function(k.values = 2:15){
+   # need the cluster package
+     library(cluster)
+
+   # Define avg_sil function first.
+     avg_sil <- function(number){
+       km.res <- kmeans(kmeans_input, centers=number, nstart=25)
+       ss <<- silhouette(km.res$cluster, dist(kmeans_input))
+       mean(ss[, 3])
+     }
+     
+   # Create a dataframe with k values.
+     siltable3  <- data.frame(K=k.values)
+   # Apply avg_sil function to each of the K and save results as a vector. 
+     resultvec <- apply(siltable3, MARGIN=1, FUN = avg_sil)
+   # Save the result vector as a new column of siltable.
+     siltable3$Avg_Silhouette <- resultvec
   
-  # Compute and plot wss for k = 2 to k = 15
-  k.values <- 2:15
-  # extract avg silhouette for 2-15 clusters (using map_dbl function)
-  avg_sil_values <- purrr::map_dbl(k.values, avg_sil)
-  avg_sil_values
-  
-      # extract avg silhouette values for 2-15 clusters (using base R functions)
-      siltable <- data.frame(K=k.values, Avg_Silhouette=NA)
-      for(i in k.values){
-        # silvalue <- avg_sil(k.values[i], data=kmeans_input )
-        silvalue <- avg_sil(k.values[i])
-        silvalue
-      }
-      avg_sil(k.values[15])
-      # Hmm?? error...   
- 
-  # Create a data frame with the sil values for plotting.
-  avg_sil_values_df <- data.frame(K=k.values, Avg_sil=avg_sil_values) 
-  
-  require(ggplot2)
-  ggplot(avg_sil_values_df, aes(x = K, y = Avg_sil)) + 
-    geom_line() + 
-    geom_point() +
-    scale_x_continuous(breaks = 1:nrow(avg_sil_values_df)) +
-    labs(x = "Number of clusters K",
-         y = "Average Silhouettes") +
-    theme(panel.grid.major = element_blank()) +
-    theme(panel.grid.minor = element_blank()) +
-    theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
-    theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
-    theme(aspect.ratio = 0.9)
-  # The K with the max average Silhouette value is the ideal K. 
-  
-  # Or use factoextra package to use the silhouette method to identify the optimum K.
-  factoextra::fviz_nbclust(kmeans_input, kmeans, method="silhouette")
-  # This plots 'average Silhouette width' instead of 'average Silhouette' for some reason.
-  # But the result (ideal K) is the same.
- 
+   # Plot K and the Silhouette values.    
+     ggplot(siltable3, aes(x = K, y = Avg_Silhouette)) + 
+       geom_line() + 
+       geom_point() +
+       scale_x_continuous(breaks = siltable3$K) +
+       labs(x = "Number of clusters K",
+            y = "Average Silhouettes") +
+       theme(panel.grid.major = element_blank()) +
+       theme(panel.grid.minor = element_blank()) +
+       theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+       theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+       theme(aspect.ratio = 0.9)
+     # The K with the max average Silhouette value is the ideal K. 
+   } 
+
 # ---------------------------------------------------------------------------------------------------------------
-# Find the ideal k: Gap static method
-  set.seed(123)
-  k.values <- 1:15
+
+# ---------------------------------------------------------------------------------------------------------------
+# Find the ideal k: Gap statistic method
+
+  GapMethod <- function(k.values=1:15){
+
+    # Calculate the gap statistic.
+    library(cluster)
+    gap_stat <- clusGap(kmeans_input, FUN = kmeans, nstart = 25,
+                        K.max = k.values[length(k.values)], 
+                        B=50) # B is the number of bootstrapping
+    # Print the result.
+    print(gap_stat, method = "firstmax")
+    
+    # Convert the table to a dataframe first.
+    gap_stat_df <- as.data.frame(gap_stat[1])
+    # Add the number of clusters as a new column.
+    gap_stat_df$NumberofK <- k.values 
+    
+    # Plot the gap statistic with ggplot2
+    require(ggplot2)
+    ggplot(gap_stat_df, aes(x=NumberofK, y=Tab.gap)) + 
+      geom_line() + 
+      geom_point() +
+      geom_errorbar(aes(ymin=Tab.gap-Tab.SE.sim, 
+                        ymax=Tab.gap+Tab.SE.sim),  
+                    width=0.2, 
+                    position=position_dodge(0.05)) +
+      scale_x_continuous(breaks = 1:nrow(gap_stat_df)) +
+      labs(x = "Number of clusters K",
+           y = "Gap stastistic") +
+      theme(panel.grid.major = element_blank()) +
+      theme(panel.grid.minor = element_blank()) +
+      theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+      theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+      theme(aspect.ratio = 0.9)
+    # The highest K is the optimum K. 
+  }
+
+  # Or use the factoextra package.
   
-  # Calculate the gap statistic.
-  library(cluster)
-  gap_stat <- clusGap(kmeans_input, FUN = kmeans, nstart = 25,
-                      K.max=15, #k.values[length(k.values)], 
-                      B=50) # B is the number of bootstrapping
-  # Print the result.
-  print(gap_stat, method = "firstmax")
-  
-  # Convert the table to a dataframe first.
-  gap_stat_df <- as.data.frame(gap_stat[1])
-  # Add the number of clusters as a new column.
-  gap_stat_df$NumberofK <- k.values 
-  
-  # Plot the gap statistic with ggplot2
-  require(ggplot2)
-  ggplot(gap_stat_df, aes(x=NumberofK, y=Tab.gap)) + 
-    geom_line() + 
-    geom_point() +
-    geom_errorbar(aes(ymin=Tab.gap-Tab.SE.sim, 
-                      ymax=Tab.gap+Tab.SE.sim),  
-                  width=0.2, 
-                  position=position_dodge(0.05)) +
-    scale_x_continuous(breaks = 1:nrow(gap_stat_df)) +
-    labs(x = "Number of clusters K",
-         y = "Gap stastistic") +
-    theme(panel.grid.major = element_blank()) +
-    theme(panel.grid.minor = element_blank()) +
-    theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
-    theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
-    theme(aspect.ratio = 0.9)
-  # The highest K is the optimum K. K=1??
-  
-  # or use factoextra package. 
-  factoextra::fviz_gap_stat(gap_stat)
+  FactoextraGapMethod <- function(k.values = 1:15){
+    
+    library(cluster)
+    # Calculate Gap statistics first.
+    gap_stat <- clusGap(kmeans_input, FUN = kmeans, nstart = 25,
+                        K.max = k.values[length(k.values)], 
+                        B=50) # B is the number of bootstrapping
+
+    # Print the result.
+    print(gap_stat, method = "firstmax")
+    # Visualize. The best K is marked with a dotted line. 
+    factoextra::fviz_gap_stat(gap_stat)
+  }
 # ---------------------------------------------------------------------------------------------------------------
   
   
@@ -163,7 +146,7 @@
 # Perform the k-means analysis, with the optimum number you found above as the 'centers'. 
   km.results <- kmeans(x=kmeans_input, centers = 15, nstart = 25)
 # Calculate the means of each variable for each cluster. 
-  aggregate(kmeans_input, by=list(cluster=km.results$cluster), mean)
+  aggregate(kmeans_input, by=list(cluster = km.results$cluster), mean)
 
 # Add the cluster assignment to the original data. 
   totals_cl <- cbind(totals, cluster = km.results$cluster)

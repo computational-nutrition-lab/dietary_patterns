@@ -38,14 +38,50 @@
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
-# Perform k-means analysis.
+# Define your input file. Need to scale it to accommodate measurements in different units.  
+  colnames(selected_variables)  
+  kmeans_input <- scale(selected_variables) # correlated variables removed.
+  # kmeans_input <- subsetted_non0var  # before removing correlated variables.
+  
+# Set your ggplot2 theme.
+  require(ggplot2)
+  theme_set(theme_bw(base_size = 14))
+# ---------------------------------------------------------------------------------------------------------------
+
   
 # ---------------------------------------------------------------------------------------------------------------
+# Use the elbow method to find the ideal K.
+  ElbowMethod(k.values = 1:15)
   
 # ---------------------------------------------------------------------------------------------------------------
-# Another section.
 
 # ---------------------------------------------------------------------------------------------------------------
-  
+# Use the Silhouette method to find the ideal K.  Uses cluster package.
+  SilhouetteMethod(k.values = 2:15)
 
+# or use the factoextra package to use the Silhouette method.
+  factoextra::fviz_nbclust(kmeans_input, kmeans, method="silhouette")
+  # This plots 'average Silhouette width' instead of 'average Silhouette'.
+# ---------------------------------------------------------------------------------------------------------------
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Use the Gap statistic method to find the ideal K. 
+  set.seed(123)
+  GapMethod(k.values = 1:15)
+  
+# or use the factoextra package to use the Gap statistic method. 
+  set.seed(123)
+  FactoextraGapMethod(k.values = 1:15)
+# ---------------------------------------------------------------------------------------------------------------
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Perform k-means analysis with one specified k. 
+  
+# ---------------------------------------------------------------------------------------------------------------
+
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Perform k-means analysis with multiple ks. 
+
+# ---------------------------------------------------------------------------------------------------------------
   
