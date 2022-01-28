@@ -2,7 +2,6 @@
 
 # ========================================================================================
 # k-means clustering 
-#  
 # Version 1
 # Created on 01.06.2022 by Rie Sadohara
 # ========================================================================================
@@ -142,70 +141,62 @@
 # The optimum k should have been identified by now.
 #  Do the k-means analysis with your optimum k. 
 # ========================================================================================
-# ---------------------------------------------------------------------------------------------------------------
-# Perform the k-means analysis, with the optimum number you found above as the 'centers'. 
-  km.results <- kmeans(x=kmeans_input, centers = 15, nstart = 25)
-# Calculate the means of each variable for each cluster. 
-  aggregate(kmeans_input, by=list(cluster = km.results$cluster), mean)
-
-# Add the cluster assignment to the original data. 
-  totals_cl <- cbind(totals, cluster = km.results$cluster)
-
-# Filter for a particular cluster.
-  library(dplyr)
-  mysubset <- as.data.frame(totals_cl) %>% filter(cluster==13)
-# Let's see if they have something in common...
-  table(mysubset$UserName)
-  table(mysubset$X.SampleID)
-  table(mysubset$StudyDayNo)
-  
-# ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
-# Use factoextra package for now, but I could just use ggplot2.
-  library(ggplot2)
-  factoextra::fviz_cluster(km.results, 
-                           data = kmeans_input, 
-                           ellipse = T, ellipse.alpha = 0.1,  
-                           ggtheme = theme_bw(base_size = 10),
-                           repel = F, labelsize = 10)
-# make a panel with the 4 charts.
-  library(gridExtra)
-  grid.arrange(k2, k3, k4, k5, nrow = 2)
+# Perform k-means analysis with one specified number and plot it.
+  One_K <- function(myK){
+    # k-means analysis
+    km_results_one <- kmeans(x=kmeans_input, centers = myK, nstart = 25)
+    # Define your plot title
+    plot_title_one <- paste("K=", myK, sep = "")
+    factoextra::fviz_cluster(km_results_one, 
+                             data = kmeans_input, 
+                             ellipse = T, ellipse.alpha = 0.1,  
+                             ggtheme = theme_bw(base_size = 10),
+                             repel = F, labelsize = 10,
+                             main = plot_title_one)
+}
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
 # Loop through multiple Ks
-  plots <- list()
-  km.results <- list()
-  myKs <- c(2, 3, 15) 
-  myKs <- c(2, 3, 6, 15) 
-  # Perform the k-means analysis, with the optimum number you found above as the 'centers'. 
-  for(i in 1:length(myKs)){
-    km.results[[i]] <- kmeans(x=kmeans_input, centers = myKs[i], nstart = 25)
-    plots[[i]] = factoextra::fviz_cluster(km.results[[i]],
-                                          data = kmeans_input,
-                                          ellipse = T, ellipse.alpha = 0.1,
-                                          ggtheme = theme_bw(base_size = 10),
-                                          repel = F, labelsize = 10)
+  MultipleK <- function(myKs){
+    
+    plots <- list()
+    km_results_mult <- list()
+
+      # Perform the k-means analysis, with the optimum number you found above as the 'centers'. 
+      for(i in 1:length(myKs)){
+        # k-means analysis
+        km_results_mult[[i]] <- kmeans(x=kmeans_input, centers = myKs[i], nstart = 25)
+        # Define title for each K
+        plot_title <- paste("K=", myKs[i], sep = "")
+        # Plot
+        plots[[i]] = factoextra::fviz_cluster(km_results_mult[[i]],
+                                              data = kmeans_input,
+                                              ellipse = T, ellipse.alpha = 0.1,
+                                              ggtheme = theme_bw(base_size = 10),
+                                              repel = F, labelsize = 10,
+                                              main = plot_title)
+      }
+    
+    # Install the gridExtra package if needed.
+    if(!require("gridExtra"))install.packages("gridExtra")
+    
+    if(length(myKs)==2){
+      gridExtra::grid.arrange(plots[[1]], plots[[2]], nrow = round(length(myKs)/2))
+    }
+    else if(length(myKs)==3){
+      gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], nrow = round(length(myKs)/2))
+    }
+    else if(length(myKs)==4){
+      gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], nrow = round(length(myKs)/2))
+    }
+    else{
+      cat("Only 2-4 plots can be created at one time.", "\n",
+          "Please enter 2-4 K values and run again.")
+    }
   }
-  # Name each element and make a combined plot.
-  names(plots) <- c("K2", "K3", "K15")
-  gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], nrow = 2)
-  
-  names(plots) <- c("K2", "K3", "K6", "K15")
-  gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], nrow = 2)
-
 # ---------------------------------------------------------------------------------------------------------------
 
-# ---------------------------------------------------------------------------------------------------------------
-# Check the dependency packages of an R package
-  pack <- available.packages()
-  pack["ggplot2","Depends"]
-  pack["factoextra","Depends"]
-# ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# Function to 
-# ---------------------------------------------------------------------------------------------------------------
 

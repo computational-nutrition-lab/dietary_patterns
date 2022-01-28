@@ -34,7 +34,7 @@
 # Import source code to run the analyses to follow.
   source("lib/load_and_check.R")
   source("lib/prep_data.R")
-  # source("lib/k-means.R")
+  source("lib/k-means.R")
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -52,7 +52,6 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Use the elbow method to find the ideal K.
   ElbowMethod(k.values = 1:15)
-  
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -69,19 +68,38 @@
   set.seed(123)
   GapMethod(k.values = 1:15)
   
-# or use the factoextra package to use the Gap statistic method. 
+# Or use the factoextra package to use the Gap statistic method. 
   set.seed(123)
   FactoextraGapMethod(k.values = 1:15)
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with one specified k. 
-  
+  One_K(myK = 3)
 # ---------------------------------------------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------------------------------------------
+# Perform k-means analysis with multiple (2-4) Ks, and plot them in one window. 
+  MultipleK(myKs = c(2, 5, 10))
+# ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
-# Perform k-means analysis with multiple ks. 
-
+# For individuals, I think...
+        # Calculate the means of each variable for each cluster. 
+        aggregate(kmeans_input, by=list(cluster = km.results$cluster), mean)
+        
+        # Add the cluster assignment to the original data. 
+        totals_cl <- cbind(totals, cluster = km.results$cluster)
+        
+        # Filter for a particular cluster.
+        library(dplyr)
+        mysubset <- as.data.frame(totals_cl) %>% filter(cluster==13)
+        
+        # Let's see if they have something in common...
+        table(mysubset$UserName)
+        table(mysubset$X.SampleID)
+        table(mysubset$StudyDayNo)
+  
 # ---------------------------------------------------------------------------------------------------------------
+  
   
