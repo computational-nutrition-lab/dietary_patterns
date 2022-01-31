@@ -39,16 +39,15 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Define your input file. Need to scale it to accommodate measurements in different units.  
-  colnames(selected_variables)  
+  colnames(selected_variables)
   kmeans_input <- scale(selected_variables) # correlated variables removed.
   # kmeans_input <- subsetted_non0var  # before removing correlated variables.
-  
-# Set your ggplot2 theme.
+
+  # Set your ggplot2 theme.
   require(ggplot2)
   theme_set(theme_bw(base_size = 14))
 # ---------------------------------------------------------------------------------------------------------------
 
-  
 # ---------------------------------------------------------------------------------------------------------------
 # Use the elbow method to find the ideal K.
   ElbowMethod(k.values = 1:15)
@@ -75,12 +74,12 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with one specified k. 
-  One_K(myK = 3)
+  One_K(myK = 2)
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with multiple (2-4) Ks, and plot them in one window. 
-  MultipleK(myKs = c(2, 5, 10))
+  MultipleK(myKs = c(2, 3, 4, 5))
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------

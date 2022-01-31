@@ -14,7 +14,7 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Function to do the Elbow method.
   ElbowMethod <- function(k.values=1:15){
-    set.seed(123)
+    # set.seed(123)
     
     # Define a function to compute total within-cluster sum of square 
     wss <- function(k, data) {

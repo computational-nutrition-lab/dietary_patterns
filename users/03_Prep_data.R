@@ -112,7 +112,7 @@
                                    select.rep.fcn = 'mean', verbose = T)
   
 # Filter out highly correlated variables from the original dataset.  
-  selected_variables <-  subsetted_non0var[, cbc_res$reps]
+  selected_variables <- subsetted_non0var[, cbc_res$reps]
 
 # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   

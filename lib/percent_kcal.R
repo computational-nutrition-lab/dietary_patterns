@@ -10,103 +10,73 @@
 # ========================================================================================
 # Calculation for plotting 
 # ========================================================================================
-
-# Calculate the mean kcal from carb/protein/fat per participant
-  CalcKcal <- function(){
+# ---------------------------------------------------------------------------------------------------------------
+# Calculate the mean kcal from carb/protein/fat per participant, no other factors.
+# Since this is an average of all the food items they reported, SD doesn't really make sense. 
+# (because SD will be the variability of kcal among the food items one person reported.)
+  CalcKcal_user <- function(){
+    # Get means (g) for each user and save as a separate dataframe. 
+    PROTsum <- aggregate(totals$PROT, by = list(totals$UserName), FUN = sum)
+    TFATsum <- aggregate(totals$TFAT, by = list(totals$UserName), FUN = sum)
+    CARBsum <- aggregate(totals$CARB, by = list(totals$UserName), FUN = sum)
+    colnames(PROTsum) <- c("UserName", "PROT_sum_g")  
+    colnames(TFATsum) <- c("UserName", "TFAT_sum_g")  
+    colnames(CARBsum) <- c("UserName", "CARB_sum_g")  
     
-    # Calculate percentage of calories from macronutrients per total calorie intake.
-    totals$PROT_pk <<- totals$PROT * 4 / totals$KCAL * 100
-    totals$TFAT_pk <<- totals$TFAT * 9 / totals$KCAL * 100
-    totals$CARB_pk <<- totals$CARB * 4 / totals$KCAL * 100
-    
-    # Add a column of total calories. Should be close to 100. 
-    totals$pktotal <<- totals$PROT_pk + totals$TFAT_pk + totals$CARB_pk 
-    
-    # Get means for each user ----------------------------------------------------------------
-    PROTmeans <<- aggregate(totals$PROT_pk, by = list(totals$UserName), FUN = mean)
-    TFATmeans <<- aggregate(totals$TFAT_pk, by = list(totals$UserName), FUN = mean)
-    CARBmeans <<- aggregate(totals$CARB_pk, by = list(totals$UserName), FUN = mean)
-    colnames(PROTmeans) <<- c("UserName", "PROT_mean")  
-    colnames(TFATmeans) <<- c("UserName", "TFAT_mean")  
-    colnames(CARBmeans) <<- c("UserName", "CARB_mean")  
+    # Calculate the calories for each macronutrient. 
+    PROTsum$PROT_sum_kcal <- PROTsum$PROT_sum * 4
+    TFATsum$TFAT_sum_kcal <- TFATsum$TFAT_sum * 9
+    CARBsum$CARB_sum_kcal <- CARBsum$CARB_sum * 4
     
     # Combine the three tables
-    temp1 <<- merge(PROTmeans, TFATmeans, all = T)
-    macronutr.mean <<- merge(temp1, CARBmeans, all = T)
+    temp1 <- merge(PROTsum, TFATsum, all = T)
+    macronutr.sum <- merge(temp1, CARBsum, all = T)
+    
+    # Add a column of mean total calories per item/user. 
+    macronutr.sum$total_kcal <- macronutr.sum$PROT_sum_kcal +  
+      macronutr.sum$TFAT_sum_kcal +
+      macronutr.sum$CARB_sum_kcal 
+    
+    # Add a column of percentage of kcal/macronutrient
+    macronutr.sum$PROT_pk <- macronutr.sum$PROT_sum_kcal / macronutr.sum$total_kcal *100
+    macronutr.sum$TFAT_pk <- macronutr.sum$TFAT_sum_kcal / macronutr.sum$total_kcal *100
+    macronutr.sum$CARB_pk <- macronutr.sum$CARB_sum_kcal / macronutr.sum$total_kcal *100
     
     # Modify the dataframe structure for plotting.
-    mean.p <<- macronutr.mean[, c("UserName",  "PROT_mean")]
-    mean.t <<- macronutr.mean[, c("UserName",  "TFAT_mean")]
-    mean.c <<- macronutr.mean[, c("UserName",  "CARB_mean")]
+    mean.p <- macronutr.sum[, c("UserName",  "PROT_pk")]
+    mean.t <- macronutr.sum[, c("UserName",  "TFAT_pk")]
+    mean.c <- macronutr.sum[, c("UserName",  "CARB_pk")]
     
     # Add a column of macronutrients
-    mean.p$macronutrient <<- colnames(mean.p)[2]
-    mean.t$macronutrient <<- colnames(mean.t)[2]
-    mean.c$macronutrient <<- colnames(mean.c)[2]
+    mean.p$macronutrient <- "PROT"
+    mean.t$macronutrient <- "TFAT"
+    mean.c$macronutrient <- "CARB"
     
     # Change XXXX_pk to "value"
-    colnames(mean.p)[2] <<- colnames(mean.t)[2] <<- colnames(mean.c)[2] <<- "value"
+    colnames(mean.p)[2] <- colnames(mean.t)[2] <- colnames(mean.c)[2] <- "value"
     
     # Bind the 3 datasets
-    bound <<- rbind(mean.p, mean.t, mean.c)
-    macronutr.mean.l <<- bound[, c(1,3,2)] # sort columns
+    bound <- rbind(mean.p, mean.t, mean.c)
+    macronutr.mean.l <- bound[, c(1,3,2)] # sort columns
     
     # Check the dimention of the macronutr.mean.l (for programmers)
     # dim(macronutr.mean.l)  # l means a long table.
-    
-    # Same for SD ---------------------------------------------------------------------
-    PROTsd <<- aggregate(totals$PROT_pk, by = list(totals$UserName), FUN = sd)
-    TFATsd <<- aggregate(totals$TFAT_pk, by = list(totals$UserName), FUN = sd)
-    CARBsd <<- aggregate(totals$CARB_pk, by = list(totals$UserName), FUN = sd)
-    colnames(PROTsd) <<- c("UserName", "PROT_sd")  
-    colnames(TFATsd) <<- c("UserName", "TFAT_sd")  
-    colnames(CARBsd) <<- c("UserName", "CARB_sd")  
-    
-    # Combine the three tables 
-    temp2 <<- merge(PROTsd, TFATsd, all = T)
-    macronutr.sd <<- merge(temp2, CARBsd, all = T)
-    head(macronutr.sd)
-    
-    # Modify the dataframe structure for plotting.
-    sd.p <<- macronutr.sd[, c("UserName",  "PROT_sd")]
-    sd.t <<- macronutr.sd[, c("UserName",  "TFAT_sd")]
-    sd.c <<- macronutr.sd[, c("UserName",  "CARB_sd")]
-    head(sd.t,3)
-    
-    # Add a column of macronutrients
-    sd.p$macronutrient <<- colnames(sd.p)[2]
-    sd.t$macronutrient <<- colnames(sd.t)[2]
-    sd.c$macronutrient <<- colnames(sd.c)[2]
-    
-    # Change sd_xx to "value"
-    colnames(sd.p)[2] <<- colnames(sd.t)[2] <<- colnames(sd.c)[2] <<- "value"
-    
-    # Bind the 3 datasets
-    bound <<- rbind(sd.p, sd.t, sd.c)
-    macronutr.sd.l <<- bound[, c(1,3,2)] # sort columns
-    dim(macronutr.sd.l)
-    head(macronutr.mean.l) # l means a long table.
-    
-    # Make macronutrient a factor for plotting. 
-    macronutr.mean.l$macronutrient <<- factor(macronutr.mean.l$macronutrient)
-    
-    # Confirm that 'macronutrient' is a factor now. (for programmers)
-    # str(macronutr.mean.l$macronutrient)
-
   }
+# ---------------------------------------------------------------------------------------------------------------
 
 # ========================================================================================
 # Plot stacked barcharts 
 # ========================================================================================
 
-# Plot the mean kcal from carbs, protein, and fat by participant (normalized)-------------
+# ---------------------------------------------------------------------------------------------------------------
+# Plot the mean kcal from carbs, protein, and fat by participant (normalized)
   NormalizedPercentKcal <- function(){
     
     cat("Showing a normalized stacked barchart.", "\n")
     
     library(ggplot2)
     bwoe <<- ggplot(macronutr.mean.l,
-                    aes(x = UserName, y = value, fill = macronutrient)) + 
+                    aes(x = factor(UserName), y = value, fill = macronutrient)) + 
       geom_bar(position = "fill", stat = "identity", colour = "black", width = 0.7) +
       theme_bw(base_size = 10) +
       # scale_fill_manual(values = my15colors ) +
@@ -119,8 +89,11 @@
       theme(aspect.ratio = 0.4)
     bwoe
   }
-
-# Plot the mean kcal from carbs, protein, and fat by participant (non-normalized)-------------
+# ---------------------------------------------------------------------------------------------------------------
+  
+# ---------------------------------------------------------------------------------------------------------------
+# If there are factor(s) that can group participants, SD will be meaningful.
+# Plot the mean kcal from carbs, protein, and fat by participant (non-normalized)
   NonNormalizedPercentKcal <- function(show.sd = TRUE){
     
     if(show.sd == TRUE){ # default
@@ -171,7 +144,7 @@
     bwe
     }
     
-    if(show.sd == FALSE){
+    else if(show.sd == FALSE){
       
       cat("Showing a non-normalized stacked barchart without error bars.", "\n")
       
@@ -193,5 +166,5 @@
     }  
   
   }
-  
+# --------------------------------------------------------------------------------------------------------------- 
 
