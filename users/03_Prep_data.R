@@ -41,24 +41,43 @@
 # SpecifyDataDirectory(directory.name = "eg_data/salt/")
 
 # Load the totals.csv
-  totals <- read.table("Totals_to_use.txt",  sep = "\t", header = T)
+  totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
 
 # If totals data is a csv:
 # totals <- read.csv(list.files(pattern = '\\Totals.csv$'))
 
+# Load the items.csv
+  items <- read.table("Items_to_use.txt", quote = "", sep = "\t", header = T)
+    
 # Load your metadata if you have one. 
-  metadata <- read.csv("Metadata_1.csv", header=T)
+  metadata_1 <- read.csv("Metadata_1.csv", header=T)
+  metadata_2 <- read.csv("Food_map_txt_Metadata_2.csv", header=T)
   
 # Come back to the main directory
   setwd(main.wd)
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
-# Remove specified rows of 'totals' in Metadata
+# Remove specified rows of 'totals' in metadata_1 (Metadata_1)
 
   # Show which has "yes" in the "Remove" column, and remove them.  
-  RemoveRows(data = totals, metadata.file = metadata)
+  RemoveRows(data = totals, metadata.file = metadata_1)
   # The resulting dataset, totals_selected, can be used for further analyses.
+# ---------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------
+# Use metadata_2
+# Create metadata_3 that has gender, age, height, weight, BMI, and Waist.Circumference, 
+  # which did not change over the study days (i.e. only one data per person)
+  
+# Take only the first row of each participant. 
+  metadata_3 <- metadata_2[!duplicated(metadata_2$UserName), 
+                           c("UserName", "Gender", "Age", "Weight", "Height", "BMI", "Waist.Circumference")] 
+  head(metadata_3)
+  
+# Add this metadata of each participant in totals. 
+  totals_selected <- merge(x=totals_selected, y=metadata_3, by="UserName", all.x=T)
+
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -134,14 +153,3 @@
   SaveCorrMatrix(x=cc, name = "corr_matrix")
 # ---------------------------------------------------------------------------------------------------------------
 
-
-
-  
-  
-  
-  
-  
-  
-  
-    
- 
