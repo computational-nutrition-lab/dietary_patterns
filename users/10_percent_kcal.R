@@ -30,7 +30,7 @@
   main.wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  source("lib/load_and_check.R")
+  source("lib/specify_dir_and_check_col.R")
   source("lib/percent_kcal.R")
 
 # Load example totals data =============================================================== 
