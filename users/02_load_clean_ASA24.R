@@ -11,6 +11,13 @@
 # ========================================================================================
 # 
 # ---------------------------------------------------------------------------------------------------------------
+
+# Set your working directory as to the main directory.
+  Session --> Set working directory --> Choose directory.
+
+# Name your main directory for future use. 
+  main.wd <- file.path(getwd())
+
 # Load your metadata if you have one. 
   metadata_1 <- read.csv("Metadata_1.csv", header=T)
   metadata_2 <- read.csv("Food_map_txt_Metadata_2.csv", header=T)
