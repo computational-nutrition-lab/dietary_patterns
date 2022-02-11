@@ -49,37 +49,10 @@
 # Load the items.csv
   items <- read.table("Items_to_use.txt", quote = "", sep = "\t", header = T)
     
-# Load your metadata if you have one. 
-  metadata_1 <- read.csv("Metadata_1.csv", header=T)
-  metadata_2 <- read.csv("Food_map_txt_Metadata_2.csv", header=T)
-  
 # Come back to the main directory
   setwd(main.wd)
 # ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# Remove specified rows of 'totals' in metadata_1 (Metadata_1)
-
-  # Show which has "yes" in the "Remove" column, and remove them.  
-  RemoveRows(data = totals, metadata.file = metadata_1)
-  # The resulting dataset, totals_selected, can be used for further analyses.
-# ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# Use metadata_2
-# Create metadata_3 that has gender, age, height, weight, BMI, and Waist.Circumference, 
-  # which did not change over the study days (i.e. only one data per person)
-  
-# Take only the first row of each participant. 
-  metadata_3 <- metadata_2[!duplicated(metadata_2$UserName), 
-                           c("UserName", "Gender", "Age", "Weight", "Height", "BMI", "Waist.Circumference")] 
-  head(metadata_3)
-  
-# Add this metadata of each participant in totals. 
-  totals_selected <- merge(x=totals_selected, y=metadata_3, by="UserName", all.x=T)
-
-# ---------------------------------------------------------------------------------------------------------------
-  
+ 
 # ---------------------------------------------------------------------------------------------------------------
 # If using each dataponit as is without averaging, 
 
