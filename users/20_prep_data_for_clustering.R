@@ -35,7 +35,7 @@
   source("lib/prep_data_for_clustering.R")
 
 # ---------------------------------------------------------------------------------------------------------------
-# Load example totals data  
+# Load totals data  
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
 # SpecifyDataDirectory(directory.name = "eg_data/salt/")

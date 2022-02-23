@@ -50,10 +50,10 @@
   
   # Load your Items data.
     Items_raw <- read.csv("VVKAJ_2021-11-09_7963_Items_NoCommas.csv", sep = ",", header=T)
-    dim(Items_raw)
-    head(Items_raw, 2)
-    Items_raw[, 130]
-  
+ 
+  # Load your totals data if ready to go.
+    totals <- read.csv("VVKAJ_2021-11-09_7963_Totals.csv", sep = ",", header=T)
+    
   # Come back to the main directory
     setwd(main.wd)
   
@@ -63,6 +63,7 @@
 # Use metadata to filter 
 # ========================================================================================  
 # ---------------------------------------------------------------------------------------------------------------
+  # Use metadata_1
   # Remove specified rows of 'totals' in metadata_1 (Metadata_1)
   
   # Show which has "yes" in the "Remove" column, and remove them.  

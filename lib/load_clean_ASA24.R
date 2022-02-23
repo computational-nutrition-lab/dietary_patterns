@@ -88,7 +88,7 @@
   
   # Get the type of occasion (breakfast, just a drink etc.) by user & by occasion.
   AddOccNames <- function(items.data, User.Name='UserName', 
-                          Recall.No='RecallNo', Occ.No='Occ_No', Occ.Name='Occ_Name'  ){
+                          Recall.No='RecallNo', Occ.No='Occ_No', Occ.Name='Occ_Name'){
       
       subsetted2 <<- items.data[, c(User.Name,  Recall.No,  Occ.No,  Occ.Name)]
       
