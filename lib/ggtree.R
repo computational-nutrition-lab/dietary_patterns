@@ -102,10 +102,11 @@
   L1sref
   
   # Merge the shortnodelabels to L1s
-  merged1 <- merge(x=L1s, y=L1sref, all.x=T, by='nodelabels' ) # all.x=T ignores items in y that is missing in x. 
+  merged1 <- merge(x=L1s, y=L1sref, all.x=T, by='nodelabels') # all.x=T ignores items in y that is missing in x. 
   
   # merge() sorts rows automatically, so need to re-sort it to the original order - by seqnum.
-  L1s <- merged1[order(merged1$seqnum), c(1,5,2:4,6:7) ]
+  # and sort the columns also so that nodelabels (column 1) and shortnodelabels (column 5) will be next to each other.
+  L1s <- merged1[order(merged1$seqnum), c(1,5,2:4,6:7)]
   
   # Ensure the nodelabels and shortnodelabels are matching.
   L1s
@@ -118,7 +119,7 @@
   
   
   # highlight and annotate L1s using the nodenumbers. 
-  tree_ann_hili <- ggtree(tree, ladderize = F, layout = 'circular') +
+  tree_an_hi <- ggtree(tree, ladderize = F, layout = 'circular') +
     # geom_text(aes(label=node), hjust= -0.3) +
     geom_hilight(   node=L1nodenum[1],  fill=L1hilightcolors[1]) +  # Milk products
     geom_cladelabel(node=L1nodenum[1], color=  L1labelcolors[1], label=L1nodelabels[1], offset=0.5, geom="label", fill='white', hjust=0.5) + 
@@ -138,14 +139,17 @@
     geom_cladelabel(node=L1nodenum[8], color=  L1labelcolors[8], label=L1nodelabels[8], offset=0.5, geom="label", fill='white', hjust=0.5) + 
     geom_hilight(   node=L1nodenum[9],  fill=L1hilightcolors[9]) +  # Sweets & beverages
     geom_cladelabel(node=L1nodenum[9], color=  L1labelcolors[9], label=L1nodelabels[9], offset=0.5, geom="label", fill='white', hjust=0.5)   
-  tree_ann_hili
+  tree_an_hi
   
-  # Rotate the tree so that the root (break) will come to the bottom 
-  tree_ann_hili_rt270 <- rotate_tree(tree_ann_hili, 270)
-  tree_ann_hili_rt270
+  # Widen the opening of the tree  
+  tree_an_hi_o <- open_tree(tree_an_hi, 10)
+
+  # Rotate the tree so that the root (break) will come to the bottom
+  tree_an_hi_o_rt275 <- rotate_tree(tree_an_hi_o, 275) # 270 + 10*0.5 
+  tree_an_hi_o_rt275
 
 # Save the tree with the food names.
-  ggsave("MCT_Lv4_ann_hili7x7_rt270.tif", tree_ann_hili_rt270, width=7, height=7, device='tiff', dpi=200)
+  ggsave("MCT_Lv4_ann_hili7x7_rt270.tif", tree_an_hi_o_rt275, width=7, height=7, device='tiff', dpi=200)
   
 # ---------------------------------------------------------------------------------------------------------------
   
