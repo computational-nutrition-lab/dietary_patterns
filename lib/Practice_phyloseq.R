@@ -1,35 +1,35 @@
 # Practice phyloseq to calculate unifrac distance.
 
-BiocManager::install('phyloseq')
-library(phyloseq)
-
-library("phyloseq"); packageVersion("phyloseq")
-library("ggplot2"); packageVersion("ggplot2")
-
-set.seed(711)
-theme_set(theme_bw())
-fontsize = 18L
-theme_update(axis.title.x = element_text(size=fontsize))
-theme_update(axis.title.y = element_text(size=fontsize))
-theme_update(plot.title = element_text(size=fontsize+2))
+  # BiocManager::install('phyloseq')
+  library(phyloseq)
+  
+  library("phyloseq"); packageVersion("phyloseq")
+  library("ggplot2"); packageVersion("ggplot2")
+  
+  set.seed(711)
+  theme_set(theme_bw())
+  fontsize = 18L
+  theme_update(axis.title.x = element_text(size=fontsize))
+  theme_update(axis.title.y = element_text(size=fontsize))
+  theme_update(plot.title   = element_text(size=fontsize+2))
 
 # Load a small example dataset
-data(esophagus)
-esophagus
+  data(esophagus)
+  esophagus
 
-data(enterotype)
-enterotype
-enterotype <- subset_taxa(enterotype, Genus != "-1")
-head(otu_table(enterotype))
-# dist_methods <- unlist(distanceMethodList)
-# print(dist_methods)
+  data(enterotype)
+  enterotype
+  enterotype <- subset_taxa(enterotype, Genus != "-1")
+  head(otu_table(enterotype))
 
 # These require tree
-  dist_methods[(1:3)]
+#  dist_methods <- unlist(distanceMethodList)
+#  dist_methods[(1:3)]
 
 # Draw a tree
+  library(ggtree)
   ggtree(phy_tree(esophagus), layout = 'circular')
-
+  
 # ---------------------------------------------------------------------------------------------------------------
 # Compare unifrac distance argument options. 
 # calc unifrac distance, weighted, normalized 
@@ -49,14 +49,14 @@ head(otu_table(enterotype))
 # this returns B-C 0.5175
 
 # ---------------------------------------------------------------------------------------------------------------
-# Compare the methods in the distance() function 
+# Compare the methods in the distance() function in phyloseq. 
 # calc unifrac distance with 'unifrac'- UNweighted unifrac. # Does the same as weighted=F  
   distance(esophagus, method='unifrac', phy_tree(esophagus))
-# this returns B-C 0.2035. 
+# this returns B-C 0.5175. 
 
 # calc unifrac distance with 'wunifrac'- weighted unifrac. # Does the same as weighted=TRUE and normalized=TRUE 
   distance(esophagus, method='wunifrac', phy_tree(esophagus))
-# this returns B-C 0.5175. 
+# this returns B-C 0.2035. 
 
 # use 'dpcoa' = sample-wise distance used in Double Principle Coordinate Analysis, DPCoA
   distance(esophagus, method='dpcoa', phy_tree(esophagus))
@@ -75,11 +75,14 @@ head(otu_table(enterotype))
   
 # ---------------------------------------------------------------------------------------------------------------
 # Borrow from the tutorial. 
+  library("plyr"); packageVersion("plyr")
+  
+  data("GlobalPatterns")
   GP = GlobalPatterns
   # Remove OTUs that do not show appear more than 5 times in more than half the samples
   wh0 = genefilter_sample(GP, filterfun_sample(function(x) x > 5), A=0.5*nsamples(GP))
   GP1 = prune_taxa(wh0, GP)
-  
+
   # Transform to even sampling depth.
   GP1 = transform_sample_counts(GP1, function(x) 1E6 * x/sum(x))
   
@@ -88,8 +91,11 @@ head(otu_table(enterotype))
   top5phyla = names(sort(phylum.sum, TRUE))[1:5]
   GP1 = prune_taxa((tax_table(GP1)[, "Phylum"] %in% top5phyla), GP1)
   # That still leave 204 OTUs in the dataset, GP1.
+
+  # calc unifrac distance, not weighted, not normalized
+  UniFrac(GP1, weighted=F, normalized=F, parallel=FALSE, fast=TRUE)
   
-  # Use ordinate function 
+  # Use ordinate function. NMDS=Non-metric multidimensional scaling
   GP.ord <- ordinate(GP1, method = "NMDS", distance = "bray")
   
   # plot
@@ -104,22 +110,25 @@ head(otu_table(enterotype))
   
   # We will want to investigate a major prior among the samples, which is that some are 
   #   human-associated microbiomes, and some are not. 
-  # Define a human-associated versus non-human categorical variable:
+  # Define a human-associated versus non-human categorical variable in 2 steps:
   ?get_variable
   
-  # Test if the contents of the 'SampleType' variable are either "Feces", "Mock", "Skin", or "Tongue", and
+  # 1. Test if the contents of the 'SampleType' variable are either "Feces", "Mock", "Skin", or "Tongue", and
   #   make a vector saving TRUE or FALSE for all the contents. 
   human = get_variable(GP1, "SampleType") %in% c("Feces", "Mock", "Skin", "Tongue")
   
-  # Make human column in sample_data(GP1) as a factor.
+  #2. Make human column in sample_data(GP1) as a factor.
   sample_data(GP1)$human <- factor(human)
   
   
 # ---------------------------------------------------------------------------------------------------------------
-# MDS ("PCoA") on Unifrac Distances (I think this is what I want???)
-  # Use the ordinate function to simultaneously perform weightd UniFrac and then perform a 
-  # Principal Coordinate Analysis on that distance matrix (first line). 
+# MDS ("PCoA") on Unifrac Distances. MDS=Multidimentional Scaling.   (I think this is what I want???)
+  # Use the ordinate function to simultaneously perform weighted UniFrac and then perform a 
+  # Principal Coordinate Analysis on that distance matrix. 
   ordu = ordinate(GP1, method = "PCoA", distance = "unifrac", weighted=TRUE)
+    # This one returns the same results as this one with "wunifrac":
+    # ordu = ordinate(GP1, method = "PCoA", distance = "wunifrac")
+  ?ordinate
   
   # Next pass that data and the ordination results to plot_ordination to create 
   # the ggplot2 output graphic with default ggplot2 settings.
@@ -127,15 +136,94 @@ head(otu_table(enterotype))
   p
   
   # Now make the graphic look nicer with a few additional ggplot2 layers.
-  p = p + geom_point(size=7, alpha=0.75)
-  p = p + scale_colour_brewer(type="qual", palette="Set1")
+  p <- p + geom_point(size=7, alpha=0.75)
+  p <- p + scale_colour_brewer(type="qual", palette="Set1")
   p + ggtitle("MDS/PCoA on weighted-UniFrac distance, GlobalPatterns")
-  
   
   p = ggplot(df, aes(Axis.1, Axis.2, color=SeqTech, shape=Enterotype))
   
+# ---------------------------------------------------------------------------------------------------------------
+  # Explore examples
+  data(GlobalPatterns)
+  data(enterotype)
+  data(esophagus)
+  data(soilrep)
+  example(enterotype, ask = F)
+  example(esophagus, ask = F)
+  ?esophagus
+  ?GlobalPatterns
+  ?enterotype
+  phy_tree(esophagus)
+  otu <- otu_table(GP1) # otu is an otu_table and a matrix.
+  tax <- tax_table(GP1) # tax is a  tax_table and a matrix.
+  sam <- sam_data(GP1)  # sam is a  tax_table and a matrix.
+  tre <- phy_tree(GP1)  # tre is a phylogenetic tree.
+  is(otu)
+  is(tax)
+  is(sam)
+  is(tre)
+  dim(otu)
+  dim(tax)
+  dim(sam)
+  dim(tre)
+  colnames(otu)
+  colnames(tax)
+  colnames(sam)
+  colnames(tre)
+  head(otu) # amount? 
+  head(tax) # Kingdom, Phylum, Class, etc.
+  head(sam) # Barcode sequence, sample type, description, human = T or F, etc. Info for plotting. 
+  head(tre) # lots of info.... 
   
-?distance
-?ordinate
+# ---------------------------------------------------------------------------------------------------------------
+# What I want to do is to run MDS/PCoA on weighted-UniFrac distance between foods..
+# esophagus is a small dataset, but can do ordination and plot.
+  ordu = ordinate(esophagus, method = "PCoA", distance = "unifrac", weighted=TRUE)
+  plot_ordination(esophagus, ordu) 
+  # esophagus only has otu_table and phy_tree. (tax_table, sam_data and ref_seq are NULL.)
+  # So, it seems possible to do ordinate with just otu_table and phy_tree. 
+  otu <- otu_table(esophagus) # otu is an otu_table and a matrix.
+  is(otu)
+  dim(otu) # 58 taxa and 3 samples.
+  head(otu, 10) 
+  library(ggtree)
+  ggtree(phy_tree(esophagus), layout = 'circular')
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Need to create a phyloseq object from my foodtree data, and use it for ordination. 
+# How to recreate phyloseq object. from ?import_mothur.
+  # The following example assumes you have downloaded the esophagus example
+  # dataset from the mothur wiki:
+  # "http://www.mothur.org/wiki/Esophageal_community_analysis"
+  # "http://www.mothur.org/w/images/5/55/Esophagus.zip"
+  mothur_list_file  <- "E:/MSU OneDrive 20210829/UMinn/esophagus/Esophagus/esophagus.fn.list" # original script says 'an.list'...
+  mothur_group_file <- "E:/MSU OneDrive 20210829/UMinn/esophagus/Esophagus/esophagus.good.groups" 
+  mothur_tree_file  <- "E:/MSU OneDrive 20210829/UMinn/esophagus/Esophagus/esophagus.tree" 
+  
+  # # Actual examples follow:
+  # Check which cutoff values are available in a given list file 
+  show_mothur_cutoffs(mothur_list_file)
+  
+  ?import_mothur
+  
+  recreated1 <- import_mothur(mothur_list_file, mothur_group_file, mothur_tree_file)
+  recreated2 <- import_mothur(mothur_list_file, mothur_group_file, mothur_tree_file, cutoff="0.02")
+  
+  # Create a tree file out of list and tree file.
+  tre_r <- import_mothur(mothur_list_file, mothur_tree_file=mothur_tree_file)
+  # Can be visualized by ggtree.
+  ggtree(tre_r, layout = "circular")
+  
+  # Make an otu_table out of list and group files.
+  otu_r <- import_mothur(mothur_list_file, mothur_group_file=mothur_group_file)
+  dim(otu_r)
+  head(otu_r, 15)
+  
+    # Make shared file out of list and group files.
+    install.packages('mothur') # mothur pkg is not available for this version of R....
+    if (!requireNamespace("BiocManager", quietly=T)) install.packages("BiocManager") 
+    BiocManager::install("mothur")
+    shared_r <- make_shared(mothur_list_file, mothur_group_file=mothur_group_file)
 
 
+    

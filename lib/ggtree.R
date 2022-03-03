@@ -31,7 +31,7 @@
     geom_tiplab()
 
   # Use ggtree
-  ggtree(tree, ladderize = F) + # disable ladderizing (sorting by ggtree, CRITICAL!!!)
+  ggtree(tree, ladderize = F, layout = 'radial') + # disable ladderizing (sorting by ggtree, CRITICAL!!!)
     geom_tiplab()
   
   # Plot a circular tree. - hard to see with lots of samples
@@ -119,7 +119,7 @@
   
   
   # highlight and annotate L1s using the nodenumbers. 
-  tree_an_hi <- ggtree(tree, ladderize = F, layout = 'circular') +
+  tree_an_hi <- ggtree(tree, ladderize = F, layout = 'radial') +
     # geom_text(aes(label=node), hjust= -0.3) +
     geom_hilight(   node=L1nodenum[1],  fill=L1hilightcolors[1]) +  # Milk products
     geom_cladelabel(node=L1nodenum[1], color=  L1labelcolors[1], label=L1nodelabels[1], offset=0.5, geom="label", fill='white', hjust=0.5) + 
@@ -149,7 +149,7 @@
   tree_an_hi_o_rt275
 
 # Save the tree with the food names.
-  ggsave("MCT_Lv4_ann_hili7x7_rt270.tif", tree_an_hi_o_rt275, width=7, height=7, device='tiff', dpi=200)
+  ggsave("MCT_Lv4_ann_hili7x7_rt270_rd.tif", tree_an_hi_o_rt275, width=7, height=7, device='tiff', dpi=200)
   
 # ---------------------------------------------------------------------------------------------------------------
   
