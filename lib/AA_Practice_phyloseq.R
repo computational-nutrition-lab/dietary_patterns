@@ -97,10 +97,19 @@
   
   # Use ordinate function. NMDS=Non-metric multidimensional scaling
   GP.ord <- ordinate(GP1, method = "NMDS", distance = "bray")
+  GP.ord <- ordinate(GP1, method = "PCoA", distance = "unifrac", weighted=TRUE)
   
   # plot
+  p1 = plot_ordination(GP1, GP.ord, color="Phylum", type="taxa", title="taxa")
+  p1
+  p1 + facet_wrap(~Phylum, 3)
+  
+  p2 = plot_ordination(GP1, GP.ord, type="samples", color="SampleType", shape="human") 
+  p2 + geom_polygon(aes(fill=SampleType)) + geom_point(size=5) + ggtitle("samples")
+  
   p3 = plot_ordination(GP1, GP.ord, type="biplot", color="SampleType", shape="Phylum", title="biplot")
   p3
+  
   # Some stuff to modify the automatic shape scale
   GP1.shape.names = get_taxa_unique(GP1, "Phylum")
   GP1.shape <- 15:(15 + length(GP1.shape.names) - 1)
@@ -174,6 +183,8 @@
   head(tax) # Kingdom, Phylum, Class, etc.
   head(sam) # Barcode sequence, sample type, description, human = T or F, etc. Info for plotting. 
   head(tre) # lots of info.... 
+  length(taxa_names(otu))
+  length(taxa_names(tax))
   
 # ---------------------------------------------------------------------------------------------------------------
 # What I want to do is to run MDS/PCoA on weighted-UniFrac distance between foods..
@@ -215,7 +226,7 @@
   ggtree(tre_r, layout = "circular")
   
   # Make an otu_table out of list and group files.
-  otu_r <- import_mothur(mothur_list_file, mothur_group_file=mothur_group_file)
+  otu_r <- import_mothur(mothur_list_file, mothur_group_file)
   dim(otu_r)
   head(otu_r, 15)
   
@@ -225,5 +236,7 @@
     BiocManager::install("mothur")
     shared_r <- make_shared(mothur_list_file, mothur_group_file=mothur_group_file)
 
-
+  
+  tree = read_tree(treefile)
+    
     
