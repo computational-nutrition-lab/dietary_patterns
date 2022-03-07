@@ -135,7 +135,7 @@
   # Use the ordinate function to simultaneously perform weighted UniFrac and then perform a 
   # Principal Coordinate Analysis on that distance matrix. 
   ordu = ordinate(GP1, method = "PCoA", distance = "unifrac", weighted=TRUE)
-    # This one returns the same results as this one with "wunifrac":
+    # This one returns the same results as this line with "wunifrac":
     # ordu = ordinate(GP1, method = "PCoA", distance = "wunifrac")
   ?ordinate
   

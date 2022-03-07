@@ -4,11 +4,15 @@
 # Version 1
 # Created on 03/02/2022 by Abby Johnson and Rie Sadohara
 # ======================================================================================== 
-
-
 # format the data parts
   require(phyloseq)
   require(tidyr)
+  require(ggplot2)
+  theme_set(theme_bw())
+  fontsize = 18L
+  theme_update(axis.title.x = element_text(size=fontsize))
+  theme_update(axis.title.y = element_text(size=fontsize))
+  theme_update(plot.title   = element_text(size=fontsize+2))
 
 # need OTU table - this is our food OTU data
 # food <- read.delim("Dropbox/dietstudy/data/processed_food/dhydrt.txt", row.names = 1)
@@ -33,7 +37,7 @@
   colnames(tax)
   tax <- tax[, -length(colnames(tax))]
 
-  head(tax[, "L4"], 20)
+  head(tax[, "L5"], 20)
 
 # Samples - this is our meta data file
   # meta <- read.delim("Dropbox/dietstudy/data/maps/SampleID_map.txt", row.names = 1, check.names = F)
@@ -116,16 +120,17 @@
 # --------------------------------------------------------------------------------------------------------
 # Use the ordinate function to simultaneously perform weighted UniFrac and then perform a 
   # Principal Coordinate Analysis on that distance matrix. 
-  ordmct3 = phyloseq::ordinate(phyfoods3, method = "PCoA", distance = "unifrac", weighted=TRUE)  
+  ordmct3 = phyloseq::ordinate(phyfoods3, method="PCoA", distance="unifrac", weighted=TRUE)  
   
   # plot foods (taxa).
   p1 = plot_ordination(phyfoods3, ordmct3, color="L1", type="taxa", title="taxa(foods)")
-  p1
+  p1 + geom_point(size=2) + theme(aspect.ratio = 1)
   
   # plot samples (by gender, timing, people, etc as in the meta file)
   p2 = plot_ordination(phyfoods3, ordmct3, type="samples", color="Gender") 
   p2 = plot_ordination(phyfoods3, ordmct3, type="samples", color="UserName") # ordmct3(weighted) & UserName 
   p2 + geom_point(size=2) + theme(aspect.ratio = 1) + stat_ellipse()
+  p2 + geom_point(size=2) + theme(aspect.ratio = 1) + geom_line()
   
   # make a polygon by UserName
   p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) + theme(aspect.ratio=1) + ggtitle("samples") 
@@ -156,16 +161,16 @@
   head(sortedv1name)
   table(sortedv1name$UserName)
   sortedv1name[, 1:4]
-  # The green points are MCTs08 (n=16) and MCTs11 (n=1). 
-  # Where are the other MCTs11?
+  # The green points are MCTs08 (n=16) and MCTs10 (n=1). 
+  # Where are the other MCTs10?
   dim(vectors)
   vectors$MCTXXX <- rownames(vectors)
   # merge full 
   vectorsplusmeta <- merge(vectors, meta, by="MCTXXX", all.x=T) 
   head(vectorsplusmeta)
   MCT11 <- subset(vectorsplusmeta, UserName=="MCTs11")
-  MCT11[, 1:4]
-  plot(MCT11$vectors.Axis.1, MCT11$vectors.Axis.2)
+  MCT10[, 1:4]
+  plot(MCT10$vectors.Axis.1, MCT10$vectors.Axis.2)
   
 # --------------------------------------------------------------------------------------------------------
 # unweighted UniFrac, to compare with Johnson et al. 2019 paper 
@@ -177,6 +182,7 @@
   # plot samples (by gender, timing, people, etc as in the meta file)
   p2 = plot_ordination(phyfoods3, ordmct4, type="samples", color="UserName") # ordmct4(unweighted) & UserName
   p2 + geom_point(size=2) + theme(aspect.ratio = 1) + stat_ellipse()
+  p2 + geom_point(size=2) + theme(aspect.ratio = 1) + geom_line()
   
   # make a polygon by UserName
   p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) + theme(aspect.ratio=1) + ggtitle("samples") 
@@ -185,6 +191,11 @@
   # plot both foods (taxa) and samples (people)
   p3 = plot_ordination(phyfoods3, ordmct4, type="biplot", shape="L1", color="UserName", title="biplot") 
   p3
+  
+# --------------------------------------------------------------------------------------------------------  
+# What are the purple points in taxa(foods) plot that are so far away from everyone else?
+# -- Not sure, ordmct4 only has vectors for samples, not taxa(foods). So... not sure how it's 
+  # making the taxa plot without the actual values.
   
 # --------------------------------------------------------------------------------------------------------  
 # What are the green points in samples plot by UserName that are far away from everyone else?
@@ -213,19 +224,39 @@
   dim(sortedv1)
   head(sortedv1)
  
+# --------------------------------------------------------------------------------------------------------
+# Use the ordinate function to simultaneously perform weighted UniFrac and then perform a 
+  # Double Principal Coordinate Analysis on that distance matrix. 
+  ordmct5 = phyloseq::ordinate(phyfoods3, method = "DPCoA", distance="unifrac") #, weighted=TRUE)  
+# Takes too much time!! More than 16 min and not finished yet.
   
-  
-  
-  # Now make the graphic look nicer with a few additional ggplot2 layers.
-  p <- p + geom_point(size=1, alpha=0.75)
-  p <- p + scale_colour_brewer(type="qual", palette="Set1")
-  p + ggtitle("MDS/PCoA on weighted-UniFrac distance, GlobalPatterns")
-  
-  
-  phyfoodsplustree <- phyloseq::merge_phyloseq(phyfoods, mcttree1)
-  phyfoodsplustree
-  phy_tree(phyfoodsplustree)
-  
+  # A quick eg of DPCoA with esophagus.
+  # But esophagus has only 3 samples and no metadata, so cannot create color-coded plots. 
+  data(esophagus)
+  eso3 = phyloseq::ordinate(esophagus, method = "PCoA", distance="unifrac", weighted=T)
+  eso4 = phyloseq::ordinate(esophagus, method = "PCoA", distance="unifrac", weighted=F)
+  eso5 = phyloseq::ordinate(esophagus, method = "DPCoA", distance="unifrac")
+  plot_ordination(esophagus, eso5, type="taxa", title="Taxa(esophagus)") + geom_point(size=2) + theme(aspect.ratio = 1)
+  plot_ordination(esophagus, eso5, type="samples", title="Samples(esophagus)") +
+    geom_point(size=2) + geom_line() + theme(aspect.ratio = 1)
+  plot_ordination(esophagus, eso5, type="biplot", title="Biplot(esophagus)") + theme(aspect.ratio=1)
+  plot_scree(eso5, title = "scree plot(esophagus)")
+ 
+  # A quick eg of DPCoA with GP1.
+  data(enterotype)
+  GP1_3 = phyloseq::ordinate(GP1, method = "PCoA", distance="unifrac", weighted=T)
+  GP1_4 = phyloseq::ordinate(GP1, method = "PCoA", distance="unifrac", weighted=F)
+  GP1_5 = phyloseq::ordinate(GP1, method = "DPCoA", distance="unifrac")
+  plot_ordination(GP1, GP1_5, type="taxa", title="Taxa(GP1)", color="Phylum") + geom_point(size=2) + theme(aspect.ratio = 1)
+  plot_ordination(GP1, GP1_5, type="samples", title="Samples(GP1)", color="SampleType") +
+    geom_point(size=2) + geom_line() + theme(aspect.ratio = 1)
+  plot_ordination(GP1, GP1_5, type="biplot", title="Biplot(GP1)", color="SampleType") + theme(aspect.ratio=1)
+  plot_scree(GP1_3, title="scree plot(GP1)")
+  # method="DPCoA" runs fine with a small dataset like GP1, but takes too long with large datasets like MCT (7 MB)
+  # If do not want to worry about dataset size, just use PCoA with weighted unifrac distance...
+  # Or let users choose DPCoA if they want to try.
+ 
+ 
 
 
   
