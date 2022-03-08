@@ -22,7 +22,7 @@
   enterotype <- subset_taxa(enterotype, Genus != "-1")
   head(otu_table(enterotype))
 
-# These require tree
+# These require a tree
 #  dist_methods <- unlist(distanceMethodList)
 #  dist_methods[(1:3)]
 
@@ -131,7 +131,7 @@
   
   
 # ---------------------------------------------------------------------------------------------------------------
-# MDS ("PCoA") on Unifrac Distances. MDS=Multidimentional Scaling.   (I think this is what I want???)
+# MDS ("PCoA") on Unifrac Distances. MDS=Multidimentional Scaling.   (I think this is what I want)
   # Use the ordinate function to simultaneously perform weighted UniFrac and then perform a 
   # Principal Coordinate Analysis on that distance matrix. 
   ordu = ordinate(GP1, method = "PCoA", distance = "unifrac", weighted=TRUE)
@@ -200,43 +200,3 @@
   library(ggtree)
   ggtree(phy_tree(esophagus), layout = 'circular')
   
-# ---------------------------------------------------------------------------------------------------------------
-# Need to create a phyloseq object from my foodtree data, and use it for ordination. 
-# How to recreate phyloseq object. from ?import_mothur.
-  # The following example assumes you have downloaded the esophagus example
-  # dataset from the mothur wiki:
-  # "http://www.mothur.org/wiki/Esophageal_community_analysis"
-  # "http://www.mothur.org/w/images/5/55/Esophagus.zip"
-  mothur_list_file  <- "E:/MSU OneDrive 20210829/UMinn/esophagus/Esophagus/esophagus.fn.list" # original script says 'an.list'...
-  mothur_group_file <- "E:/MSU OneDrive 20210829/UMinn/esophagus/Esophagus/esophagus.good.groups" 
-  mothur_tree_file  <- "E:/MSU OneDrive 20210829/UMinn/esophagus/Esophagus/esophagus.tree" 
-  
-  # # Actual examples follow:
-  # Check which cutoff values are available in a given list file 
-  show_mothur_cutoffs(mothur_list_file)
-  
-  ?import_mothur
-  
-  recreated1 <- import_mothur(mothur_list_file, mothur_group_file, mothur_tree_file)
-  recreated2 <- import_mothur(mothur_list_file, mothur_group_file, mothur_tree_file, cutoff="0.02")
-  
-  # Create a tree file out of list and tree file.
-  tre_r <- import_mothur(mothur_list_file, mothur_tree_file=mothur_tree_file)
-  # Can be visualized by ggtree.
-  ggtree(tre_r, layout = "circular")
-  
-  # Make an otu_table out of list and group files.
-  otu_r <- import_mothur(mothur_list_file, mothur_group_file)
-  dim(otu_r)
-  head(otu_r, 15)
-  
-    # Make shared file out of list and group files.
-    install.packages('mothur') # mothur pkg is not available for this version of R....
-    if (!requireNamespace("BiocManager", quietly=T)) install.packages("BiocManager") 
-    BiocManager::install("mothur")
-    shared_r <- make_shared(mothur_list_file, mothur_group_file=mothur_group_file)
-
-  
-  tree = read_tree(treefile)
-    
-    
