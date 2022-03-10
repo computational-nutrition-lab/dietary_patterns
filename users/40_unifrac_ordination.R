@@ -14,13 +14,15 @@
 # Import necessary functions and data
 # Folder structure 
 # 
+#                          |----- data ---- Food_tree_data
+#                          |
 #                          |----- eg_data 
 #                          |
 #                          |----- lib --- source codes are here
 #                          |
 #                          |----- users --- this script is here
 #  Main -------------------|
-#  (dietary_patterns)      |----- results
+#  (dietary_patterns)      |----- results ---- Food_tree_results
 #                          |
 #                          |----- ...
 #
@@ -166,10 +168,6 @@
   
  
 
-  
-  
-  
-  
   
   
   
