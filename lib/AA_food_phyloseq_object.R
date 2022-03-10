@@ -14,47 +14,57 @@
   theme_update(axis.title.y = element_text(size=fontsize))
   theme_update(plot.title   = element_text(size=fontsize+2))
 
-# need OTU table - this is our food OTU data
+# --------------------------------------------------------------------------------------------------------
+# Load and format OTU, taxonomy, metadata, and tree files to create phyloseq objects.
+# At least OTU and tree are necessary to create a phyloseq object.
+
+# format OTU table - this is our food OTU data
 # food <- read.delim("Dropbox/dietstudy/data/processed_food/dhydrt.txt", row.names = 1)
   food <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
   food <- food[, !colnames(food) == "taxonomy"] # remove taxonomy column
+  
+  #transform to matrix
+  food_mat <- as.matrix(food)
+  
+  # transform to phyloseq objects
+  OTU <- phyloseq::otu_table(food_mat, taxa_are_rows = TRUE)
 
-# Taxonomy - this is the taxonomy data from food tree code, but forced into a tabular format
+# format Taxonomy - this is the taxonomy data from food tree code, but forced into a tabular format
 # tax <- read.delim("Dropbox/Food_Tree/R/output/mct.taxonomy.txt")
   tax <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.taxonomy.txt")
   colnames(tax)
   head(tax, 2)
   row.names(tax) <- tax$Main.food.description # Make food description as the row names
-  tax <- tax[, !colnames(tax) == "FoodID"] # remove FoodID column
+  tax <- tax[, !colnames(tax) == "FoodID"] # remove FoodID column 
 
-# need to spread out the taxonomy column, separate on the ; delimiter; then label columns L1, L2, L3, etc.
+  # need to spread out the taxonomy column, separate on the ; delimiter; then label columns L1, L2, L3, etc.
   # tax <- tidyr::separate(tax, taxonomy, into = c("L1", "L2", "L3", "L4", "L5", "L6"), sep = ";")
   # There are only L1-L5.
   tax <- tidyr::separate(tax, taxonomy, into = c("L1", "L2", "L3", "L4", "L5"), sep = ";")
   tax <- tidyr::separate(tax, taxonomy, into = c("L1", "L2", "L3", "L4"), sep = ";")
   
-# drop the last column (Main.food.description because it's already made into row names.) 
+  # drop the last column (Main.food.description because it's already made into row names.) 
   colnames(tax)
   tax <- tax[, -length(colnames(tax))]
-
+  
   head(tax[, "L5"], 20)
 
+  #transform to matrix
+  tax_mat <- as.matrix(tax)
+
+  # transform to phyloseq objects
+  TAX <- phyloseq::tax_table(tax_mat)
+  
 # Samples - this is our meta data file
   # meta <- read.delim("Dropbox/dietstudy/data/maps/SampleID_map.txt", row.names = 1, check.names = F)
   meta <- read.csv( "C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv", 
                    row.names = 1, check.names = F)
 
-#subset meta to the correct samples
+  #subset meta to the correct samples
   meta <- meta[colnames(food), ]
   head(meta)
 
-#transform to matrix
-  food_mat <- as.matrix(food)
-  tax_mat <- as.matrix(tax)
-
-#transform to phyloseq objects
-  OTU <- phyloseq::otu_table(food_mat, taxa_are_rows = TRUE)
-  TAX <- phyloseq::tax_table(tax_mat)
+  # transform to phyloseq objects
   samples <- phyloseq::sample_data(meta)
 
 # Read a tree file
@@ -65,14 +75,17 @@
   is(mcttree1)
   head(OTU, 1)
 
+  # Check if the food names are the same in OTU, TAX, and mcttree1.
   head(taxa_names(OTU)) # 'Milk', "Milk cows fluid whole" etc.
   head(taxa_names(TAX)) # 'Milk', "Milk cows fluid whole" etc.
   head(taxa_names(mcttree1)) # "Milk_cows_fluid_whole" etc. need to replace underscores with spaces.
   
-# Replace '_' with spaces in the tree object.
+  # Replace '_' with spaces in the tree object.
   taxa_names(mcttree1) <- gsub('_', ' ', taxa_names(mcttree1))
   head(taxa_names(mcttree1)) 
 
+# --------------------------------------------------------------------------------------------------------
+# Create phyloseq objects!!
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
     # Make a phyloseq object with just OTU and mcttree1.
       phyfoods1 <- phyloseq(OTU, mcttree1) # works
@@ -118,7 +131,7 @@
   sample_variables(phyfoods3)
 
 # --------------------------------------------------------------------------------------------------------
-# Use the ordinate function to simultaneously perform weighted UniFrac and then perform a 
+# Use the ordinate function to perform weighted UniFrac and then perform a 
   # Principal Coordinate Analysis on that distance matrix. 
   ordmct3 = phyloseq::ordinate(phyfoods3, method="PCoA", distance="unifrac", weighted=TRUE)  
   
@@ -133,11 +146,12 @@
   p2 + geom_point(size=2) + theme(aspect.ratio = 1) + geom_line()
   
   # make a polygon by UserName
-  p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) + theme(aspect.ratio=1) + ggtitle("samples") 
+  p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) + theme(aspect.ratio=1) + ggtitle("Samples") 
   # messy because of poor clustering
   
   # plot both foods (taxa) and samples (people)
-  p3 = plot_ordination(phyfoods3, ordmct3, type="biplot", shape="L1", color="UserName", title="biplot") 
+  p3 = plot_ordination(phyfoods3, ordmct3, type="biplot", shape="L1", color="UserName", title="Biplot") +
+    scale_shape_manual(values = c(1:10)) + geom_point(size=2) + theme(aspect.ratio = 1) +
   p3
 
 # --------------------------------------------------------------------------------------------------------  
@@ -228,7 +242,7 @@
 # Use the ordinate function to simultaneously perform weighted UniFrac and then perform a 
   # Double Principal Coordinate Analysis on that distance matrix. 
   ordmct5 = phyloseq::ordinate(phyfoods3, method = "DPCoA", distance="unifrac") #, weighted=TRUE)  
-# Takes too much time!! More than 16 min and not finished yet.
+# Takes too much time!! More than 16 min with the MCT data and did not finish.
   
   # A quick eg of DPCoA with esophagus.
   # But esophagus has only 3 samples and no metadata, so cannot create color-coded plots. 
