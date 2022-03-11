@@ -57,26 +57,30 @@
   
 # Food
   # Load food OTU table - this is our food OTU data
-  food <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
+  # food <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
+  food <- read.delim("~/GitHub/R_Toolbox/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
   # Format the food file and create a otu_table called OTU.
   PrepFood(data=food)
   
 # Taxonomy (tax)
   # Load taxonomy file - this is the taxonomy data from food tree code, but forced into a tabular format
-  tax <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.taxonomy.txt")
+  # tax <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.taxonomy.txt")
+  tax <- read.delim("~/GitHub/R_Toolbox/Food_Tree-master/R/output/mct.reduced_4Lv.taxonomy.txt")
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data=tax)
   
 # Sample
   # Load metadata file which has samples in rows and characteristics (BMI, Gender, treatment etc.) as columns 
-  meta <- read.csv( "C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv", 
+  # meta <- read.csv( "C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv", 
+  meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv", 
                     row.names = 1, check.names = F)
   # Format the metafile and save it as 'SAMPLES'. 
   PrepMeta(data=meta)
 
 # Food tree
   # Load tree file - output from make.tree. Be sure the levels of taxonomy and tree are the same. 
-  foodtree <- read_tree("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.tree.nwk")
+  # foodtree <- read_tree("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.tree.nwk")
+  foodtree <- read_tree("~/GitHub/R_Toolbox/Food_Tree-master/R/output/mct.reduced_4Lv.tree.nwk")
   # It is OK to see a message saying that
     # "Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
     # Also defined by 'tidytree'"
@@ -86,24 +90,21 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Make a phyloseq object with OTU, TAX, samples, and foodtree.
   phyfoods <- phyloseq(OTU, TAX, SAMPLES, TREE)
-  # It is OK to see a message saying that
+  # It is OK to see a message (or multiple of them) saying that
     # Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
     # Also defined by 'tidytree'
 
 # Check your metadata
-  head(sample_names(phyfoods), n=6) # Change n to adjust the number of rows to show.
+  # Show the sample names. Change n to adjust the number of rows to show.
+  head(sample_names(phyfoods), n=6)  
+  # Show metadata. 
   head(sample_data(phyfoods), n=2)
+  # Show only the columns of metadata. 
   sample_variables(phyfoods)
 
 # Check the level 1 foods in your food tree 
   L1s = tax_table(phyfoods)[, "L1"]
   as.vector(unique(L1s))
-  
-  L1sdf <- as.data.frame(L1s)
-  head(L1sdf)
-  library(dplyr)
-  L1sdf %>% filter(!is.na(L1))
-
 # ---------------------------------------------------------------------------------------------------------------
 
 # ========================================================================================
@@ -128,9 +129,14 @@
   # Add ellipses at a desired confidence level. 
   p2 + stat_ellipse(level=0.95)
   
-  # Add lines to connect samples
-  p2 + geom_line()
-
+  # Add lines to connect samples in order of the variable on the x axis.
+  p2 + geom_line() + ggtitle("Users connected in the order of x axis") + 
+    theme(plot.title=element_text(size=16)) # Specify the font size of the title
+  
+  # Add lines to connect samples in the order in which they appear in the data.
+  p2 + geom_path() + ggtitle("Users connected in the order of data") 
+  + theme(plot.title=element_text(size=16))
+  
   # make a polygon by UserName
   p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) 
   # Could be messy with overlapping clusters and/or too many samples
@@ -153,7 +159,17 @@
   # Save as a .csv
   write.csv(x=axes_and_meta, "results/Ordination_Axis_Meta.csv")
 
-   
+# ---------------------------------------------------------------------------------------------------------------
+  # Generate and save distance matrices for use outside R.
+  unweighted_uni_dis <- distance(phyfoods, method="unifrac")
+  ###RESUME FROM HERE###
+  
+  
+  
+  
+  # Save as a .csv
+  write.csv(x=axes_and_meta, "results/Ordination_Axis_Meta.csv")
+     
 # ---------------------------------------------------------------------------------------------------------------
 # Perform Principal Coordinate Analysis (PCoA) with UNweighted unifrac distance of your food data.
   # This may take a few minutes depending on your data size.

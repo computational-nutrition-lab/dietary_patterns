@@ -51,8 +51,8 @@
   }
   
       # make a list of separated character strings in taxonomy. 
-      mysplit = strsplit(as.character(woFoodID$taxonomy), split=';' )
-      max(lengths(mysplit)) # what if the max is not 5, but 4 or something...??
+      #mysplit = strsplit(as.character(woFoodID$taxonomy), split=';' )
+      #max(lengths(mysplit)) # what if the max is not 5, but 4 or something...??
   
 
 # prep metadata.
@@ -77,6 +77,7 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Merge metadata and Axis values.
   MergeAxesAndMetadata <- function(ord.object, number.of.axes=4, meta=meta){
+    
     # extract all the Axis vectors
     allvectors <- as.data.frame(ord.object["vectors"])
     
