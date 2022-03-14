@@ -160,21 +160,23 @@
   write.csv(x=axes_and_meta, "results/Ordination_Axis_Meta.csv")
 
 # ---------------------------------------------------------------------------------------------------------------
-  # Generate and save distance matrices for use outside R.
-  unweighted_uni_dis <- distance(phyfoods, method="unifrac")
-  ###RESUME FROM HERE###
+# Generate and save an unweighted unifrac distance matrix for use outside R.  type="samples" only. 
+  unweighted_uni_dis <- as.matrix(distance(phyfoods, method="unifrac")) 
   
-  
-  
-  
-  # Save as a .csv
-  write.csv(x=axes_and_meta, "results/Ordination_Axis_Meta.csv")
-     
+# Generate and save an unweighted unifrac distance matrix for use outside R.  type="samples" only. 
+  weighted_uni_dis <- as.matrix(distance(phyfoods, method="wunifrac"))
+
+# Save as a .csv or tab-delimited .txt 
+  write.csv(x=unweighted_uni_dis, "~/GitHub/dietary_patterns/results/Food_tree_results/un-distance.csv")
+  write.table(x=weighted_uni_dis, "~/GitHub/dietary_patterns/results/Food_tree_results/wt-distance.txt", sep="\t")
+
 # ---------------------------------------------------------------------------------------------------------------
 # Perform Principal Coordinate Analysis (PCoA) with UNweighted unifrac distance of your food data.
   # This may take a few minutes depending on your data size.
   # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
   ordinated = phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=FALSE)  
+  
+  # Use the same code above for creating plots.
   
 # ---------------------------------------------------------------------------------------------------------------
 # With a small dataset,
