@@ -12,7 +12,7 @@ library(data.tree)
 library(dplyr)
 library(tidyr)
 library(reshape2)
-source('lib/Food tree scripts/newick.tree.r')
+source('lib/Food_tree_scripts/newick.tree.r')
 
 MakeFoodTree <- function(nodes_fn, food_database_fn, addl_foods_fn=NULL, output_tree_fn, output_taxonomy_fn, num.levels=5)
 {

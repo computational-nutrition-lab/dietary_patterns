@@ -34,7 +34,7 @@
 #                          |----- ...
 #
 
-# Set your working directory as to the main directory (dietary_patterns)
+# Set your working directory as the main directory (dietary_patterns)
   Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
@@ -76,18 +76,11 @@
   MakeFoodTree(nodes_fn=        "data/Food_tree_data/NodeLabelsMCT.txt", 
                food_database_fn="data/Food_tree_data/ASA24Database.txt", 
                addl_foods_fn= c("data/Food_tree_data/Soylent_codes_formatted.txt"), 
-               num.levels = 2,  # How many levels foods to be classified
+               num.levels = 2,  # How many levels of foods to be classified
                output_taxonomy_fn = "results/Food_tree_results/mct_Lv2.taxonomy.txt",  # Name your output taxonomy file
                output_tree_fn=      "results/Food_tree_results/mct_Lv2.tree.nwk"       # Name your output tree
                )
-  
-    # Check the tree
-      library(ggtree)
-      tree <- read.tree("results/Food_tree_results/mct.reduced_4Lv.tree.nwk")
-      # Use ggtree
-      ggtree(tree, ladderize = F, layout = 'radial')  # disable ladderizing (sorting by ggtree, CRITICAL!!!)
-        # geom_tiplab()
-  
+
 # ---------------------------------------------------------------------------------------------------------------
 # Limit to just the foods reported in your study (formatted dietrecords.txt as the input)
   filter.db.by.diet.records(food_database_fn = "data/Food_tree_data/ASA24Database.txt", 
@@ -121,86 +114,4 @@
                 food_taxonomy_fn= "results/Food_tree_results/mct.reduced_4Lv.taxonomy.txt", 
                 output_fn =       "results/Food_tree_results/mct.reduced_4Lv.dhydrt.otu.txt")
   
-  
 # ---------------------------------------------------------------------------------------------------------------
-  
-
-# COPY OF ORIGINAL WITH MCT DATA. TO BE DELETED ONCE ALL THE CODES ARE CONFIRMED TO WORK.
-  
-          # ========================================================================================
-          # Prep data
-          # ========================================================================================
-          
-          # Current ASA24 database doesn't have modcodes, so de-duplicate database file, 
-          # replace special characters with _, and create a new FoodID out of foodcode and modcode.
-          # It leaves all other columns intact.
-          FormatFoods(input_fn="../raw_data/all.food.desc.txt", output_fn="data/ASA24Database.txt")
-          
-          # soylent (?)
-          FormatFoods(input_fn="data/MCT/Soylent_codes.txt",   output_fn="data/MCT/Soylent_codes_formatted.txt")
-          
-          # Format your items data.
-          FormatFoods(input_fn="../raw_data/Items_to_use.txt", output_fn="data/MCT/dietrecords.txt", dedupe=F)
-          
-          
-          # ---------------------------------------------------------------------------------------------------------------
-          # Generate a tree with the whole ASA24 food database. 
-          # if there are missing foods, then create new files to add them in below under addl_foods
-          MakeFoodTree(nodes_fn=        "data/NodeLabelsMCT.txt", 
-                       food_database_fn="data/MCT/ASA24Database.txt", 
-                       addl_foods_fn= c("data/MCT/Soylent_codes_formatted.txt"), 
-                       num.levels = 2,  # How many levels foods to be classified
-                       output_taxonomy_fn = "output/mct_Lv2.taxonomy.txt",  # Name your output taxonomy file
-                       output_tree_fn=      "output/mct_Lv2.tree.nwk"       # Name your output tree
-          )
-          
-          library(ggtree)
-          tree <- read.tree("output/mct_Lv2.tree.nwk")
-          # Use ggtree
-          ggtree(tree, ladderize = F, layout = 'radial') + # disable ladderizing (sorting by ggtree, CRITICAL!!!)
-            geom_tiplab()
-          
-          # ---------------------------------------------------------------------------------------------------------------
-          # Limit to just the foods reported in your study (formatted dietrecords.txt as the input)
-          filter.db.by.diet.records(food_database_fn = "data/MCT/ASA24Database.txt", 
-                                    food_records_fn  = "data/MCT/dietrecords.txt",
-                                    output_fn = "data/MCT/MCTdatabase.txt")
-          
-          # make a food tree with the reduced data.
-          MakeFoodTree(nodes_fn=         "data/NodeLabelsMCT.txt", 
-                       food_database_fn= "data/MCT/MCTdatabase.txt", 
-                       addl_foods_fn=    "data/MCT/Soylent_codes_formatted.txt", 
-                       num.levels = 4,   
-                       output_taxonomy_fn = "output/mct.reduced_4Lv.taxonomy.txt",
-                       output_tree_fn=      "output/mct.reduced_4Lv.tree.nwk" 
-          )
-          
-          # Makes the standard food otu table with data in gram weights of food
-          MakeFoodOtu(food_records_fn=  "data/MCT/dietrecords.txt", 
-                      food_record_id =  "X.SampleID",                       # Specify the ID of your participants
-                      food_taxonomy_fn= "output/mct.reduced.taxonomy.txt",  # Name your output tax file.
-                      output_fn =       "output/mct.food.otu.txt")          # Name your output otu file.
-          
-          # Makes the food otu table with data in grams of fiber per food
-          MakeFiberOtu(food_records_fn=  "data/MCT/dietrecords.txt", 
-                       food_record_id =  "X.SampleID", 
-                       food_taxonomy_fn= "output/mct.reduced.taxonomy.txt", 
-                       output_fn =       "output/mct.fiber.otu.txt")
-          
-          # Makes the food otu table as dehydrated grams per kcal
-          MakeDhydrtOtu(food_records_fn=  "data/MCT/dietrecords.txt", 
-                        food_record_id =  "X.SampleID", 
-                        food_taxonomy_fn= "output/mct.reduced.taxonomy.txt", 
-                        output_fn =       "output/mct.dhydrt.otu.txt")
-          
-          
-          # ---------------------------------------------------------------------------------------------------------------
-          
-          
-          
-          
-          
-          
-          
-          
-          

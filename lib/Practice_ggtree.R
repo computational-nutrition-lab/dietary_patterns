@@ -14,30 +14,23 @@
   # Load your nwk tree.
 
   # VVKAJ
-  tree <- read.tree("output/VVKAJ.reduced_2Lv.tree.nwk")
-  tree
+  tree <- read.tree("results/Food_tree_results/VVKAJ.reduced_2Lv.tree.nwk")
 
-  # dietstudy (MCT)
-  tree <- read.tree("output/mct.reduced_2Lv.tree.nwk")
-  tree <- read.tree("output/mct.reduced_4Lv.tree.nwk")
-  tree
- 
-  # Use ggplot - horizontal
-  ggplot(tree, ladderize = F, aes(x, y) ) + # disable ladderizing (sorting nodes by ggtree, CRITICAL!!!)
-    geom_tree() + 
-    theme_tree() +
-    geom_tiplab()
+    # dietstudy (MCT)
+    tree <- read.tree("output/mct.reduced_2Lv.tree.nwk")
+    tree <- read.tree("output/mct.reduced_4Lv.tree.nwk")
+    tree
 
-  # Use ggtree
-  ggtree(tree, ladderize = F, layout = 'radial') + # disable ladderizing (sorting by ggtree, CRITICAL!!!)
+# Use ggtree to plot the tree. It is critical to have ladderize=F argument to preserve your L1 order.
+  ggtree(tree, ladderize=F, layout = 'radial') + # disable ladderizing (sorting by ggtree, CRITICAL!!!)
     geom_tiplab()
   
-  # Plot a circular tree. - hard to see with lots of samples
+# Plot a circular tree. - hard to see with lots of samples
   VVKAJtree <- ggtree(tree, ladderize = F, layout = 'circular') +
     geom_tiplab()
   VVKAJtree
   
-  # Save the tree with the food names.
+# Save the tree with the food names.
   ggsave("VVKAJ_2Lv_10x10_tip.tif", VVKAJtree, width=10, height=10, device='tiff', dpi=150)
   
   # Show the node numbers 
