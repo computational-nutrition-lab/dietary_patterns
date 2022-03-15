@@ -73,7 +73,7 @@
 # highlight and annotate L1s using the nodenumbers. 
   
   VizFoodTree <- function(input.tree=tree, layout= c("radial", "circular")){
-    tree_an_hi <- ggtree(input.tree, ladderize=F, layout = layout) +
+    tree_an_hi <<- ggtree(input.tree, ladderize=F, layout = layout) +
       # geom_text(aes(label=node), hjust= -0.3) +
       geom_hilight(   node=L1nodenum[1],  fill=L1hilightcolors[1]) +  # Milk products
       geom_cladelabel(node=L1nodenum[1], color=  L1labelcolors[1], label=L1nodelabels[1], offset=0.5, geom="label", fill='white', hjust=0.5) + 
@@ -93,10 +93,14 @@
       geom_cladelabel(node=L1nodenum[8], color=  L1labelcolors[8], label=L1nodelabels[8], offset=0.5, geom="label", fill='white', hjust=0.5) + 
       geom_hilight(   node=L1nodenum[9],  fill=L1hilightcolors[9]) +  # Sweets & beverages
       geom_cladelabel(node=L1nodenum[9], color=  L1labelcolors[9], label=L1nodelabels[9], offset=0.5, geom="label", fill='white', hjust=0.5) 
+    
+    # Widen the opening of the tree  
+    tree_an_hi_o <<- open_tree(tree_an_hi, 10)
+    
+    # Rotate the tree so that the root (break) will come to the bottom
+    tree_an_hi_o_rt <<- rotate_tree(tree_an_hi_o, 275) # 270 + 10*0.5 
+    
     } 
-  
 
-  
-  
 # ---------------------------------------------------------------------------------------------------------------
 
