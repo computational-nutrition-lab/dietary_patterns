@@ -6,9 +6,16 @@
 # Created on 02/04/2022 by Rie Sadohara
 # ========================================================================================
 
+# Use Metadata 1 to filter out individuals. 
+# Remove users that has only a small number of totals (days of record). - if you know which one to remove.  
+# Look for outliers in your totals by nutrient consumed on each day. 
+
+# Caclulate totals by occasion. - extra dataset. 
+
 # ========================================================================================
 # Load data
 # ========================================================================================
+
 # ---------------------------------------------------------------------------------------------------------------
 
 # Set your working directory as to the main directory.
@@ -31,14 +38,13 @@
   # Specify the directory where the data is.
     SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
     
-  # Load the totals.csv
-    totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
-  
   # Load the items.csv
     items <- read.table("Items_to_use.txt", quote = "", sep = "\t", header = T)
+  
+  # Load the totals.csv
+    totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
     
-  # Load your metadata if you have one. 
-    metadata_1 <- read.csv("Metadata_1.csv", header=T)
+
     metadata_2 <- read.csv("Food_map_txt_Metadata_2.csv", header=T)
     
   # Come back to the main directory
@@ -60,59 +66,59 @@
 # ---------------------------------------------------------------------------------------------------------------
 
 # ========================================================================================
-# Use metadata to filter 
+# Use metadata to filter out users marked as Remove = yes in metadata_1.  
 # ========================================================================================  
 # ---------------------------------------------------------------------------------------------------------------
-  # Use metadata_1
-  # Remove specified rows of 'totals' in metadata_1 (Metadata_1)
+# Load your metadata that has information about which UserName(s) to remove. 
+  metadata_1 <- read.delim("eg_data/VVKAJ101-105/VVKAJ_metadata_1.txt", header=T)
   
-  # Show which has "yes" in the "Remove" column, and remove them.  
-  RemoveRows(data = totals, metadata.file = metadata_1)
-  # The resulting dataset, totals_selected, can be used for further analyses.
+# Metadata for this purpose (Metadata_1) should look like this:
+    #     UserName Remove
+    # 1   MCTs01       
+    # 2   MCTs02    yes
+    # 3   MCTs03       
+    # 4   MCTs04       
+    # 5   MCTs05    yes
+    # 6   MCTs06       
+    # ... ...       ...
+  
+  # Show which has "yes" in the "Remove" column, and remove them. 
+  # Data after QC is named as selected_data, and is saved as a text file with the specified name. 
+  RemoveRows(data=totals, metadata.file=metadata_1, output.name="eg_data/VVKAJ101-105/selectedtotals.txt")
+  RemoveRows(data=Items_raw,  metadata.file=metadata_1, output.name="eg_data/VVKAJ101-105/selecteditems.txt")
+  
+  # Load these selected data for further QC.
+  totals_selected1 <- read.table("eg_data/VVKAJ101-105/selectedtotals.txt", header=T, sep="\t")
+  items_selected1 <- read.delim("eg_data/VVKAJ101-105/selecteditems.txt", header=T, sep="\t")
+    
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
-  # Use metadata_2
+  # Use metadata_2 with the participants' gender, age, height, weight, BMI, and Waist.Circumference, etc.
   # Create a unique list of participants that has their gender, age, height, weight, BMI, and Waist.Circumference, 
   # which did not change over the study days (i.e. only one data per person)
   
-  # Take only the first row of each participant. 
+  # Take only the first row of each participant (de-duplicate). 
   metadata_2_a <- metadata_2[!duplicated(metadata_2$UserName), 
                            c("UserName", "Gender", "Age", "Weight", "Height", "BMI", "Waist.Circumference")] 
   head(metadata_2_a)
   
-  # Add this metadata of each participant in totals. 
-  totals_selected <- merge(x=totals_selected, y=metadata_2_a, by="UserName", all.x=T)
+  # Add this metadata of each participant in totals. 'NA' will be inserted to UserName which is not in metadata_2_a.
+  totals_selected2 <- merge(x=totals, y=metadata_2_a, by="UserName", all.x=T)
+  
+  # A
+  
+  
+  table(totals_selected$UserName)
+  table(totals$UserName)
+  table(metadata_2$UserName)
+  colnames(totals_selected)
+  head(totals_selected[, c(1, 100, 112)], 20)
   
 # ---------------------------------------------------------------------------------------------------------------
 
 # ========================================================================================
-# Generate sum of foods consumed by each user, by day, and by occasion
-# ======================================================================================== 
-# Use VVKAJ data. ---------------------------------------------------------
-  SumByOccasion(items.data=Items_raw, User.Name='UserName', 
-                Recall.No='RecallNo',   Occ.No='Occ_No')
-
-  AddOccNames(items.data=Items_raw, User.Name='UserName', 
-              Recall.No='RecallNo', Occ.No='Occ_No', Occ.Name='Occ_Name'  )
-  # The output Sum_by_User_Day_Occ has the sum of foods consumed by each user, by day, and by occasion,
-  # with occasion names in word.
-  
-# Use diet_study data. -----------------------------------------------------
-  SumByOccasion(items.data=items, User.Name='UserName', 
-                Recall.No='RecordDayNo',   Occ.No='Occ_No')
-  
-  AddOccNames(items.data=items, User.Name='UserName', 
-              Recall.No='RecordDayNo', Occ.No='Occ_No', Occ.Name='Occ_Name')
-  
-  # Save as a csv file. ----------------------------------------------------
-  write.csv(Sum_by_User_Day_Occ, 'dietstudy_Sum_by_User_Day_Occ.csv')
-  # This will be useful if a researcher wants to look at the sum of each eating occasion 
-  # per participant. (Because Totals file sums all the occasions in one day.)
-  
-  
-# ========================================================================================
-# Generate new totals file if any edits were made. 
+# Generate new totals file if any edits were made to the items file. Output is called "New_totals" 
 # ======================================================================================== 
   # Use VVKAJ data. --------------------------------------------------------
   GenerateTotals(items.data=Items_raw, User.Name='UserName', Recall.No='RecallNo')
@@ -159,4 +165,11 @@
 # Save as "Totals_QCed.csv"
   write.csv(New_Totals, 'Totals_QCed.csv')
 # ---------------------------------------------------------------------------------------------------------------
+
+# ========================================================================================
+# Totals_QCed.csv
+# ========================================================================================   
+
+  
+  
   

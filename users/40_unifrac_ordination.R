@@ -58,21 +58,20 @@
 # Food
   # Load food OTU table - this is our food OTU data
   # food <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
-  food <- read.delim("~/GitHub/R_Toolbox/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
+  food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
   # Format the food file and create a otu_table called OTU.
   PrepFood(data=food)
   
 # Taxonomy (tax)
   # Load taxonomy file - this is the taxonomy data from food tree code, but forced into a tabular format
-  # tax <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.taxonomy.txt")
-  tax <- read.delim("~/GitHub/R_Toolbox/Food_Tree-master/R/output/mct.reduced_4Lv.taxonomy.txt")
+  # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.taxonomy.txt")
+  tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data=tax)
   
 # Sample
   # Load metadata file which has samples in rows and characteristics (BMI, Gender, treatment etc.) as columns 
-  # meta <- read.csv( "C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv", 
-  meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv", 
+  meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv",
                     row.names = 1, check.names = F)
   # Format the metafile and save it as 'SAMPLES'. 
   PrepMeta(data=meta)
@@ -80,7 +79,7 @@
 # Food tree
   # Load tree file - output from make.tree. Be sure the levels of taxonomy and tree are the same. 
   # foodtree <- read_tree("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.tree.nwk")
-  foodtree <- read_tree("~/GitHub/R_Toolbox/Food_Tree-master/R/output/mct.reduced_4Lv.tree.nwk")
+  foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
   # It is OK to see a message saying that
     # "Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
     # Also defined by 'tidytree'"
@@ -121,26 +120,43 @@
   p1 <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa") +
     geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Foods at L1")
   p1
+  p1df <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa", justDF = T)
   
 # Make a plot to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata
   p2 = plot_ordination(phyfoods, ordinated, type="samples", color="UserName") + 
     geom_point(size=2) + theme(aspect.ratio = 1) + ggtitle("Username")
+  p2
+    
+    # Add ellipses at a desired confidence level. 
+    p2 + stat_ellipse(level=0.95)
+    
+    # Add lines to connect samples in order of the variable on the x axis.
+    p2 + geom_line() + ggtitle("Users connected in the order of x axis") + 
+      theme(plot.title=element_text(size=16)) # Specify the font size of the title
+    
+    # Add lines to connect samples in the order in which they appear in the data.
+    p2 + geom_path() + ggtitle("Users connected in the order of data") + 
+      theme(plot.title=element_text(size=16))
+    
+    # make a polygon by UserName
+    p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) 
+    # Could be messy with overlapping clusters and/or too many samples
+    
+  # Specify colors for specific user(s) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # First, save the basic plot as a dataframe. 
+    p2df = plot_ordination(phyfoods, ordinated, type="samples", color="UserName", justDF=T) 
+    
+    # Filter for users
+    select_points <- subset(p2df, UserName=="MCTs11" | UserName=="MCTs12" )
+    head(select_points,2)
+    
+    # Add a layer of specific datapoints in different aethetics
+    ggplot(p2df, aes(x=Axis.1, y=Axis.2)) +
+      geom_point(aes(color=as.factor(UserName)), alpha=0.2)  +
+      geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
+      scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue"))
   
-  # Add ellipses at a desired confidence level. 
-  p2 + stat_ellipse(level=0.95)
-  
-  # Add lines to connect samples in order of the variable on the x axis.
-  p2 + geom_line() + ggtitle("Users connected in the order of x axis") + 
-    theme(plot.title=element_text(size=16)) # Specify the font size of the title
-  
-  # Add lines to connect samples in the order in which they appear in the data.
-  p2 + geom_path() + ggtitle("Users connected in the order of data") 
-  + theme(plot.title=element_text(size=16))
-  
-  # make a polygon by UserName
-  p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) 
-  # Could be messy with overlapping clusters and/or too many samples
-
+    
 # plot both foods (taxa) and samples (people)
   p3 = plot_ordination(phyfoods, ordinated, type="biplot", shape="L1", color="UserName") +
     scale_shape_manual(values=c(1:10)) + geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Biplot") +
@@ -183,6 +199,10 @@
 # Perform Double Principal Coordinate Analysis (DPCoA) which takes into account both distance and weight. 
   # This may take a long time depending on your data size.
   ordinated = phyloseq::ordinate(phyfoods, method="DPCoA", distance="unifrac")  
+  
+  
+  
+  
   
  
 

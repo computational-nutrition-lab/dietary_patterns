@@ -30,31 +30,82 @@
     # remove the FoodID column
     woFoodID <<- data[, !colnames(data) == "FoodID"]
 
-    # Split taxonomy L1, L2, L3 etc. by a semicolon, in lieu of
-    # tax <- tidyr::separate(tax, taxonomy, into = c("L1", "L2", "L3", "L4", "L5"), sep = ";")
-      n <- 1
-      for(i in strsplit(as.character(woFoodID$taxonomy), split=';')){
-        woFoodID[n, 'L1'] <<- i[[1]]
-        woFoodID[n, 'L2'] <<- i[[2]]
-        woFoodID[n, 'L3'] <<- i[[3]]
-        woFoodID[n, 'L4'] <<- i[[4]]
-        woFoodID[n, 'L5'] <<- i[[5]]
+    # Split taxonomy L1, L2, L3 etc. by a semicolon, in lieu of tidyr::separate
+    splittax <<- strsplit(as.character(tax$taxonomy), split=";")
+    # How many levels were created after splitting? 
+    max_n_levels <<- max(lengths(splittax))
+    
+    tax1 <<- woFoodID
+    n <- 1
+    
+    if(max_n_levels==1){
+      for(i in strsplit(as.character(tax$taxonomy), split=';')){
+        tax1[n, 'L1'] <- i[[1]]
         n <- n + 1
       }
-      
+    }else if(max_n_levels==2){
+      for(i in strsplit(as.character(tax$taxonomy), split=';')){
+        tax1[n, 'L1'] <- i[[1]]
+        tax1[n, 'L2'] <- i[[2]]
+        n <- n + 1
+      }
+    }else if(max_n_levels==3){
+      for(i in strsplit(as.character(tax$taxonomy), split=';')){
+        tax1[n, 'L1'] <- i[[1]]
+        tax1[n, 'L2'] <- i[[2]]
+        tax1[n, 'L3'] <- i[[3]]
+        n <- n + 1
+      }
+    }else if(max_n_levels==4){
+      for(i in strsplit(as.character(tax$taxonomy), split=';')){
+        tax1[n, 'L1'] <- i[[1]]
+        tax1[n, 'L2'] <- i[[2]]
+        tax1[n, 'L3'] <- i[[3]]
+        tax1[n, 'L4'] <- i[[4]]
+        n <- n + 1
+      }
+    }else if(max_n_levels==5){
+      for(i in strsplit(as.character(tax$taxonomy), split=';')){
+        tax1[n, 'L1'] <- i[[1]]
+        tax1[n, 'L2'] <- i[[2]]
+        tax1[n, 'L3'] <- i[[3]]
+        tax1[n, 'L4'] <- i[[4]]
+        tax1[n, 'L5'] <- i[[5]]
+        n <- n + 1
+      }
+    }else if(max_n_levels==6){
+      for(i in strsplit(as.character(tax$taxonomy), split=';')){
+        tax1[n, 'L1'] <- i[[1]]
+        tax1[n, 'L2'] <- i[[2]]
+        tax1[n, 'L3'] <- i[[3]]
+        tax1[n, 'L4'] <- i[[4]]
+        tax1[n, 'L5'] <- i[[5]]
+        tax1[n, 'L6'] <- i[[6]]
+        n <- n + 1
+      }
+    }else if(max_n_levels==7){
+      for(i in strsplit(as.character(tax$taxonomy), split=';')){
+        tax1[n, 'L1'] <- i[[1]]
+        tax1[n, 'L2'] <- i[[2]]
+        tax1[n, 'L3'] <- i[[3]]
+        tax1[n, 'L4'] <- i[[4]]
+        tax1[n, 'L5'] <- i[[5]]
+        tax1[n, 'L6'] <- i[[6]]
+        tax1[n, 'L7'] <- i[[7]]
+        n <- n + 1
+      }
+    }else{
+      cat("The number of levels are beyond the range of 1-6. Please check your input taxonomy file.")
+    }
+        
     # remove Main.food.description column, because it's already made into row names.
-    woFoodID2 <<- woFoodID[, !colnames(woFoodID) == "Main.food.description"]   
+    woFoodID2 <<- tax1[, !colnames(tax1) == "Main.food.description"]   
 
     # Transform to matrix, then to a tax_table object.
     tax_mat <<- as.matrix(woFoodID2)
     TAX <<- phyloseq::tax_table(tax_mat)
   }
   
-      # make a list of separated character strings in taxonomy. 
-      #mysplit = strsplit(as.character(woFoodID$taxonomy), split=';' )
-      #max(lengths(mysplit)) # what if the max is not 5, but 4 or something...??
-  
-
 # prep metadata.
   PrepMeta <- function(data=meta){
 

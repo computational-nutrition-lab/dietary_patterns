@@ -1,0 +1,7 @@
+name	value
+Geeks1	11
+Geeks2	15
+Geeks3	10
+Geeks4	23
+Geeks5	32
+Geeks6	53
