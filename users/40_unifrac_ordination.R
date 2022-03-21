@@ -59,12 +59,13 @@
   # Load food OTU table - this is our food OTU data
   # food <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
   food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
+  food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
   # Format the food file and create a otu_table called OTU.
   PrepFood(data=food)
   
 # Taxonomy (tax)
   # Load taxonomy file - this is the taxonomy data from food tree code, but forced into a tabular format
-  # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.taxonomy.txt")
+  tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.taxonomy.txt")
   tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data=tax)
@@ -78,13 +79,14 @@
 
 # Food tree
   # Load tree file - output from make.tree. Be sure the levels of taxonomy and tree are the same. 
-  # foodtree <- read_tree("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.reduced_4Lv.tree.nwk")
+  foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.tree.nwk")
   foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
   # It is OK to see a message saying that
     # "Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
     # Also defined by 'tidytree'"
   # Format food tree and save it as 'TREE'. 
   PrepTree(data=foodtree)
+  # It is OK to see the same message as the previous line. 
 
 # ---------------------------------------------------------------------------------------------------------------
 # Make a phyloseq object with OTU, TAX, samples, and foodtree.
@@ -114,25 +116,45 @@
 # Perform Principal Coordinate Analysis (PCoA) with weighted unifrac distance of your food data.
 # This may take a few minutes depending on your data size.
 # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
-  ordinated = phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=TRUE)  
+  ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=T) 
+  
+  # Save the percent variance explained for the fist 3 axes.  
+  eigen_percent <- head(ordinated$values$Relative_eig, 3)
+
+      # If it gives a warning with Lv1 saying that:
+      # In matrix(tree$edge[order(tree$edge[, 1]), ][, 2], byrow = TRUE,  :
+      #             data length [1461] is not a sub-multiple or multiple of the number of rows [731]
+      # A solution shared in GitHub discussion forum is to transform all multichotomies into dichotomies with 
+      # branches with length zero: need the age package. 
+      # (https://github.com/joey711/phyloseq/issues/936, see commnet by PandengWang on Dec 26, 2019) 
+      new_tre <- ape::multi2di(foodtree)
+      # Prep it again for making a unifrac object.
+      PrepTree(data=new_tre)
+      # With the newly created TREE, create a phyloseq object once again.
+      phyfoods <- phyloseq(OTU, TAX, SAMPLES, TREE)
+      # New object overwritten the old one. Then, run the ordinate function again.
+      # The warning should disappear now. 
+  
   
 # Make a plot to show the separation of taxa (foods) by level 1 on a PCo1-PCo2 plane. 
   p1 <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa") +
     geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Foods at L1")
   p1
+  # Save the information necessary for ploting as a dataframe.
   p1df <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa", justDF = T)
   
 # Make a plot to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata
   p2 = plot_ordination(phyfoods, ordinated, type="samples", color="UserName") + 
-    geom_point(size=2) + theme(aspect.ratio = 1) + ggtitle("Username")
+    geom_point(size=2) + theme(aspect.ratio = 1) + ggtitle("Users")
   p2
     
     # Add ellipses at a desired confidence level. 
-    p2 + stat_ellipse(level=0.95)
+    p2 + stat_ellipse(level=0.95) + ggtitle("elipses confidence level=0.95") +
+      theme(plot.title=element_text(size=16)) # Specify the font size of the title
     
     # Add lines to connect samples in order of the variable on the x axis.
     p2 + geom_line() + ggtitle("Users connected in the order of x axis") + 
-      theme(plot.title=element_text(size=16)) # Specify the font size of the title
+      theme(plot.title=element_text(size=16)) 
     
     # Add lines to connect samples in the order in which they appear in the data.
     p2 + geom_path() + ggtitle("Users connected in the order of data") + 
@@ -152,9 +174,14 @@
     
     # Add a layer of specific datapoints in different aethetics
     ggplot(p2df, aes(x=Axis.1, y=Axis.2)) +
-      geom_point(aes(color=as.factor(UserName)), alpha=0.2)  +
+      geom_point(aes(color=as.factor(UserName)))  +
       geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
-      scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue"))
+      labs(x = paste0("Axis.1 [", round(eigen_percent[1]*100, digits=1), "%]"), 
+           y = paste0("Axis.1 [", round(eigen_percent[2]*100, digits=1), "%]")) +
+      ggtitle("MCTs11 & MCTs12 (Shake drinkers)") +
+      theme(plot.title = element_text(size = 16)) +
+      scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue")) +
+      theme(aspect.ratio = 1)
   
     
 # plot both foods (taxa) and samples (people)
