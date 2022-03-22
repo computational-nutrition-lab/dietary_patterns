@@ -58,8 +58,8 @@
 # Food
   # Load food OTU table - this is our food OTU data
   # food <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
-  food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
   food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
+  food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
   # Format the food file and create a otu_table called OTU.
   PrepFood(data=food)
   
@@ -138,16 +138,22 @@
   
 # Make a plot to show the separation of taxa (foods) by level 1 on a PCo1-PCo2 plane. 
   p1 <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa") +
-    geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Foods at L1")
-  p1
-  # Save the information necessary for ploting as a dataframe.
+    geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Foods at L1") +
+    scale_color_manual(values=distinct100colors)
+  p1 + scale_fill_manual(mypal)
+  
+  # Save the information necessary for ploting as a dataframe if preferred.
   p1df <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa", justDF = T)
   
+
 # Make a plot to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata
   p2 = plot_ordination(phyfoods, ordinated, type="samples", color="UserName") + 
-    geom_point(size=2) + theme(aspect.ratio = 1) + ggtitle("Users")
+    geom_point(size=2) + theme(aspect.ratio = 1) + ggtitle("Users") +
+    scale_color_manual(values=distinct100colors)
   p2
-    
+
+  p2 + scale_color_manual(values=distinct100colors)
+  
     # Add ellipses at a desired confidence level. 
     p2 + stat_ellipse(level=0.95) + ggtitle("elipses confidence level=0.95") +
       theme(plot.title=element_text(size=16)) # Specify the font size of the title
@@ -165,25 +171,52 @@
     # Could be messy with overlapping clusters and/or too many samples
     
   # Specify colors for specific user(s) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # First, save the basic plot as a dataframe. 
+
+    # Save an ordination plot for filtering purposes. 
     p2df = plot_ordination(phyfoods, ordinated, type="samples", color="UserName", justDF=T) 
     
-    # Filter for users
-    select_points <- subset(p2df, UserName=="MCTs11" | UserName=="MCTs12" )
-    head(select_points,2)
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Highlight one sample with others being grey.  
+      select_point_1 <- subset(p2df, UserName=="MCTs11") 
+      
+      p2_2 <- plot_ordination(phyfoods, ordinated, type="samples") +  
+        geom_point(size=2, color="grey") + theme(aspect.ratio = 1) + ggtitle("MCTs11 (Shake drinker)") +
+        geom_point(data=select_point, aes(x=Axis.1, y=Axis.2), color="black", size=2) 
+      p2_2
     
-    # Add a layer of specific datapoints in different aethetics
-    ggplot(p2df, aes(x=Axis.1, y=Axis.2)) +
-      geom_point(aes(color=as.factor(UserName)))  +
-      geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
-      labs(x = paste0("Axis.1 [", round(eigen_percent[1]*100, digits=1), "%]"), 
-           y = paste0("Axis.1 [", round(eigen_percent[2]*100, digits=1), "%]")) +
-      ggtitle("MCTs11 & MCTs12 (Shake drinkers)") +
-      theme(plot.title = element_text(size = 16)) +
-      scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue")) +
-      theme(aspect.ratio = 1)
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Highlight multiple samples with others being grey.
+      select_points <- subset(p2df, UserName=="MCTs11" | UserName=="MCTs12" )
+      head(select_points,2)
+    
+      p2 +  geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
+        ggtitle("MCTs11 & MCTs12 (Shake drinkers)") +
+        theme(plot.title=element_text(size=16), aspect.ratio=1) +
+        scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue")) +
+        theme(aspect.ratio = 1)
+      # OK to see a message: "Scale for 'colour' is already present. 
+      # Adding another scale for 'colour', which will replace the existing scale."
+    
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Highlight one sample; other points will retain their original colors. 
+      select_point_1 <- subset(p2df, UserName=="MCTs11") 
+    
+    # Changing the shape sizes might help find the dots. Note that points may be overlapping
+      p2 +  geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
+        ggtitle("MCTs11 (Shake drinker)") +
+        theme(plot.title=element_text(size=16), aspect.ratio=1) 
+        
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Highlight multiple samples; other points will retain their original colors. 
+      select_point_1 <- subset(p2df, UserName=="MCTs11") 
+      select_point_2 <- subset(p2df, UserName=="MCTs12") 
   
-    
+      p2 +  geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
+            geom_point(data=select_point_2, aes(x=Axis.1, y=Axis.2), color="green", size=4) +
+            ggtitle("MCTs11 & MCTs12 (Shake drinkers)") +
+            theme(plot.title=element_text(size=16), aspect.ratio=1)
+        
+
 # plot both foods (taxa) and samples (people)
   p3 = plot_ordination(phyfoods, ordinated, type="biplot", shape="L1", color="UserName") +
     scale_shape_manual(values=c(1:10)) + geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Biplot") +
