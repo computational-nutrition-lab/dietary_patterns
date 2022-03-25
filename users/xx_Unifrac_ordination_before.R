@@ -2,14 +2,15 @@
 
 # ========================================================================================
 # Create a phyloseq object out of dietary and tree data and run ordination.
-# Version 2 - cleaner veresion with just 'Users' plot.
-# Created on 03/25/2022 by Rie Sadohara
+# Version 1
+# Created on 03/08/2022 by Rie Sadohara
 # ========================================================================================
 
 # ========================================================================================
 # Import data from your data directory and create a phyloseq object.
 # ========================================================================================
 
+# ---------------------------------------------------------------------------------------------------------------
 # Import necessary functions and data
 # Folder structure 
 # 
@@ -48,12 +49,6 @@
   theme_update(axis.title.y = element_text(size=fontsize))
   theme_update(plot.title   = element_text(size=fontsize+2))
   
-  mytheme <- theme_bw(base_size = 18) +
-    theme(axis.title.x=element_text(margin=margin(t = 10, r = 0, b = 0, l = 0))) +
-    theme(axis.title.y=element_text(margin=margin(t = 0, r = 10, b = 0, l = 0))) +
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-    theme(aspect.ratio = 1)
-  
 # Load the distinct 100 colors for use.   
   distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
   
@@ -65,24 +60,28 @@
   
 # Food
   # Load food OTU table - this is our food OTU data
+  # food <- read.delim("E:/MSU OneDrive 20210829/UMinn/Food_Tree-master/R/output/mct.dhydrt.otu.txt", row.names = 1)
   food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
   food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
   # Format the food file and create a otu_table called OTU.
   PrepFood(data=food)
   
 # Taxonomy (tax)
+  # Load taxonomy file - this is the taxonomy data from food tree code, but forced into a tabular format
   tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.taxonomy.txt")
   tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data=tax)
   
 # Sample
+  # Load metadata file which has samples in rows and characteristics (BMI, Gender, treatment etc.) as columns 
   meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv",
                     row.names = 1, check.names = F)
   # Format the metafile and save it as 'SAMPLES'. 
   PrepMeta(data=meta)
 
 # Food tree
+  # Load tree file - output from make.tree. Be sure the levels of taxonomy and tree are the same. 
   foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.tree.nwk")
   foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
   # It is OK to see a message saying that
@@ -110,6 +109,7 @@
 # Check the level 1 foods in your food tree 
   L1s = tax_table(phyfoods)[, "L1"]
   as.vector(unique(L1s))
+# ---------------------------------------------------------------------------------------------------------------
 
 # ========================================================================================
 # Use your phyloseq object and perform ordination 
@@ -120,9 +120,8 @@
 # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
   ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=T) 
   
-  # Save the percent variance explained for the fist 10 axes.  
-  eigen_percent <- head(ordinated$values$Relative_eig, 10)
-  eigen_percent <- ordinated$values$Relative_eig
+  # Save the percent variance explained for the fist 3 axes.  
+  eigen_percent <- head(ordinated$values$Relative_eig, 3)
 
       # If it gives a warning with Lv1 saying that:
       # In matrix(tree$edge[order(tree$edge[, 1]), ][, 2], byrow = TRUE,  :
@@ -137,60 +136,82 @@
       phyfoods <- phyloseq(OTU, TAX, SAMPLES, TREE)
       # New object overwritten the old one. Then, run the ordinate function again.
       # The warning should disappear now. 
-
+  
+  df = as.data.frame(ordinated$vectors[, 1:2])
+  head(df)
+  ggplot(df, aes(x=Axis.1, y=Axis.2)) + geom_point()
+  
+  
 # ========================================================================================
 # Plot your ordination results 
 # ========================================================================================
 
-# Extract the Axes values of Users each day.  
-  usersdf <- as.data.frame(ordinated$vectors)
-  dim(usersdf)
-  colnames(meta_usersdf)
+# Make a plot to show the separation of taxa (foods) by level 1 on a PCo1-PCo2 plane. 
+  p1 <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa") +
+    geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Foods") +
+    scale_color_manual(values=distinct100colors)
+    # scale_color_viridis_d()
+  p1 
+  ######## removed 9 rows containing missing values?  
   
-# merge the first 10 Axes
-  meta_usersdf <- merge(x=meta, y=usersdf[, 1:10], all.x=T, by="row.names")
+  # Save the information necessary for ploting as a dataframe if preferred.
+  p1df <- plot_ordination(phyfoods, ordinated, color="L1", type="taxa", justDF = T)
+    colnames(p1df)
+    dim(p1df)
+    as.data.frame(table(p1df$L1))
+    colSums(x=as.data.frame(table(p1df$L1))[2]  )
+    ggplot(p1df, aes(x=Axis.1, y=Axis.2), color=) + geom_point()
   
-# Plot Axis 1 and Axis 2 to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata
-  p1 <- ggplot(meta_usersdf, aes(x=Axis.1, y=Axis.2, color=UserName)) +
-          geom_point(aes(color=UserName)) + 
-          scale_color_manual(values = distinct100colors) +
-          xlab( paste("Axis.1 (", paste(round(eigen_percent[1]*100, 1)), "%)", sep="") ) +
-          ylab( paste("Axis.2 (", paste(round(eigen_percent[2]*100, 1)), "%)", sep="") ) +
-          mytheme
-  p1
   
-# Add ellipses at a desired confidence level. 
-  p1 + stat_ellipse(level=0.95) 
+
+# Make a plot to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata
+  p2 = plot_ordination(phyfoods, ordinated, type="samples", color="UserName") + 
+    geom_point(size=2) + theme(aspect.ratio = 1) + ggtitle("Users") +
+    scale_color_manual(values=distinct100colors)
+  p2
+
+  p2 + scale_color_manual(values=distinct100colors)
   
-# Add lines to connect samples in order of the variable on the x axis.
-  p1 + geom_line(aes(color = UserName))  
-  
-# Add lines to connect samples in the order in which they appear in the data.
-  p1 + geom_path(aes(color = UserName))  
-  
-# make a polygon by UserName
-  p1 + geom_polygon(aes(fill = UserName)) + geom_point(aes(color=UserName), size=3) + 
-    scale_fill_manual(values=distinct100colors)  
-  # Could be messy with overlapping clusters and/or too many samples
+    # Add ellipses at a desired confidence level. 
+    p2 + stat_ellipse(level=0.95) + ggtitle("elipses confidence level=0.95") +
+      theme(plot.title=element_text(size=16)) # Specify the font size of the title
     
-# Specify colors for specific user(s) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Add lines to connect samples in order of the variable on the x axis.
+    p2 + geom_line() + ggtitle("Users connected in the order of x axis") + 
+      theme(plot.title=element_text(size=16)) 
+    
+    # Add lines to connect samples in the order in which they appear in the data.
+    p2 + geom_path() + ggtitle("Users connected in the order of data") + 
+      theme(plot.title=element_text(size=16))
+    
+    # make a polygon by UserName
+    p2 + geom_polygon(aes(fill=UserName)) + geom_point(size=3) 
+    # Could be messy with overlapping clusters and/or too many samples
+    
+  # Specify colors for specific user(s) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     # Save an ordination plot for filtering purposes. 
-    p1df = plot_ordination(phyfoods, ordinated, type="samples", color="UserName", justDF=T) 
+    p2df = plot_ordination(phyfoods, ordinated, type="samples", color="UserName", justDF=T) 
     
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Highlight one sample with others being grey.  
-      select_point_1 <- subset(meta_usersdf, UserName=="MCTs11") 
-
-      p1 + geom_point(size=2, color="grey") +  
+      select_point_1 <- subset(p2df, UserName=="MCTs11") 
+      
+      p2_2 <- plot_ordination(phyfoods, ordinated, type="samples") +  
+        geom_point(size=2, color="grey") + theme(aspect.ratio = 1) + ggtitle("MCTs11 (Shake drinker)") +
         geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=2) 
-
+      p2_2
+    
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Highlight multiple samples with others being grey.
       select_points <- subset(p2df, UserName=="MCTs11" | UserName=="MCTs12" )
+      head(select_points,2)
     
-      p1 + geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
-        scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue")) 
+      p2 +  geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
+        ggtitle("MCTs11 & MCTs12 (Shake drinkers)") +
+        theme(plot.title=element_text(size=16), aspect.ratio=1) +
+        scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue")) +
+        theme(aspect.ratio = 1)
       # OK to see a message: "Scale for 'colour' is already present. 
       # Adding another scale for 'colour', which will replace the existing scale."
     
@@ -198,17 +219,30 @@
     # Highlight one sample; other points will retain their original colors. 
       select_point_1 <- subset(p2df, UserName=="MCTs11") 
     
-      # Changing the shape sizes might help find the dots. Note that points may be overlapping
-      p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) 
+    # Changing the shape sizes might help find the dots. Note that points may be overlapping
+      p2 +  geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
+        ggtitle("MCTs11 (Shake drinker)") +
+        theme(plot.title=element_text(size=16), aspect.ratio=1) 
         
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Highlight multiple samples; other points will retain their original colors. 
       select_point_1 <- subset(p2df, UserName=="MCTs11") 
       select_point_2 <- subset(p2df, UserName=="MCTs12") 
   
-      p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
-           geom_point(data=select_point_2, aes(x=Axis.1, y=Axis.2), color="green", size=4) 
+      p2 +  geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
+            geom_point(data=select_point_2, aes(x=Axis.1, y=Axis.2), color="green", size=4) +
+            ggtitle("MCTs11 & MCTs12 (Shake drinkers)") +
+            theme(plot.title=element_text(size=16), aspect.ratio=1)
         
+
+# plot both foods (taxa) and samples (people)
+  p3 = plot_ordination(phyfoods, ordinated, type="biplot", shape="L1", color="UserName") +
+    scale_shape_manual(values=c(1:10)) + geom_point(size=2) + theme(aspect.ratio=1) + ggtitle("Biplot") +
+    guides(colour=guide_legend(ncol=4)) # make the legend have 4 columns so they will fit
+  p3
+      # Gives a warning about 9 rows of missing values (geom_point)??? 
+  
+  
 # ========================================================================================
 # Save your results 
 # ========================================================================================
