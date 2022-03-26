@@ -42,13 +42,7 @@
   library(ggplot2)
 
 # Define ggplot2 arguments and themes first.
-  theme_set(theme_bw())
-  fontsize = 18L
-  theme_update(axis.title.x = element_text(size=fontsize))
-  theme_update(axis.title.y = element_text(size=fontsize))
-  theme_update(plot.title   = element_text(size=fontsize+2))
-  
-  mytheme <- theme_bw(base_size = 18) +
+  theme1 <- theme_bw(base_size = 16) +
     theme(axis.title.x=element_text(margin=margin(t = 10, r = 0, b = 0, l = 0))) +
     theme(axis.title.y=element_text(margin=margin(t = 0, r = 10, b = 0, l = 0))) +
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
@@ -119,10 +113,6 @@
 # This may take a few minutes depending on your data size.
 # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
   ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=T) 
-  
-  # Save the percent variance explained for the fist 10 axes.  
-  eigen_percent <- head(ordinated$values$Relative_eig, 10)
-  eigen_percent <- ordinated$values$Relative_eig
 
       # If it gives a warning with Lv1 saying that:
       # In matrix(tree$edge[order(tree$edge[, 1]), ][, 2], byrow = TRUE,  :
@@ -138,25 +128,30 @@
       # New object overwritten the old one. Then, run the ordinate function again.
       # The warning should disappear now. 
 
+# Save the percent variance explained by the axes as a vector to use in plots.  
+  eigen_percent <- ordinated$values$Relative_eig
+
+# Save the percent variance explained as a txt file.
+  Eigen(eigen.input = eigen_percent, output.fn="results/eigen_percent.txt")
+    
+
 # ========================================================================================
 # Plot your ordination results 
 # ========================================================================================
 
-# Extract the Axes values of Users each day.  
-  usersdf <- as.data.frame(ordinated$vectors)
-  dim(usersdf)
-  colnames(meta_usersdf)
-  
-# merge the first 10 Axes
-  meta_usersdf <- merge(x=meta, y=usersdf[, 1:10], all.x=T, by="row.names")
-  
+# Merge the first n axes to the metadata and save it as a txt file. 
+# The merged dataframe, 'meta_usersdf', will be used for plotting.
+  MergeAxesAndMetadata(ord.object=ordinated, number.of.axes=10, meta.data= meta, output.fn= "results/ordinated_unweighted_meta_users.txt")
+
+ 
 # Plot Axis 1 and Axis 2 to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata
   p1 <- ggplot(meta_usersdf, aes(x=Axis.1, y=Axis.2, color=UserName)) +
           geom_point(aes(color=UserName)) + 
-          scale_color_manual(values = distinct100colors) +
+          scale_color_manual(values = distinct100colors) + # OR use viridis theme.
+          # scale_color_viridis_d() +
           xlab( paste("Axis.1 (", paste(round(eigen_percent[1]*100, 1)), "%)", sep="") ) +
           ylab( paste("Axis.2 (", paste(round(eigen_percent[2]*100, 1)), "%)", sep="") ) +
-          mytheme
+          theme1
   p1
   
 # Add ellipses at a desired confidence level. 
@@ -175,9 +170,6 @@
     
 # Specify colors for specific user(s) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    # Save an ordination plot for filtering purposes. 
-    p1df = plot_ordination(phyfoods, ordinated, type="samples", color="UserName", justDF=T) 
-    
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Highlight one sample with others being grey.  
       select_point_1 <- subset(meta_usersdf, UserName=="MCTs11") 
@@ -187,7 +179,7 @@
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Highlight multiple samples with others being grey.
-      select_points <- subset(p2df, UserName=="MCTs11" | UserName=="MCTs12" )
+      select_points <- subset(meta_usersdf, UserName=="MCTs11" | UserName=="MCTs12" )
     
       p1 + geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
         scale_color_manual(values = c("MCTs11"="red", "MCTs12"="blue")) 
@@ -196,43 +188,31 @@
     
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Highlight one sample; other points will retain their original colors. 
-      select_point_1 <- subset(p2df, UserName=="MCTs11") 
+      select_point_1 <- subset(meta_usersdf, UserName=="MCTs11") 
     
       # Changing the shape sizes might help find the dots. Note that points may be overlapping
       p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) 
         
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Highlight multiple samples; other points will retain their original colors. 
-      select_point_1 <- subset(p2df, UserName=="MCTs11") 
-      select_point_2 <- subset(p2df, UserName=="MCTs12") 
+      select_point_1 <- subset(meta_usersdf, UserName=="MCTs11") 
+      select_point_2 <- subset(meta_usersdf, UserName=="MCTs12") 
   
       p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
            geom_point(data=select_point_2, aes(x=Axis.1, y=Axis.2), color="green", size=4) 
         
 # ========================================================================================
-# Save your results 
+# Save distance matrices. 
 # ========================================================================================
-
-# Merge axes values and metadata and save as a dataframe called axes_and_meta.
-  # This will sort Axis1 in an descending order.
-  MergeAxesAndMetadata(ord.object=ordinated, number.of.axes=4, meta=meta)
-  
-  # Look at the first few samples that have the highest Axis 1 values.  
-  head(axes_and_meta, n=6)  
-  
-  # Save as a .csv
-  write.csv(x=axes_and_meta, "results/Ordination_Axis_Meta.csv")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Generate and save an unweighted unifrac distance matrix for use outside R.  type="samples" only. 
-  unweighted_uni_dis <- as.matrix(distance(phyfoods, method="unifrac")) 
+  UnweightedUnifracDis(input.phyloseq.obj = phyfoods, output.fn = "results/unweighted_uni_dis.txt")        
+    
   
 # Generate and save an unweighted unifrac distance matrix for use outside R.  type="samples" only. 
-  weighted_uni_dis <- as.matrix(distance(phyfoods, method="wunifrac"))
-
-# Save as a .csv or tab-delimited .txt 
-  write.csv(x=unweighted_uni_dis, "~/GitHub/dietary_patterns/results/Food_tree_results/un-distance.csv")
-  write.table(x=weighted_uni_dis, "~/GitHub/dietary_patterns/results/Food_tree_results/wt-distance.txt", sep="\t")
+  WeightedUnifracDis(input.phyloseq.obj = phyfoods, output.fn = "results/WEIGHTED_uni_dis.txt")        
+  
 
   
 # ========================================================================================

@@ -4,13 +4,9 @@
 # Created on 03/08/2022 by Rie Sadohara
 # ========================================================================================
 
-# ========================================================================================
-# Load the packages and functions needed.
-# ========================================================================================
-
 # ---------------------------------------------------------------------------------------------------------------
-# Prep data behind the scene...
-# prep food data.
+# Prep food data.
+
   PrepFood <- function(data=food){
     
     # remove the taxonomy column
@@ -21,7 +17,9 @@
     OTU <<- phyloseq::otu_table(food_mat, taxa_are_rows = TRUE)
   } 
   
-# prep taxonomy (food names) data
+# ---------------------------------------------------------------------------------------------------------------
+# Prep taxonomy (food names) data
+
   PrepTax <- function(data=tax){  # split taxonomy into 5 levels by default.  need to check if it works with other dataset than
     
     # Make the food description as row names
@@ -106,7 +104,9 @@
     TAX <<- phyloseq::tax_table(tax_mat)
   }
   
-# prep metadata.
+# ---------------------------------------------------------------------------------------------------------------
+# Prep metadata.
+
   PrepMeta <- function(data=meta){
 
     #subset metadata to the correct samples
@@ -126,38 +126,79 @@
   }
 
 # ---------------------------------------------------------------------------------------------------------------
-# Merge metadata and Axis values.
-  MergeAxesAndMetadata <- function(ord.object, number.of.axes=4, meta=meta){
+# Save the percent variance explained as a txt file.
+  
+  Eigen <- function(eigen.input = eigen_percent, output.fn){
     
-    # extract all the Axis vectors
-    allvectors <- as.data.frame(ord.object["vectors"])
+    eigen_percentdf <- data.frame(Axis=1:length(eigen.input), Eigen= eigen.input)
     
-    # extract Axes 1 through the specified axis
-    vectors <- allvectors[, 1:number.of.axes]
-    
-    # Sort by the Axis.1 values.
-    sortedv <<- vectors[order(vectors$vectors.Axis.1, decreasing = T), ]
-    
-    # make rownames as a column for merging.
-    meta3 <<- meta
-    meta3$IDforMerging    <<- rownames(meta)
-    sortedv1 <<- sortedv
-    sortedv1$IDforMerging <<- rownames(sortedv)
-
-    # Match IDforMerging (sample ID) and UserName.
-    axes_and_meta <<- merge(sortedv1, meta3, by="IDforMerging", all.x=T)
+    write.table(x=eigen_percentdf, file= output.fn, sep="\t", row.names=F)
   }
   
   
+# ---------------------------------------------------------------------------------------------------------------
+# Merge metadata and Axis values.
+  
+  MergeAxesAndMetadata <- function(ord.object, number.of.axes, meta.data, output.fn){
+    
+    # extract all the Axis vectors
+    allvectors <<- as.data.frame(ord.object["vectors"])
+    
+    # Remove the suffix 'vectors.' in the column names of 'allvectors'
+    colnames(allvectors) <<- sub(pattern='vectors.', replacement='', x=colnames(allvectors))
+    
+    # extract Axes 1 through the specified axis
+    vectors <<- allvectors[, 1:number.of.axes]
+    
+    # make rownames as a column for merging.
+    meta_usersdf <<- merge(x=meta.data, y=vectors, all.x=T, by="row.names", sort=FALSE)
+    
+    # Save as a txt file.
+    write.table(x = meta_usersdf, file = output.fn, sep="\t", row.names = F)
+  }
+  
+ 
+# ---------------------------------------------------------------------------------------------------------------
+# Generate an UNweighted unifrac distance matrix and save it as a txt file.
+  
+  UnweightedUnifracDis <- function(input.phyloseq.obj = phyfoods, output.fn){
+    
+    # Calculate unweighted unifrac distance and save as a matrix.
+    unweighted_uni_dis1 <- as.matrix(phyloseq::distance(phyfoods, method="unifrac"))
+    
+    # Convert it to a data frame. (to edit rownames) 
+    unweighted_uni_dis2 <- as.data.frame(unweighted_uni_dis1)
+    
+    # Create a new column with a columnname of "Sample" and put rownames (UserName) on that column 
+    unweighted_uni_dis3 <- data.frame("Sample" = rownames(unweighted_uni_dis2), unweighted_uni_dis2)
+    
+    # Save as a txt file.
+    write.table(x = unweighted_uni_dis3, file = output.fn, sep="\t", row.names = F)
+  }
+  
+  
+# ---------------------------------------------------------------------------------------------------------------
+  # Generate a WEIGHTED unifrac distance matrix and save it as a txt file.
+  
+  WeightedUnifracDis <- function(input.phyloseq.obj = phyfoods, output.fn){
+    
+    # Calculate unweighted unifrac distance and save as a matrix.
+    weighted_uni_dis1 <- as.matrix(phyloseq::distance(phyfoods, method="wunifrac"))
+    
+    # Convert it to a data frame. (to edit rownames) 
+    weighted_uni_dis2 <- as.data.frame(weighted_uni_dis1)
+    
+    # Create a new column with a columnname of "Sample" and put rownames (UserName) on that column 
+    weighted_uni_dis3 <- data.frame("Sample" = rownames(weighted_uni_dis2), weighted_uni_dis2)
+    
+    # Save as a txt file.
+    write.table(x = weighted_uni_dis3, file = output.fn, sep="\t", row.names = F)
+  }
   
   
 # ---------------------------------------------------------------------------------------------------------------
 # 
+
   
-# ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# 
-
-# ---------------------------------------------------------------------------------------------------------------
+  
   
