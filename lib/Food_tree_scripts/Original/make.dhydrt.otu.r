@@ -28,19 +28,16 @@ MakeDhydrtOtu <- function(food_records_fn, food_record_id, food_taxonomy_fn, out
     
     dhydrt.otu <- merge(t.cdiet.w, food.taxonomy, by=0)
     
-    # get rid of the FoodIDs and replace it with the food tree leaf names
+    # let's get rid of the FoodIDs and replace it with the food tree leaf names
     rownames(dhydrt.otu) <- dhydrt.otu[,"Main.food.description"]
     remove.col.ix <- which(colnames(dhydrt.otu) %in% c("Main.food.description", "Row.names"))
     dhydrt.otu <- dhydrt.otu[,-remove.col.ix]
     
-    #drop rows with infinite values
+    #drop rows with infinate values
     inf.vals <- which(rowSums(dhydrt.otu[,-ncol(dhydrt.otu)]) == Inf)
     dhydrt.otu <- dhydrt.otu[!(rownames(dhydrt.otu) %in% names(inf.vals)),]
  
-    # Write "#FOODID\t" in a file specified. Creating the first row of output. 
     cat("#FOODID\t", file=output_fn)
-    
-    # Add dhydrt.otu to the output. 
     write.table(dhydrt.otu, output_fn, sep = "\t", quote = F, append=TRUE)
     
     invisible(dhydrt.otu)

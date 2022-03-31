@@ -1,6 +1,6 @@
 # filters the entire database of foods by only those that were actually reported in this dataset
 # useful for creating trees limited only to foods collected
-FilterDbByDietRecords <- function(food_database_fn, food_records_fn, output_fn)
+filter.db.by.diet.records <- function(food_database_fn, food_records_fn, output_fn)
 {
     fdata <- read.table(food_database_fn, header = TRUE, sep="\t", colClasses="character", quote="", strip.white=T)
     diet <- read.table(food_records_fn, header = TRUE, sep="\t", colClasses="character", quote="", strip.white=T)

@@ -6,9 +6,11 @@
 #   num.levels = number of levels to create tree on
 
 # 02/25/2022 Added a semicolon in line 61 so that the output_tree_fn will be loaded correctly.
-# 03/31/2022 dplyr::select fucntion was replaced by a base R equivalent.
 
 library(data.tree)
+# library(viridisLite)
+library(dplyr)
+library(tidyr)
 library(reshape2)
 source('lib/Food_tree_scripts/newick.tree.r')
 
@@ -17,7 +19,7 @@ MakeFoodTree <- function(nodes_fn, food_database_fn, addl_foods_fn=NULL, output_
     fdata <- read.table(food_database_fn, header = TRUE, sep="\t", colClasses="character", quote="", strip.white=T)
     nodes <- read.table(nodes_fn, header = TRUE, sep="\t", colClasses="character")
 
-    main <- fdata[, c("FoodID", "Main.food.description")]
+    main <- fdata[,c("FoodID", "Main.food.description")]
 
     # add additional food codes
     if(!is.null(addl_foods_fn))
@@ -41,11 +43,10 @@ MakeFoodTree <- function(nodes_fn, food_database_fn, addl_foods_fn=NULL, output_
 
     # prepend level to all level descriptions
     main.cast[is.na(main.cast)] <- ""
-    main.cast[, colnames(main.cast)[-1]] <- sapply(colnames(main.cast)[-1], 
-                                                   function(colname) paste(colname, main.cast[,colname], sep="_"))
+    main.cast[,colnames(main.cast)[-1]] <- sapply(colnames(main.cast)[-1], function(colname) paste(colname, main.cast[,colname], sep="_"))
 
     # merge back with original table to grab Food Description
-    main.join <- merge(main.cast, main[, c("FoodID", "Main.food.description")], by="FoodID")
+    main.join <- merge(main.cast, main[,c("FoodID","Main.food.description")], by="FoodID")
 
     # create a proper newick string for the tree
     newickstring <- paste("foodtreeroot", apply(main.join, 1, function(xx) paste(xx[-1], collapse="/")), sep="/")
@@ -56,13 +57,11 @@ MakeFoodTree <- function(nodes_fn, food_database_fn, addl_foods_fn=NULL, output_
 
     #### Make and export the tree ####
     foodTree <- as.Node(final.table, pathName = "newickstring")
-    tree <- RecursiveNewickWrite(foodTree)
-    # Add a semicolon at the end of the tree so that the output_tree_fn will be loaded correctly. 
-    cat(tree, ";", sep = "", file = output_tree_fn)  
+    tree <- recursiveNewickWrite(foodTree)
+    cat(tree, ";", sep = "", file = output_tree_fn)  # Added a semicolon so that the output_tree_fn will be loaded correctly. 
 
     #### Make and export the taxonomy file ####
-    export <- final.table[, c('FoodID', 'taxonomy', 'Main.food.description')]
-
+    export <- final.table %>% select(FoodID, taxonomy, Main.food.description)
     export$Main.food.description <- gsub("_", " ", export$Main.food.description)
     write.table(export, output_taxonomy_fn, sep = "\t", quote = FALSE, row.names = FALSE)
 

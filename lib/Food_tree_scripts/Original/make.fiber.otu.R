@@ -27,11 +27,8 @@ MakeFiberOtu <- function(food_records_fn, food_record_id, food_taxonomy_fn, outp
     rownames(fiber.otu) <- fiber.otu[,"Main.food.description"]
     remove.col.ix <- which(colnames(fiber.otu) %in% c("Main.food.description", "Row.names"))
     fiber.otu <- fiber.otu[,-remove.col.ix]
-    
-    # Write "#FOODID\t" in a file specified. Creating the first row of output.  
+ 
     cat("#FOODID\t", file=output_fn)
-    
-    # Add fiber.otu to the output. 
     write.table(fiber.otu, output_fn, sep = "\t", quote = F, append=TRUE)
     
     invisible(fiber.otu)

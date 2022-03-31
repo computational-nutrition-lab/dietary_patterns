@@ -9,13 +9,13 @@ MakeFoodOtu <- function(food_records_fn, food_record_id, food_taxonomy_fn, outpu
     diet$FoodAmt <- as.numeric(diet$FoodAmt)
 
     # sum total grams of each food eaten within a record
-    cdiet <- aggregate(diet$FoodAmt, by=list(diet[, food_record_id], diet$FoodID), FUN=sum)
+    cdiet <- aggregate(diet$FoodAmt, by=list(diet[,food_record_id], diet$FoodID), FUN=sum)
     colnames(cdiet) <- c(food_record_id, "FoodID", "total.grams")
 
     cdiet.w <- reshape(cdiet, timevar = "FoodID", idvar = food_record_id, direction = "wide")
     cdiet.w[is.na(cdiet.w)] <- 0
-    rownames(cdiet.w) <- cdiet.w[, 1] # make record_ids the rownames
-    cdiet.w <- cdiet.w[, -1]    
+    rownames(cdiet.w) <- cdiet.w[,1] # make record_ids the rownames
+    cdiet.w <- cdiet.w[,-1]    
     colnames(cdiet.w) <- gsub("total.grams.", "", colnames(cdiet.w)) #rename column names to FoodIDs only
     t.cdiet.w <- t(cdiet.w)
     
@@ -23,16 +23,13 @@ MakeFoodOtu <- function(food_records_fn, food_record_id, food_taxonomy_fn, outpu
     
     food.otu <- merge(t.cdiet.w, food.taxonomy, by=0)
     
-    # Get rid of the FoodIDs and replace it with the food tree leaf names
-    rownames(food.otu) <- food.otu[, "Main.food.description"]
-    remove.col.ix <- which(colnames(food.otu) %in% c("Main.food.description", "Row.names")) # Column numbers of the specified columns.
-    food.otu <- food.otu[, -remove.col.ix]
-    
-    # Write "#FOODID\t" in a file specified. Creating the first row of output.  
-    cat("#FOODID\t", file=output_fn) 
-    
-    # Add food.otu to the output. 
-    write.table(food.otu, output_fn, sep="\t", quote=F, append=TRUE)
+    # let's get rid of the FoodIDs and replace it with the food tree leaf names
+    rownames(food.otu) <- food.otu[,"Main.food.description"]
+    remove.col.ix <- which(colnames(food.otu) %in% c("Main.food.description", "Row.names"))
+    food.otu <- food.otu[,-remove.col.ix]
+ 
+    cat("#FOODID\t", file=output_fn)
+    write.table(food.otu, output_fn, sep = "\t", quote = F, append=TRUE)
     
     invisible(food.otu)
 }

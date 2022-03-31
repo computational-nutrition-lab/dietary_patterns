@@ -38,11 +38,11 @@
 # Load source scripts
 # ========================================================================================
   source("lib/viz_food_tree.r")
-  source("lib/")
   
 # ---------------------------------------------------------------------------------------------------------------
 # Load your ggtree object. 
   tree <- read.tree("results/Food_tree_results/mct.reduced_4Lv.tree.nwk")
+  tree <- read.tree("results/Food_tree_results/mct_Lv2.tree.nwk")
   tree <- read.tree("results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
   
   # VVKAJ
@@ -50,18 +50,19 @@
   tree <- read.tree("output/VVKAJ.reduced_1Lv.tree.nwk")
   tree
 
-# Use ggtree to plot the tree. It is critical to have ladderize=F argument to preserve your L1 order.
-  mytreeplot <- ggtree(tree, ladderize=F, layout = 'radial') + # disable ladderizing (sorting by ggtree, CRITICAL!!!)
-    geom_tiplab()
-  
-# Plot a circular tree. - hard to see with lots of samples
-  mytreeplot <- ggtree(tree, ladderize = F, layout = 'circular') +
+# Use ggtree to plot the tree. It is critical to have 'ladderize=F' argument to preserve your L1 order.
+  mytreeplot <- ggtree(tree, ladderize=F, layout = 'radial') + 
     geom_tiplab()
   mytreeplot
   
+# Without the tip labels.
+  mytreeplot <- ggtree(tree, ladderize = F, layout = 'radial') 
+  mytreeplot
+  
 # Show the node numbers only. 
-  ggtree(tree, ladderize = F, layout = 'circular') +
-    geom_text(aes(label=node), hjust= -0.1) 
+  mytreeplot <- ggtree(tree, ladderize = F, layout = 'radial') +
+                       geom_text(aes(label=node), hjust= -0.1) 
+  mytreeplot
   
 # Save a tree as a tiff file if you'd like. 
   ggsave("VVKAJ_tree.tif", mytreeplot, width=10, height=10, device='tiff', dpi=150)

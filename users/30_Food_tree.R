@@ -48,11 +48,11 @@
   source("lib/Food_tree_scripts/newick.tree.r")
   source("lib/Food_tree_scripts/check.db.r")
   source("lib/Food_tree_scripts/format.foods.r")
+  source("lib/Food_tree_scripts/filter.db.by.diet.records.r")
   source("lib/Food_tree_scripts/make.food.tree.r")
   source("lib/Food_tree_scripts/make.food.otu.r")
   source("lib/Food_tree_scripts/make.fiber.otu.r")
   source("lib/Food_tree_scripts/make.dhydrt.otu.r")
-  source("lib/Food_tree_scripts/filter.db.by.diet.records.r")
 
 # ========================================================================================
 # Prep data
@@ -63,8 +63,8 @@
 # It leaves all other columns intact.
   FormatFoods(input_fn="data/Food_tree_data/all.food.desc.txt", output_fn="data/Food_tree_data/ASA24Database.txt")
 
-# FoodCode and  Main.food.description of additional foods not in ASA24. Format it for use.
-  FormatFoods(input_fn="data/Food_tree_data/Soylent_codes.txt",   output_fn="data/Food_tree_data/Soylent_codes_formatted.txt")
+# FoodCode and Main.food.description of additional foods not in ASA24. Format it for use.
+  FormatFoods(input_fn="data/Food_tree_data/Soylent_codes.txt", output_fn="data/Food_tree_data/Soylent_codes_formatted.txt")
   
 # Format your items data. Output will be saved as dietrecords.txt.
   FormatFoods(input_fn="data/Food_tree_data/Items_to_use.txt", output_fn="data/Food_tree_data/dietrecords.txt", dedupe=F)
@@ -83,35 +83,35 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Limit to just the foods reported in your study (formatted dietrecords.txt as the input)
-  filter.db.by.diet.records(food_database_fn = "data/Food_tree_data/ASA24Database.txt", 
-                            food_records_fn  = "data/Food_tree_data/dietrecords.txt",   # output of FormatFoods above.
-                            output_fn = "data/Food_tree_data/MCTdatabase.txt")
+  FilterDbByDietRecords(food_database_fn = "data/Food_tree_data/ASA24Database.txt", 
+                        food_records_fn  = "data/Food_tree_data/dietrecords.txt",   # output of FormatFoods above.
+                        output_fn = "data/Food_tree_data/MCTdatabase.txt")
   
 # make a food tree with the reduced data.
   MakeFoodTree(nodes_fn=         "data/Food_tree_data/NodeLabelsMCT.txt", 
                food_database_fn= "data/Food_tree_data/MCTdatabase.txt", 
                addl_foods_fn=    "data/Food_tree_data/Soylent_codes_formatted.txt", 
-               num.levels = 1,   
+               num.levels = 1,
                output_taxonomy_fn = "results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt",
                output_tree_fn=      "results/Food_tree_results/mct.reduced_1Lv.tree.nwk" 
                )
   
-# Makes the standard food otu table with data in gram weights of food.
+# Make the standard food otu table with data in gram weights of food.
   MakeFoodOtu(food_records_fn=  "data/Food_tree_data/dietrecords.txt", 
               food_record_id =  "X.SampleID",                       # Specify the ID of your participants
-              food_taxonomy_fn= "results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt",  # Specify your taxonomy file produced by MakeFoodTree.
-              output_fn =       "results/Food_tree_results/mct.reduced_1Lv.food.otu.txt")  # Name your output otu file.
+              food_taxonomy_fn= "results/Food_tree_results/mct_Lv2.taxonomy.txt",  # Specify your taxonomy file produced by MakeFoodTree.
+              output_fn =       "results/Food_tree_results/mct_Lv2.food.otu.txt")  # Name your output otu file.
   
-# Makes a food otu table with data in grams of fiber per food
+# Make a food otu table with data in grams of fiber per food
   MakeFiberOtu(food_records_fn=  "data/Food_tree_data/dietrecords.txt", 
-               food_record_id =  "X.SampleID", 
-               food_taxonomy_fn= "results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt", 
-               output_fn =       "results/Food_tree_results/mct.reduced_1Lv.fiber.otu.txt")
+               food_record_id=   "X.SampleID", 
+               food_taxonomy_fn= "results/Food_tree_results/mct_Lv2.taxonomy.txt", 
+               output_fn=        "results/Food_tree_results/mct_Lv2.fiber.otu.txt")
   
-# Makes a food otu table as dehydrated grams per kcal
+# Make a food otu table as dehydrated grams per kcal
   MakeDhydrtOtu(food_records_fn=  "data/Food_tree_data/dietrecords.txt", 
                 food_record_id =  "X.SampleID", 
-                food_taxonomy_fn= "results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt", 
-                output_fn =       "results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt")
+                food_taxonomy_fn= "results/Food_tree_results/mct_Lv2.taxonomy.txt", 
+                output_fn =       "results/Food_tree_results/mct_Lv2.dhydrt.otu.txt")
   
 # ---------------------------------------------------------------------------------------------------------------
