@@ -17,6 +17,7 @@
   setwd("E:/MSU OneDrive 20210829/UMinn/20_NHANES")
 
   nhanes1718_raw <- read.xport("DR1IFF_J.XPT") 
+  nhanes1718_raw <- read.xport("DR2IFF_J.XPT") 
   str(nhanes1718_raw)
   dim(nhanes1718_raw)
   tail(nhanes1718_raw, 7)
@@ -44,7 +45,7 @@
   head(codetable)  
   
 # Make the Food code as integer here, too. 
-  codetable$Food_code <- as.integer(codetable$Food_code)  
+  codetable$Food_code <- as.integer(codetable$FoodCode)  
   str(codetable)  
   
 # Merge the NHANES data and codetable.
@@ -77,7 +78,7 @@
   length(unique(nhanes1718$SEQN))
   # 7640. 
 
-  table(nhanes1718$DR1_040Z)
+  table(nhanes1718$DR1040Z)
   
   # Take the first xxx records.
   nhanes_sub <- head(nhanes1718, 450)
