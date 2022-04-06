@@ -1,21 +1,19 @@
-## Welcome to GitHub Pages!
+# Welcome to "dietary patterns" GitHub Page!<br/>This site is under construction.
+
+[comment]: <> (This is a comment, it will not be included -----------------------------------------------------------------------------------------------)
+## Some markdown info 
 
 You can use the [editor on GitHub](https://github.com/computational-nutrition-lab/dietary_patterns/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
-# My Table of content
+## My Table of content
 - [Section 1](#id-section1)
 - [Section 2](#id-section2)
 
-<div id='id-section1'/>
-## Section 1
-<div id='id-section2'/>
-## Section 2
+<div id='id-section1'/> 
+## Section 1 ##
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
 
 ```markdown
 Syntax highlighted code block
@@ -35,6 +33,78 @@ Syntax highlighted code block
 [Link](url) and ![Image](src)
 ```
 
+Text can be **bold**, _italic_, or ~~strikethrough~~.
+
+### Here is an unordered list:
+
+*   Item foo
+*   Item bar
+*   Item baz
+*   Item zip
+
+### And an ordered list:
+
+1.  Item one
+1.  Item two
+1.  Item three
+1.  Item four
+
+### And a nested list:
+
+- level 1 item
+  - level 2 item
+  - level 2 item
+    - level 3 item
+    - level 3 item
+- level 1 item
+  - level 2 item
+  - level 2 item
+  - level 2 item
+- level 1 item
+  - level 2 item
+  - level 2 item
+- level 1 item
+
+### Definition lists can be used with HTML syntax.
+
+<dl>
+<dt>Name</dt>
+<dd>Godzilla</dd>
+<dt>Born</dt>
+<dd>1952</dd>
+<dt>Birthplace</dt>
+<dd>Japan</dd>
+<dt>Color</dt>
+<dd>Green</dd>
+</dl>
+
+
+<div id='id-section2'/>
+## Section 2 ##
+
+### Small image
+
+![Octocat](https://github.githubassets.com/images/icons/emoji/octocat.png)
+
+### Large image
+
+![Branching](https://uago.at/-aI4Q/sgim.jpg)
+
+## Tables
+
+### Multiple columns
+
+| head1        | head two          | three |
+|:-------------|:------------------|:------|
+| ok           | good swedish fish | nice  |
+| out of stock | good and plenty   | nice  |
+| ok           | good `oreos`      | hmm   |
+| ok           | good `zoute` drop | yumm  |
+
+
+
+
+***
 For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
 
 ### Jekyll Themes
