@@ -4,6 +4,15 @@ You can use the [editor on GitHub](https://github.com/computational-nutrition-la
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
 
+# My Table of content
+- [Section 1](#id-section1)
+- [Section 2](#id-section2)
+
+<div id='id-section1'/>
+## Section 1
+<div id='id-section2'/>
+## Section 2
+
 ### Markdown
 
 Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
