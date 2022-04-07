@@ -16,6 +16,7 @@
 # Set where the NHANES data are.   
   setwd("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16")
 
+# Food items data.
   nhanes1516_raw1 <- read.xport("Interview_IndFoods_Day1_DR1IFF_I.XPT") 
   nhanes1516_raw2 <- read.xport("Interview_IndFoods_Day2_DR2IFF_I.XPT") 
   str(nhanes1516_raw1)
@@ -37,6 +38,13 @@
   str(nhanes1516_raw1_s)
   head(nhanes1516_raw1_s, 2)
 
+# ---------------------------------------------------------------------------------------------------------------
+# Totals data.
+  
+  
+  
+  
+
 # ========================================================================================
 # Add Food code description.   
 # ========================================================================================
@@ -44,12 +52,10 @@
   
   codetable <- read.xport("FoodCodes_DRXFCD_I.XPT")
   head(codetable)  
-  aaa = as.data.frame(codetable)  
   colnames(codetable)[1] <- "Food_code"
   
 # Make the Food code as integer here, too. 
   codetable$Food_codeint <- as.integer(codetable$Food_Code)  
-  aaa$Food_codeint <- as.integer(aaa$Food_Code)  
   str(codetable)  
   ?as.integer
   
@@ -85,54 +91,147 @@
   table(nhanes1516$DR1DRSTZ)
   
 # Take only DR1DRSTZ = 1
-  nhanes1516_1 <- subset(nhanes1516, DR1DRSTZ ==1)
+  nhanes1516_1 <- subset(nhanes1516, DR1DRSTZ == 1)
   table(nhanes1516_1$DR1DRSTZ)
   
 # How many participants selected?
   length(unique(nhanes1516_1$SEQN))
   
 # ---------------------------------------------------------------------------------------------------------------
-# Weights 
-# Weights must be used when analyzing a subset of samples. 
-  # e.g. 8506 persons provided Day 1 data, but only 7027 of them provided Day 2 data. 
-  # if analyzing the 7207 only, weights nhanes1516$WTDR2D should be used.
-  nhanes1516_1bothdays <- subset(nhanes1516_1, WTDR2D != 0)
-  
-  length(unique(nhanes1516_1bothdays$SEQN)) 
-  # This is less than 7027 because of the removed individuals with DR1DRSTZ==1. 
-  
+    # Weights for both days (if you are analyzing two days)
+    # Weights must be used when analyzing a subset of samples. 
+      # e.g. 8506 persons provided Day 1 data, but only 7027 of them provided Day 2 data. 
+      # if analyzing the 7207 only, weights nhanes1516$WTDR2D should be used.
+      nhanes1516_1bothdays <- subset(nhanes1516_1, WTDR2D != 0)
+      
+      length(unique(nhanes1516_1bothdays$SEQN)) 
+      # This is less than 7027 because of the removed individuals with DR1DRSTZ==1. 
+      
+      # A bit more about weight.... WTDRD1 is weight for day 1, and WTDR2D is for both day 1 and 2. 
+      head(nhanes_sub1$WTDRD1)
+      head(nhanes_sub1, 2)
+      
+      head(nhanes_sub1[, c("SEQN", "WTDRD1", "WTDR2D", "DR1_030Z")], 50)
+      
+      table(unique(nhanes_sub1$SEQN))
+      table(unique(nhanes_sub1$WTDRD1))
+      # each individual has the same weight values.
+      
+      How can I use weights??
+      # But it seems like simple analysis of day 1 or day 2 of a single cycle of NHANES data
+      # does not require weights, according to Table VIII. Most common survey sample weights 
+      # and their appropriate use in NHANES Sample Design and Estimation Procedures.
+      
 # Day 1 and Day 2 are apart by different number of days for samples. 
 # You may want to distinguish weekdays and weekend days.   
 
 # ---------------------------------------------------------------------------------------------------------------
 # Take a random sample.
   # Choose n random samples of participant ID
-  subsetusers <- sample(unique(nhanes1516_1bothdays$SEQN), 1000)
+  subsetusers <- sample(unique(nhanes1516_1$SEQN), 1000)
   
   # Subset only those found in the chosen ID list.
-  nhanes_sub1 <- nhanes1516_1bothdays[nhanes1516_1bothdays$SEQN %in% subsetusers, ]
+  nhanes_sub1 <- nhanes1516_1[nhanes1516_1$SEQN %in% subsetusers, ]
 
-  # Confirm how many participants selected.
+  # Confirm how many participants were selected.
   length(unique(nhanes_sub1$SEQN))
 
-
-
-# Check basic statistics
-  summary(nhanes_sub1$WTDRD1)
-  summary(nhanes_sub1$WTDR2D)
-  length( nhanes_sub1$WTDRD1)
-  
-  head(nhanes_sub1$WTDRD1)
   head(nhanes_sub1, 2)
+  
+# Check basic statistics
+  summary(nhanes_sub1$DR1IGRMS)
+
+# histogram
+  hist(nhanes_sub1$DR1IGRMS)
+  boxplot(nhanes_sub1$DR1IGRMS)
+  
+# For individual food data, no code for cleaning.
+# Outliers won't severely affect main analysis conclusions (ASA24 data cleaning doc)
+# But it's always a good idea to take a look at the distributions of variables of interest. 
+# Could calculate totals by occasion, similar to ASA24 code.
+ 
+  ### GOOD UNTIL HERE. 04/07/2022. #####
+  
+  
+# ========================================================================================
+# Use the prep_data, PCA, and k_means scripts to analyze this data!   
+# ========================================================================================
+# Load the necessary functions
+source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/prep_data_for_clustering.R")
+source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/PCA.R")
+source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R")
+
+# Take average of each user for each of the 64 nutrients.
+# Nutrients analysis  --> start.col = "DR1IPROT",    end.col = "DR1IP226"
+  AverageBy(data = nhanes_sub_b, by = "SEQN", start.col = "DR1IPROT", end.col = "DR1IP226")
+
+# The column names should be the same as start.col-end.col. 
+  colnames(meansbycategorydf)
+
+# pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
+# --> No columns were removed.
+
+# Collapse variables - cutoff R>0.75 
+# --> collapsed from 64 to 30.
+
+# The cleaned and averaged dataset is ?? x ?? dataframe.
+
+# ---------------------------------------------------------------------------------------------------------------
+# Calculate and plot %kcal of TFAT, PROT, and CARB. 
+# Load necessary functions. 
+source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/percent_kcal.R")
+
+# Plot %kcal of protein, fat, and carbs.
+# need to rename the data so that they will be recognized by the functions.. 
+  totals <- nhanes_sub_b
+  totals$UserName <- totals$SEQN
+  totals$KCAL <- totals$DR1IKCAL
+  totals$PROT <- totals$DR1IPROT
+  totals$TFAT <- totals$DR1ITFAT
+  totals$CARB <- totals$DR1ICARB
+  totals$SUGR <- totals$DR1ISUGR
+
+# Is SUGR a part of CARB or is it separate???
+  aaa =head(totals[, c("KCAL", "TFAT", "CARB", "PROT", "SUGR")])
+  aaa$kcal_prot <- aaa$PROT*4  
+  aaa$kcal_carb <- aaa$CARB*4  
+  aaa$kcal_tfat <- aaa$TFAT*9  
+  aaa$kcal_total <- aaa$kcal_prot + aaa$kcal_carb + aaa$kcal_tfat 
+  aaa$diff <- aaa$kcal_total - aaa$KCAL
+  totals$carb_sugr <- totals$CARB - totals$SUGR
+  summary(totals$carb_sugr)
+# For most cases, CARB > SUGR, so it's possible that CARB includes SUGR (should be...) 
+# but not quite sure. 
+
+  head(totals, 10)
+  totals$PROT
+  table(totals$UserName)
+  totals[, c("UserName", "TFAT", "PROT")]
+  str(totals)
+
+# %kcal
+  CalcKcal_user()
+  NormalizedPercentKcal()
+# This one works!
+
+# If there was a factor(s) that could group participants, then SD will be meaningful. 
+ NonNormalizedPercentKcal(show.sd = T)
+
+# # Replace NaN and Inf with zero. *** Not really needed..
+# totals[ is.na(totals)] <- 0 
+# totals[ totals == Inf ] <- 0 
+# totals[ totals == -Inf ] <- 0 
+# head(totals, 10)
+# ---------------------------------------------------------------------------------------------------------------
+  
+  
+ 
+ 
+ 
+ 
+ 
+  
       
-# Follow the ASA24 outlier guideline.
-  
-  
-  
-  
-  
-  
-    
   
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -200,77 +299,3 @@
   foodcodes = read.table("clipboard", sep = "\t", header = T)
   head(foodcodes)
 
-# ========================================================================================
-# Use the prep_data, PCA, and k_means scripts to analyze this data!   
-# ========================================================================================
-# Load the necessary functions
-  source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/prep_data.R")
-  source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/PCA.R")
-  source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R")
-
-# Take average of each user (n=30) for each of the 64 nutrients.
-# Nutrients analysis  --> start.col = "DR1IPROT",    end.col = "DR1IP226"
-  AverageBy(data = nhanes_sub_b, by = "SEQN", start.col = "DR1IPROT", end.col = "DR1IP226")
-  
-# The column names should be the same as start.col-end.col. 
-  colnames(meansbycategorydf)
-  
-# pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
-  # --> No columns were removed.
-
-# Collapse variables - cutoff R>0.75 
-  # --> collapsed from 64 to 30.
-  
-# The cleaned and averaged dataset is 30 x 30 dataframe.
-# ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# Calculate and plot %kcal of TFAT, PROT, and CARB. 
-# Load necessary functions. 
-  source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/percent_kcal.R")
-  
-# Plot %kcal of protein, fat, and carbs.
-  # need to rename the data so that they will be recognized by the functions.. 
-  totals <- nhanes_sub_b
-  totals$UserName <- totals$SEQN
-  totals$KCAL <- totals$DR1IKCAL
-  totals$PROT <- totals$DR1IPROT
-  totals$TFAT <- totals$DR1ITFAT
-  totals$CARB <- totals$DR1ICARB
-  totals$SUGR <- totals$DR1ISUGR
-  
-      # Is SUGR a part of CARB or is it separate???
-      aaa =head(totals[, c("KCAL", "TFAT", "CARB", "PROT", "SUGR")])
-      aaa$kcal_prot <- aaa$PROT*4  
-      aaa$kcal_carb <- aaa$CARB*4  
-      aaa$kcal_tfat <- aaa$TFAT*9  
-      aaa$kcal_total <- aaa$kcal_prot + aaa$kcal_carb + aaa$kcal_tfat 
-      aaa$diff <- aaa$kcal_total - aaa$KCAL
-      totals$carb_sugr <- totals$CARB - totals$SUGR
-      summary(totals$carb_sugr)
-      # For most cases, CARB > SUGR, so it's possible that CARB includes SUGR (should be...) 
-      # but not quite sure. 
-  
-  head(totals, 10)
-  totals$PROT
-  table(totals$UserName)
-  totals[, c("UserName", "TFAT", "PROT")]
-  str(totals)
-  
-  # %kcal
-  CalcKcal_user()
-  NormalizedPercentKcal()
-  # This one works!
-  
-  # If there was a factor(s) that could group participants, then SD will be meaningful. 
-  NonNormalizedPercentKcal(show.sd = T)
-  
-  # # Replace NaN and Inf with zero. *** Not really needed..
-  # totals[ is.na(totals)] <- 0 
-  # totals[ totals == Inf ] <- 0 
-  # totals[ totals == -Inf ] <- 0 
-  # head(totals, 10)
-# ---------------------------------------------------------------------------------------------------------------
-  
-  
-  

@@ -18,7 +18,6 @@
 # Calculate totals by hand if any correction was made in Items.
 # ========================================================================================  
 
- ########## Need to make it into a function #############
   GenerateTotals <- function(items.data=Items_raw, User.Name='UserName', 
                              Recall.No='RecallNo'){
     
