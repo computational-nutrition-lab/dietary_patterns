@@ -1,5 +1,5 @@
 # ========================================================================================
-# Use NHANES data as an exmaple.
+# Use NHANES 2017-18 data as an exmaple.
 # Version 1
 # Created on 01/28/2022 by Rie Sadohara
 # ========================================================================================
@@ -14,6 +14,7 @@
   library(SASxport)
   library(foreign)
 
+# Set where the NHANES data are.   
   setwd("E:/MSU OneDrive 20210829/UMinn/20_NHANES")
 
   nhanes1718_raw <- read.xport("DR1IFF_J.XPT") 
