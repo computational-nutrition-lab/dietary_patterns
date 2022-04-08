@@ -10,7 +10,7 @@
 # 
 # Load necessary scripts
 # Import source code to run the analyses to follow.
-  source("lib/specify_dir_and_check_col.R")
+  source("~/GitHub/dietary_patterns/lib/specify_dir_and_check_col.R")
 
 # Abby's code: https://github.com/knights-lab/dietstudy_analyses/blob/master/data/diet/raw_and_preprocessed_ASA24_data/lib/Clean_diet_data.R
 

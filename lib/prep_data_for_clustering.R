@@ -59,7 +59,7 @@
     # Subset the 'by' column and the columns in the start-end range.
     by_start_end <<- data[, c(which(colnames(data)==by), start_col_number:end_col_number)]
     
-    # Define which variablese to take means. and a list to save restuls
+    # Define which variables to take means. and a list to save restuls
     myvar <<- colnames(by_start_end)[-1]
     # Define the category entries to calculate means for.
     category_by <<- unique(by_start_end[, 1]) 

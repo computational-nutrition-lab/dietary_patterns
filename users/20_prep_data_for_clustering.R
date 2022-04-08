@@ -35,12 +35,11 @@
   source("lib/prep_data_for_clustering.R")
 
 # ---------------------------------------------------------------------------------------------------------------
-# Load totals data  
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
-# SpecifyDataDirectory(directory.name = "eg_data/salt/")
 
-# Load the totals.csv
+# ASA24 data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Load the totals data:
   totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
 
 # If totals data is a csv:
@@ -48,6 +47,14 @@
 
 # Load the items.csv
   items <- read.table("Items_to_use.txt", quote = "", sep = "\t", header = T)
+
+# NHANES data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+  totals <- read.table("nhanes_totals_1000.txt", quote = "", sep = "\t", header = T)
+  
+  
+  
+  
+  
     
 # Come back to the main directory
   setwd(main.wd)

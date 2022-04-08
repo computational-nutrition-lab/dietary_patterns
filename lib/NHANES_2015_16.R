@@ -16,9 +16,13 @@
 # Set where the NHANES data are.   
   setwd("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16")
 
-# Food items data.
-  nhanes1516_raw1 <- read.xport("Interview_IndFoods_Day1_DR1IFF_I.XPT") 
-  nhanes1516_raw2 <- read.xport("Interview_IndFoods_Day2_DR2IFF_I.XPT") 
+# ========================================================================================
+# Food items data. 
+# ========================================================================================
+
+# Load food items (by user & occasion)
+  nhanes1516_items1 <- read.xport("Interview_IndFoods_Day1_DR1IFF_I.XPT") 
+  nhanes1516_items2 <- read.xport("Interview_IndFoods_Day2_DR2IFF_I.XPT") 
   str(nhanes1516_raw1)
   dim(nhanes1516_raw1)
   dim(nhanes1516_raw2)
@@ -39,17 +43,9 @@
   head(nhanes1516_raw1_s, 2)
 
 # ---------------------------------------------------------------------------------------------------------------
-# Totals data.
+# Add food descriptions to food codes.
   
-  
-  
-  
-
-# ========================================================================================
-# Add Food code description.   
-# ========================================================================================
 # Load the text file with food code and descriptions. 
-  
   codetable <- read.xport("FoodCodes_DRXFCD_I.XPT")
   head(codetable)  
   colnames(codetable)[1] <- "Food_code"
@@ -73,20 +69,49 @@
   # Food description added! DRXFCSD is short descriptions, and DRXFCLD are long descriptions.
   
 ### Do not need to do it with the items file (ASA24) because it already has a column of food description 
-### column at the end of the table!
-
+### at the end of the table!
 
 # ========================================================================================
-# Clean NHANES17-18 data
+# Totals data   
 # ========================================================================================
+
+# Load total nutrient intake of day 1 or day 2. Day 1 has more columns that can be used as metadata.
+  nhanes1516_totals1 <- read.xport('Total_Nutrient_Day1_DR1TOT_J.XPT')
+  nhanes1516_totals2 <- read.xport('Total_Nutrient_Day2_DR2TOT_J.XPT')
+  colnames(nhanes1516_totals1)
+  head(nhanes1516_totals1[1:50, ] )
+  
+# e.g. only day 1 has Number of times mackerel eaten past 30 days
+  hist(nhanes1516_totals1$DRD370HQ)
+  
+# Intake of the day 
+  hist(nhanes1516_totals1$DR1DAY)
+  
+# On special diet?
+  table(nhanes1516_totals1$DRQSDIET)
+
+# KCAL on that day
+  hist(nhanes1516_totals1$DR1TKCAL)
+  
+  
+  
+  
+  
+# ========================================================================================
+# Clean totals data
+# ========================================================================================
+
+# Rename the dataset to work on.
+  nhanes1516 <- nhanes1516_totals1
 
 # How many participants in the total dataset?
   length(unique(nhanes1516$SEQN))
   # 8505. 
+  # 8704 for totals day 1.
 
 # ---------------------------------------------------------------------------------------------------------------
-# Status code. 
-# Code desciptions in Analytic notes of: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
+# Status code - only retain complete entries. 
+# Code descriptions in Analytic notes: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
 #  1: reliable and all relevant variables associated with the 24-hour dietary recall contain a value.
   table(nhanes1516$DR1DRSTZ)
   
@@ -98,51 +123,106 @@
   length(unique(nhanes1516_1$SEQN))
   
 # ---------------------------------------------------------------------------------------------------------------
-    # Weights for both days (if you are analyzing two days)
-    # Weights must be used when analyzing a subset of samples. 
-      # e.g. 8506 persons provided Day 1 data, but only 7027 of them provided Day 2 data. 
-      # if analyzing the 7207 only, weights nhanes1516$WTDR2D should be used.
-      nhanes1516_1bothdays <- subset(nhanes1516_1, WTDR2D != 0)
-      
-      length(unique(nhanes1516_1bothdays$SEQN)) 
-      # This is less than 7027 because of the removed individuals with DR1DRSTZ==1. 
-      
-      # A bit more about weight.... WTDRD1 is weight for day 1, and WTDR2D is for both day 1 and 2. 
-      head(nhanes_sub1$WTDRD1)
-      head(nhanes_sub1, 2)
-      
-      head(nhanes_sub1[, c("SEQN", "WTDRD1", "WTDR2D", "DR1_030Z")], 50)
-      
-      table(unique(nhanes_sub1$SEQN))
-      table(unique(nhanes_sub1$WTDRD1))
-      # each individual has the same weight values.
-      
-      How can I use weights??
-      # But it seems like simple analysis of day 1 or day 2 of a single cycle of NHANES data
-      # does not require weights, according to Table VIII. Most common survey sample weights 
-      # and their appropriate use in NHANES Sample Design and Estimation Procedures.
-      
+############### OPTIONAL #################
+# Weights for both days (if you are analyzing two days)
+# Weights must be used when analyzing a subset of samples. 
+  # e.g. 8506 persons provided Day 1 data, but only 7027 of them provided Day 2 data. 
+  # if analyzing the 7207 only, weights nhanes1516$WTDR2D should be used.
+  nhanes1516_1bothdays <- subset(nhanes1516_1, WTDR2D != 0)
+  
+  length(unique(nhanes1516_1bothdays$SEQN)) 
+  # This is less than 7027 because of the removed individuals with DR1DRSTZ==1. 
+  
+  # A bit more about weight.... WTDRD1 is weight for day 1, and WTDR2D is for both day 1 and 2. 
+  head(nhanes_sub1$WTDRD1)
+  head(nhanes_sub1, 2)
+  
+  head(nhanes_sub1[, c("SEQN", "WTDRD1", "WTDR2D", "DR1_030Z")], 50)
+  
+  table(unique(nhanes_sub1$SEQN))
+  table(unique(nhanes_sub1$WTDRD1))
+  # each individual has the same weight values.
+  
+  How can I use weights??
+  # But it seems like simple analysis of day 1 or day 2 of a single cycle of NHANES data
+  # does not require weights, according to Table VIII. Most common survey sample weights 
+  # and their appropriate use in NHANES Sample Design and Estimation Procedures.
+  
 # Day 1 and Day 2 are apart by different number of days for samples. 
 # You may want to distinguish weekdays and weekend days.   
 
 # ---------------------------------------------------------------------------------------------------------------
+# For totals, the same QC can be applied as ASA24 totals QC procedure.
+# Functions to clean ASA24 data.
+  source("~/GitHub/dietary_patterns/lib/load_clean_ASA24.R")
+
+# Define the totals dataset to work on, if necessary.
+  QCtotals <- nhanes1516_1
+  QCtotals$UserName <- QCtotals$SEQN
+  QCtotals$KCAL <- QCtotals$DR1TKCAL
+  QCtotals$PROT <- QCtotals$DR1TPROT
+  QCtotals$TFAT <- QCtotals$DR1TTFAT
+  QCtotals$CARB <- QCtotals$DR1TCARB
+  QCtotals$VC <- QCtotals$DR1TVC
+  QCtotals$BCAR <- QCtotals$DR1TBCAR
+  QCtotals$SUGR <- QCtotals$DR1TSUGR
+  colnames(QCtotals)
+  
+# Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
+  KCALOutliers(totals.data = QCtotals, min = 600, max = 5700)
+  
+# Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
+  PROTOutliers(totals.data = QCtotals, min = 10, max = 240)
+  
+# Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
+  TFATOutliers(totals.data = QCtotals, min = 15, max = 230)
+  
+# Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
+  VCOutliers(totals.data = QCtotals, min = 5, max = 400)
+  # or show the outliers if too many.
+  VC_outlier_rows[, c('UserName', 'KCAL', 'VC', 'V_TOTAL', 'V_DRKGR', 'F_TOTAL')]  # F is fruits.
+  
+# Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
+  BCAROutliers(totals.data = QCtotals, min = 15, max = 8200)
+  # or show the outliers if too many.
+  bcaroutliers <- BCAR_outlier_rows[, c('UserName', 'KCAL', 'BCAR')]
+  bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ]
+  
+# Save as "Totals_QCed.txt"
+  write.table(QCtotals, "eg_data/VVKAJ101-105/VVKAJ_2021-11-09_7963_Totals_QCed.txt", sep="\t", quote=F, row.names=F)  
+        
+
+  
+# ========================================================================================
+# Take a random subsample.   
+# ========================================================================================
+
+# Define your whole dataset. 
+  wholedata <- QCtotals
+  
 # Take a random sample.
   # Choose n random samples of participant ID
-  subsetusers <- sample(unique(nhanes1516_1$SEQN), 1000)
+  subsetusers <- sample(unique(wholedata$SEQN), 1000)
   
   # Subset only those found in the chosen ID list.
-  nhanes_sub1 <- nhanes1516_1[nhanes1516_1$SEQN %in% subsetusers, ]
+  nhanes_sub1 <- wholedata[wholedata$SEQN %in% subsetusers, ]
 
-  # Confirm how many participants were selected.
+  # Confirm the desired number of participants were selected.
   length(unique(nhanes_sub1$SEQN))
 
   head(nhanes_sub1, 2)
   
+# ---------------------------------------------------------------------------------------------------------------
 # Check basic statistics
-  summary(nhanes_sub1$DR1IGRMS)
 
-# histogram
-  hist(nhanes_sub1$DR1IGRMS)
+# KCAL
+  summary(nhanes_sub1$DR1TKCAL)
+  hist(   nhanes_sub1$DR1TKCAL)
+  boxplot(nhanes_sub1$DR1TKCAL)
+  
+# only items file has GRMS (grams) data. 
+  summary(nhanes_sub1$DR1IGRMS)
+  hist(   nhanes_sub1$DR1IGRMS)
   boxplot(nhanes_sub1$DR1IGRMS)
   
 # For individual food data, no code for cleaning.
@@ -150,22 +230,34 @@
 # But it's always a good idea to take a look at the distributions of variables of interest. 
 # Could calculate totals by occasion, similar to ASA24 code.
  
-  ### GOOD UNTIL HERE. 04/07/2022. #####
+# ---------------------------------------------------------------------------------------------------------------
+# Save the totals file as a txt file.
+  write.table(nhanes_sub1, "nhanes_totals_1000.txt", quote=F, sep="\t")
+  
+  ###### GOOD UP TO HERE. 
+  ###### THE CODE BELOW SHOULD BE IN OTHER SCRIPTS LIKE PRE-DATA-FOR-CLUSTERING. ######
   
   
+  
+  
+  
+  
+
 # ========================================================================================
 # Use the prep_data, PCA, and k_means scripts to analyze this data!   
 # ========================================================================================
 # Load the necessary functions
-source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/prep_data_for_clustering.R")
-source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/PCA.R")
-source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R")
+  source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/prep_data_for_clustering.R")
+  source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/PCA.R")
+  source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R")
 
-# Take average of each user for each of the 64 nutrients.
+# Take average of each user for each of the nutrients.
 # Nutrients analysis  --> start.col = "DR1IPROT",    end.col = "DR1IP226"
-  AverageBy(data = nhanes_sub_b, by = "SEQN", start.col = "DR1IPROT", end.col = "DR1IP226")
+  SubsetColumns(data=nhanes_sub1, start.col="", end.col)
+  
+  AverageBy(data = nhanes_sub1, by = "SEQN", start.col = "DR1IPROT", end.col = "DR1IP226")
 
-# The column names should be the same as start.col-end.col. 
+# The column names should be the same as start.col - end.col. 
   colnames(meansbycategorydf)
 
 # pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
@@ -182,7 +274,7 @@ source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R"
 source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/percent_kcal.R")
 
 # Plot %kcal of protein, fat, and carbs.
-# need to rename the data so that they will be recognized by the functions.. 
+# need to rename the data so that they will be recognized by the functions. 
   totals <- nhanes_sub_b
   totals$UserName <- totals$SEQN
   totals$KCAL <- totals$DR1IKCAL
@@ -200,7 +292,7 @@ source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/percent_kc
   aaa$diff <- aaa$kcal_total - aaa$KCAL
   totals$carb_sugr <- totals$CARB - totals$SUGR
   summary(totals$carb_sugr)
-# For most cases, CARB > SUGR, so it's possible that CARB includes SUGR (should be...) 
+# For most cases, CARB > SUGR, so it's possible that CARB includes SUGR (it should...) 
 # but not quite sure. 
 
   head(totals, 10)

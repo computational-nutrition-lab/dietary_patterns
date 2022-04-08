@@ -16,8 +16,6 @@
 # Load data
 # ========================================================================================
 
-# ---------------------------------------------------------------------------------------------------------------
-
 # Set your working directory as to the main directory.
   Session --> Set working directory --> Choose directory.
 
@@ -68,8 +66,6 @@
     
   # Come back to the main directory
     setwd(main.wd)
-  
-# ---------------------------------------------------------------------------------------------------------------
 
 # ========================================================================================
 # <Optional> Use individuals_to_remove.txt to filter out users marked as Remove = yes.  
@@ -96,7 +92,7 @@
   
   # Load these selected data for further QC.
   totals <- read.table("eg_data/VVKAJ101-105/selectedtotals.txt", header=T, sep="\t")
-  items <- read.delim("eg_data/VVKAJ101-105/selecteditems.txt", header=T, sep="\t")
+  items <-  read.delim("eg_data/VVKAJ101-105/selecteditems.txt", header=T, sep="\t")
 
 # ========================================================================================
 # <Optional> Merge individuals' metadata to totals or items.   
