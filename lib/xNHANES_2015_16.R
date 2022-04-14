@@ -1,5 +1,6 @@
 # ========================================================================================
-# Functions to use NHANES 2015-16 data as an example.
+# Functions to Functions to load NHANES 2015-16 data and take random samples.
+# Copied to load_clean_NHANES.R.
 # Version 1
 # Created on 04/13/2022 by Rie Sadohara
 # ========================================================================================

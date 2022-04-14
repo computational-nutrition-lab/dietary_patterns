@@ -17,57 +17,81 @@
   library(foreign)
 
 # Load necessary functions.
-  source("~/GitHub/dietary_patterns/lib/NHANES_2015_16.R")
+  source("~/GitHub/dietary_patterns/lib/load_clean_NHANES.R")
 
-# Set where the NHANES data and food code table are.   
+# Set where the NHANES data and food code table are.
+# it is not in the eg_data folder because it's too large to save in GitHub folder. 
   setwd("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16")
 
-# Load items data Day 1 and make it an object called nhanes1516_s. 
-  LoadNHANESFoodItems(data.name="Interview_IndFoods_Day1_DR1IFF_I.XPT", 
-                      food.code.column = "DR1IFDCD", 
-                      food.code.table = "FoodCodes_DRXFCD_I.XPT")
-    
-# If analyzing both Day 1 and Day 2, save day 1 and day 2 with different names.
-  Food_D1 <- nhanes1516_s
+
+# ---------------------------------------------------------------------------------------------------------------
+# Prep the code table - replace special characters with "_" or "and"
+  
+  # Format the food table and save it as a .txt file.
+  PrepareFoodCodeTable(raw.food.code.table = "FoodCodes_DRXFCD_I.XPT", 
+                       out.fn = "FoodCodes_DRXFCD_I_f.txt")  
+  
+  # Load the formatted food code table.
+  foodcodetable_f <- read.table("FoodCodes_DRXFCD_I_f.txt", sep="\t", header=T)
+
+# ---------------------------------------------------------------------------------------------------------------
+# Load items data Day 1 and make it an object called nhanes1516_s.
+# Save it as a txt file.  LIKELY IT WILL BE A HUGE FILE.
+  ImportNHANESFoodItems(data.name="Interview_IndFoods_Day1_DR1IFF_I.XPT", 
+                        food.code.column = "DR1IFDCD", 
+                        food.code.table = foodcodetable_f,
+                        out.fn = "Food_D1_w_code.txt")
+
+# Load the saved food items file. 
+  Food_D1 <- read.table("Food_D1_w_code.txt", sep="\t", header=T)
+  # If analyzing both Day 1 and Day 2, save day 1 and day 2 with different names.
+ 
 
 # Load items data Day 2 and make it an object called nhanes1516_s. 
-  LoadNHANESFoodItems(data.name="Interview_IndFoods_Day2_DR2IFF_I.XPT", 
-                      food.code.column = "DR2IFDCD", 
-                      food.code.table = "FoodCodes_DRXFCD_I.XPT")
+  ImportNHANESFoodItems(data.name="Interview_IndFoods_Day2_DR2IFF_I.XPT", 
+                        food.code.column = "DR2IFDCD", 
+                        food.code.table = foodcodetable_f,
+                        out.fn = "Food_D2_w_code.txt")
   
-# Save the day 2 data with a different name.
-  Food_D2 <- nhanes1516_s
+# Load the saved file. 
+  Food_D2 <- read.table("Food_D2_w_code.txt", sep="\t", header=T)
+
+  
+  ####### GOOD UP TO HERE 04/14/2022 #########
+  
   
 # ---------------------------------------------------------------------------------------------------------------
-# Status code - Only retain complete entries. 
-  # Code descriptions in Analytic notes: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
+# Filter by Status code - Only retain complete entries. 
   #  1: reliable and all relevant variables associated with the 24-hour dietary recall contain a value.
+  # Code descriptions in Analytic notes: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
   
   # Define the dataset to work on. 
-  nhanes1516 <- Food_D1
+  nhanes_food <- Food_D1
   
   # Check the frequency (DR1DRSTZ) of Status code in the dataset. 
-  table(nhanes1516$DR1DRSTZ)
+  table(nhanes_food$DR1DRSTZ)
   
   # Take only DR1DRSTZ = 1
-  nhanes1516_1 <- subset(nhanes1516, DR1DRSTZ == 1)
-  table(nhanes1516_1$DR1DRSTZ)
+  nhanes_food_1 <- subset(nhanes_food, DR1DRSTZ == 1)
+  
+  # Confirm that only entries that have DR1DRSTZ = 1 were retained.
+  table(nhanes_food_1$DR1DRSTZ)
   
   # Check how many participants were selected.
-  length(unique(nhanes1516_1$SEQN)) 
+  length(unique(nhanes_food_1$SEQN)) 
   
 # ---------------------------------------------------------------------------------------------------------------
 # Take n random samples of participants.
-  RandomSample(data = nhanes1516_1, n=1500)
+  RandomSample(data = nhanes_food_1, n=1500)
 # The subset dataset is named as nhanes_sub1.  
 
 # ---------------------------------------------------------------------------------------------------------------
-  # Check basic statistics
+  # Check basic statistics of nhanes_sub1.
   
+  colnames(nhanes_sub1)
   # KCAL
-  summary(nhanes_sub1$DR1TKCAL)
-  hist(   nhanes_sub1$DR1TKCAL)
-  boxplot(nhanes_sub1$DR1TKCAL)
+  head(   nhanes_sub1$DR1IKCAL)
+  boxplot(nhanes_sub1$DR1IKCAL)
   
   # only items file has GRMS (grams) data. 
   summary(nhanes_sub1$DR1IGRMS)
