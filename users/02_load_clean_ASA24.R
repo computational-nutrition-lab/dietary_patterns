@@ -131,29 +131,31 @@
 #  Note that input file (QCtotals) will be overwritten after outlier removal.
 # ======================================================================================== 
 
-     # Define your totals dataset if necessary.
-      QCtotals <- totals      # imported totals
-      QCtotals <- New_Totals  # my newly generated totals
+# Define your totals dataset if necessary.
+  QCtotals <- totals      # imported totals
+  QCtotals <- New_Totals  # my newly generated totals
 
 # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
-  KCALOutliers(totals.data = QCtotals, min = 600, max = 5700)
+  QCOutliers(input.data = QCtotals, target.colname = "KCAL", min = 600, max = 5700)
 
 # Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
-  PROTOutliers(totals.data = QCtotals, min = 10, max = 240)
+  QCOutliers(input.data = QCtotals, target.colname = "PROT", min = 10, max = 240)
 
 # Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
-  TFATOutliers(totals.data = QCtotals, min = 15, max = 230)
+  QCOutliers(input.data = QCtotals, target.colname = "TFAT", min = 15, max = 230)
 
 # Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
-  VCOutliers(totals.data = QCtotals, min = 5, max = 400)
-    # or show the outliers if too many.
-    VC_outlier_rows[, c('UserName', 'KCAL', 'VC', 'V_TOTAL', 'V_DRKGR', 'F_TOTAL')]  # F is fruits.
+  QCOutliers(input.data = QCtotals, target.colname = "VC", min = 5, max = 400)
+    
+      # or show the outliers if too many.
+      VC_outlier_rows[, c('UserName', 'KCAL', 'VC', 'V_TOTAL', 'V_DRKGR', 'F_TOTAL')]  # F is fruits.
 
 # Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
-  BCAROutliers(totals.data = QCtotals, min = 15, max = 8200)
-    # or show the outliers if too many.
-    bcaroutliers <- BCAR_outlier_rows[, c('UserName', 'KCAL', 'BCAR')]
-    bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ]
+    QCOutliers(input.data = QCtotals, target.colname = "BCAR", min = 15, max = 8200)
+    
+      # or show the outliers if too many.
+      bcaroutliers <- BCAR_outlier_rows[, c('UserName', 'KCAL', 'BCAR')]
+      bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ]
 
 # Save as "Totals_QCed.txt"
   write.table(QCtotals, "eg_data/VVKAJ101-105/VVKAJ_2021-11-09_7963_Totals_QCed.txt", sep="\t", quote=F, row.names=F)

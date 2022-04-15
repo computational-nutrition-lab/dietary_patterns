@@ -35,8 +35,10 @@
   foodcodetable_f <- read.table("FoodCodes_DRXFCD_I_f.txt", sep="\t", header=T)
 
 # ---------------------------------------------------------------------------------------------------------------
-# Load items data Day 1 and make it an object called nhanes1516_s.
-# Save it as a txt file.  LIKELY IT WILL BE A HUGE FILE.
+# If analyzing both Day 1 and Day 2, save day 1 and day 2 with different names.
+
+# Import items data Day 1, add food item descriptions, and save it as a txt file.
+# LIKELY IT WILL BE A HUGE FILE.
   ImportNHANESFoodItems(data.name="Interview_IndFoods_Day1_DR1IFF_I.XPT", 
                         food.code.column = "DR1IFDCD", 
                         food.code.table = foodcodetable_f,
@@ -44,21 +46,17 @@
 
 # Load the saved food items file. 
   Food_D1 <- read.table("Food_D1_w_code.txt", sep="\t", header=T)
-  # If analyzing both Day 1 and Day 2, save day 1 and day 2 with different names.
  
 
-# Load items data Day 2 and make it an object called nhanes1516_s. 
+# Import items data Day 2, add food item descriptions, and save it as a txt file.
   ImportNHANESFoodItems(data.name="Interview_IndFoods_Day2_DR2IFF_I.XPT", 
                         food.code.column = "DR2IFDCD", 
                         food.code.table = foodcodetable_f,
                         out.fn = "Food_D2_w_code.txt")
   
-# Load the saved file. 
+# Add food item description and save it as a txt file. 
   Food_D2 <- read.table("Food_D2_w_code.txt", sep="\t", header=T)
 
-  
-  ####### GOOD UP TO HERE 04/14/2022 #########
-  
   
 # ---------------------------------------------------------------------------------------------------------------
 # Filter by Status code - Only retain complete entries. 
@@ -82,21 +80,23 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Take n random samples of participants.
-  RandomSample(data = nhanes_food_1, n=1500)
-# The subset dataset is named as nhanes_sub1.  
+  RandomSample(data = nhanes_food_1, n=1500, out.fn = "sample1500.txt")
 
-# ---------------------------------------------------------------------------------------------------------------
-  # Check basic statistics of nhanes_sub1.
+# Load the subsetted food items file. 
+  sample1500 <- read.table("sample1500.txt", sep="\t", header=T)
   
-  colnames(nhanes_sub1)
+# ---------------------------------------------------------------------------------------------------------------
+  # Check basic statistics of sample1500
+  
+  colnames(sample1500)
   # KCAL
-  head(   nhanes_sub1$DR1IKCAL)
-  boxplot(nhanes_sub1$DR1IKCAL)
+  head(   sample1500$DR1IKCAL)
+  boxplot(sample1500$DR1IKCAL)
   
   # only items file has GRMS (grams) data. 
-  summary(nhanes_sub1$DR1IGRMS)
-  hist(   nhanes_sub1$DR1IGRMS)
-  boxplot(nhanes_sub1$DR1IGRMS)
+  summary(sample1500$DR1IGRMS)
+  hist(   sample1500$DR1IGRMS)
+  boxplot(sample1500$DR1IGRMS)
   
   # For individual food data, there is no code for cleaning.
   # Outliers won't severely affect main analysis conclusions (ASA24 data cleaning doc)
@@ -132,7 +132,7 @@
   nhanes1516 <- nhanes1516_totals1
   
   # How many participants in the total dataset?
-  length(unique(nhanes1516$SEQN))
+  length(unique(nhanes1516_totals1$SEQN))
   # 8704 for totals day 1.
   # 8505. 
   
@@ -140,64 +140,69 @@
 # Status code - Only retain complete entries. 
   # Code descriptions in Analytic notes: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
   #  1: reliable and all relevant variables associated with the 24-hour dietary recall contain a value.
-  table(nhanes1516$DR1DRSTZ)
+  table(nhanes1516_totals1$DR1DRSTZ)
+  table(nhanes1516_totals2$DR2DRSTZ)
   
   # Take only DR1DRSTZ = 1
-  nhanes1516_1 <- subset(nhanes1516, DR1DRSTZ == 1)
-  table(nhanes1516_1$DR1DRSTZ)
+  nhanes_totals_1 <- subset(nhanes1516_totals1, DR1DRSTZ == 1)
+  nhanes_totals_2 <- subset(nhanes1516_totals2, DR2DRSTZ == 1)
+  table(nhanes_totals_1$DR1DRSTZ)
   
   # How many participants selected?
-  length(unique(nhanes1516_1$SEQN)) 
+  length(unique(nhanes_totals_1$SEQN)) 
+  length(unique(nhanes_totals_2$SEQN)) 
   
 # ---------------------------------------------------------------------------------------------------------------
-  
   # For totals, the same QC can be applied as ASA24 totals QC procedure.
   # Functions to clean ASA24 data.
   source("~/GitHub/dietary_patterns/lib/load_clean_ASA24.R")
   
-  # Define the totals dataset to work on, if necessary.
-  QCtotals <- nhanes1516_1
-  QCtotals$UserName <- QCtotals$SEQN
-  QCtotals$KCAL <- QCtotals$DR1TKCAL
-  QCtotals$PROT <- QCtotals$DR1TPROT
-  QCtotals$TFAT <- QCtotals$DR1TTFAT
-  QCtotals$CARB <- QCtotals$DR1TCARB
-  QCtotals$VC <- QCtotals$DR1TVC
-  QCtotals$BCAR <- QCtotals$DR1TBCAR
-  QCtotals$SUGR <- QCtotals$DR1TSUGR
-  colnames(QCtotals)
+# Run all these QC steps in this order.  When asked, choose to remove the outliers
+# that fall outside the specified range for each nutrient.
+  
+# Define the input data.  This will be modified after each filter.
+  QCtotals <- nhanes_totals_1
   
   # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
-  KCALOutliers(totals.data = QCtotals, min = 600, max = 5700)
+  QCOutliers(input.data = QCtotals, 
+             target.colname = "DR1TKCAL", min = 600, max = 5700)
   
   # Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
-  PROTOutliers(totals.data = QCtotals, min = 10, max = 240)
+  QCOutliers(input.data = QCtotals, 
+             target.colname = "DR1TPROT", min = 10, max = 240)
   
   # Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
-  TFATOutliers(totals.data = QCtotals, min = 15, max = 230)
-  
+  QCOutliers(input.data = QCtotals, 
+             target.colname = "DR1TTFAT", min = 15, max = 230)
+
   # Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
-  VCOutliers(totals.data = QCtotals, min = 5, max = 400)
-  # or show the outliers if too many.
-  VC_outlier_rows[, c('UserName', 'KCAL', 'VC', 'V_TOTAL', 'V_DRKGR', 'F_TOTAL')]  # F is fruits.
+  QCOutliers(input.data = QCtotals,  
+             target.colname = "DR1TVC", min = 5, max = 400)
+  
+      # or show the outliers if too many.
+      VC_outlier_rows[, c('SEQN', 'DR1TKCAL', 'DR1TDR1TVC')]
   
   # Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
-  BCAROutliers(totals.data = QCtotals, min = 15, max = 8200)
-  # or show the outliers if too many.
-  bcaroutliers <- BCAR_outlier_rows[, c('UserName', 'KCAL', 'BCAR')]
-  bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ]
+  QCOutliers(input.data = QCtotals,  
+             target.colname = "DR1TBCAR", min = 15, max = 8200)
+    
+      # or show the outliers if too many.
+      bcaroutliers <- Outlier_rows[, c('SEQN', 'DR1TKCAL', 'DR1TBCAR')]
+    # Show the first n rows of the outliers in a descending order. 
+    head(bcaroutliers[order(bcaroutliers$DR1TBCAR, decreasing = T), ], n=10)
   
-  # Save as "Totals_QCed.txt" 
+
+# ---------------------------------------------------------------------------------------------------------------
+  # Save QCtotals as "Totals_QCed.txt" 
+  write.table(QCtotals, "NHANES_totals_QCed.txt", sep="\t", quote=F, row.names=F)  
   write.table(QCtotals, "eg_data/VVKAJ101-105/VVKAJ_2021-11-09_7963_Totals_QCed.txt", sep="\t", quote=F, row.names=F)  
   
 # ---------------------------------------------------------------------------------------------------------------
-# Take n random samples of participants.
-  RandomSample(data=QCtotals, n=1500)
-# The subset dataset is named as nhanes_sub1.  
+  # Take n random samples of participants.
+  RandomSample(data = QCtotals, n=1500, out.fn = "NHANES_totals_QCed_1500.txt")
   
-# ---------------------------------------------------------------------------------------------------------------
-# Save the subset of totals as a txt file.
-  write.table(nhanes_sub1, "nhanes_totals_1500.txt", quote=F, sep="\t")
+  # Load the subsetted totals file. 
+  totals_QCed_1500 <- read.table("NHANES_totals_QCed_1500.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
   

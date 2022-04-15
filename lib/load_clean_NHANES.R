@@ -91,12 +91,11 @@ ImportNHANESFoodItems <- function(data.name, food.code.column, food.code.table, 
   
 }
 
-
 # ========================================================================================
 # Take a random subsample.   
 # ========================================================================================
 
-RandomSample <- function(data, n){
+RandomSample <- function(data, n, out.fn){
   
   # Define your whole dataset. 
   wholedata <- data
@@ -113,6 +112,9 @@ RandomSample <- function(data, n){
     
     # Confirm the desired number of participants were selected.
     cat( length(unique(nhanes_sub1$SEQN)), " participants were subsampled.", sep = "") 
+    
+    # Save the samples as a txt file with the specified name. 
+    write.table(nhanes_sub1, out.fn, sep="\t", row.names=F, quote=F)
     
   }
 }

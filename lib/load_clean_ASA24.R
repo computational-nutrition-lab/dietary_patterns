@@ -68,109 +68,142 @@
 # Find nutrient outliers in totals.
 # Cut-points are based on the 5th and 95th percentile of intakes from NHANES data.
 
-# KCAL
-  # Adult women (>= 12 yo) <600 or >4400
-  # Adult   men (>= 12 yo) <650 or >5700
-  
-  # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
-  KCALOutliers <- function(totals.data, min = 600, max = 5700){
-    temp <- totals.data
-    KCAL_outlier_rows <<- subset(temp, KCAL < min | KCAL > max)
-    cat("There are", nrow(KCAL_outlier_rows), "observations with <", min, "kcal/day or >", max, "kcal/day. \n", sep = " ") 
-    if(nrow(KCAL_outlier_rows) == 0){ cat("\n")}
-    else{ 
-          print(KCAL_outlier_rows)   # Show the outlier rows # Some totals have 'RecallNo', others 'SutdyDayNo'...  
-          answer <- askYesNo("Remove?")
-          if(answer==T){
-            QCtotals <<- subset(temp, KCAL >= min & KCAL <= max)
-          }
-        }
-  }
-# ---------------------------------------------------------------------------------------------------------------
-
-  
-# ---------------------------------------------------------------------------------------------------------------
-# Protein 
-  # Adult women (>= 12 yo) <10 or >180
-  # Adult   men (>= 12 yo) <25 or >240
-  
-  # Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
-  PROTOutliers <- function(totals.data, min = 10, max = 240){
-    temp <- totals.data
-    PROT_outlier_rows <<- subset(temp, PROT < min | PROT > max)
-    cat("There are", nrow(PROT_outlier_rows), "observations with <", min, "PROT/day or >", max, "PROT/day. \n", sep = " ") 
-    if(nrow(PROT_outlier_rows) == 0){ cat("\n")}
-    else{ 
-            print(PROT_outlier_rows)   # Show the outlier rows
-            answer <- askYesNo("Remove?")
-            if(answer==T){
-              QCtotals <<- subset(temp, PROT >= min & PROT <= max)
-            }
-        }
-  }
-# ---------------------------------------------------------------------------------------------------------------
-  
-# ---------------------------------------------------------------------------------------------------------------
-# Fat 
-  # Adult women (>= 12 yo) <15 or >185
-  # Adult   men (>= 12 yo) <25 or >230
-  
-  # Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
-  TFATOutliers <- function(totals.data, min = 15, max = 230){
-    temp <- totals.data
-    TFAT_outlier_rows <<- subset(temp, TFAT < min | TFAT > max)
-    cat("There are", nrow(TFAT_outlier_rows), "observations with <", min, "TFAT/day or >", max, "TFAT/day. \n", sep = " ") 
-    if(nrow(TFAT_outlier_rows) == 0){ cat("\n")}
-    else{ 
-          print(TFAT_outlier_rows)   # Show the outlier rows
-          answer <- askYesNo("Remove?")
-          if(answer==T){
-            QCtotals <<- subset(temp, TFAT >= min & TFAT <= max)
-      }
-    }
-  }
-# ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# Vitamin C 
-  # Adult women (>= 12 yo) <5 or >350
-  # Adult   men (>= 12 yo) <5 or >400
-
-  # Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
-  VCOutliers <- function(totals.data, min = 5, max = 400){
-    temp <- totals.data
-    VC_outlier_rows <<- subset(temp, VC < min | VC > max)
-    cat("There are", nrow(VC_outlier_rows), "observations with <", min, "VC/day or >", max, "VC/day. \n", sep = " ") 
-    if(nrow(VC_outlier_rows) == 0){ cat("\n")}
-    else{ 
-      print(VC_outlier_rows)   # Show the outlier rows
+# Flag outliers in the target column and min max values, and pop out a prompt asking whether to delete 
+  # the outliers or not.
+  # Whether the outliers are removed or not, the output will be a df called 'QCtotals'.
+  QCOutliers <- function(input.data, target.colname, min, max){
+    temp <- input.data
+    
+    # the nth column has the variable of interest.
+    nth_column <- which(colnames(temp) == target.colname )
+    
+    # Extact rows that are NOT in the range of min-max.
+    Outlier_rows <<- temp[ temp[, nth_column] < min | temp[, nth_column] > max  , ]
+    
+    # Report how many rows are outside the min-max range.
+    cat("There are", nrow(Outlier_rows), "observations with <", min, "or >", max, ". \n", sep = " ") 
+    
+    if(nrow(Outlier_rows) == 0){ 
+      QCtotals <<- temp
+      cat("There are no outlier rows, but the input data was renamed as QCtotals.\n",
+          nrow(QCtotals), "rows remained.\n")}
+    else{
       answer <- askYesNo("Remove?")
       if(answer==T){
-        QCtotals <<- subset(temp, VC >= min & VC <= max)
-      }
+        # Save rows that are within the range of min-max as QCtotal.
+        QCtotals <<- temp[ temp[, nth_column] >= min & temp[, nth_column] <= max , ]
+        cat("Outlier rows were removed; the cleaned data is saved as an object called \"QCtotals\".\n",
+            nrow(QCtotals), "rows remained.\n")
+      }else{
+        QCtotals <<- temp
+        cat("Outlier rows were not removed, but the input data was renamed as QCtotals.\n",
+            nrow(QCtotals), "rows remained.\n")}
     }
   }
-# ---------------------------------------------------------------------------------------------------------------
   
-# ---------------------------------------------------------------------------------------------------------------
-# Beta-carotene 
-  # Adult women (>= 12 yo) <15 or >7100
-  # Adult   men (>= 12 yo) <15 or >8200
-  
-  # Flag if BCAR (beta carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
-  BCAROutliers <- function(totals.data, min = 15, max = 8200){
-    temp <- totals.data
-    BCAR_outlier_rows <<- subset(temp, BCAR < min | BCAR > max)
-    cat("There are", nrow(BCAR_outlier_rows), "observations with <", min, "BCAR/day or >", max, "BCAR/day. \n", sep = " ") 
-    if(nrow(BCAR_outlier_rows) == 0){ cat("\n")}
-    else{ 
-      print(BCAR_outlier_rows)   # Show the outlier rows
-      answer <- askYesNo("Remove?")
-      if(answer==T){
-        QCtotals <<- subset(temp, BCAR >= min & BCAR <= max)
-      }
-    }
-  }
+# ================= TO BE DELETED ===========================================================================
+# # KCAL
+# # Adult women (>= 12 yo) <600 or >4400
+# # Adult   men (>= 12 yo) <650 or >5700
+#  # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
+#   KCALOutliers <- function(totals.data, target.column, min = 600, max = 5700){
+#     temp <- totals.data
+#     KCAL_outlier_rows <<- subset(temp, KCAL < min | KCAL > max)
+#     cat("There are", nrow(KCAL_outlier_rows), "observations with <", min, "kcal/day or >", max, "kcal/day. \n", sep = " ") 
+#     if(nrow(KCAL_outlier_rows) == 0){ cat("\n")}
+#     else{ 
+#           print(KCAL_outlier_rows)   # Show the outlier rows # Some totals have 'RecallNo', others 'SutdyDayNo'...  
+#           answer <- askYesNo("Remove?")
+#           if(answer==T){
+#             QCtotals <<- subset(temp, KCAL >= min & KCAL <= max)
+#           }
+#         }
+#   }
+# # ---------------------------------------------------------------------------------------------------------------
+# 
+#   
+# # ---------------------------------------------------------------------------------------------------------------
+# # Protein 
+#   # Adult women (>= 12 yo) <10 or >180
+#   # Adult   men (>= 12 yo) <25 or >240
+#   
+#   # Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
+#   PROTOutliers <- function(totals.data, min = 10, max = 240){
+#     temp <- totals.data
+#     PROT_outlier_rows <<- subset(temp, PROT < min | PROT > max)
+#     cat("There are", nrow(PROT_outlier_rows), "observations with <", min, "PROT/day or >", max, "PROT/day. \n", sep = " ") 
+#     if(nrow(PROT_outlier_rows) == 0){ cat("\n")}
+#     else{ 
+#             print(PROT_outlier_rows)   # Show the outlier rows
+#             answer <- askYesNo("Remove?")
+#             if(answer==T){
+#               QCtotals <<- subset(temp, PROT >= min & PROT <= max)
+#             }
+#         }
+#   }
+# # ---------------------------------------------------------------------------------------------------------------
+#   
+# # ---------------------------------------------------------------------------------------------------------------
+# # Fat 
+#   # Adult women (>= 12 yo) <15 or >185
+#   # Adult   men (>= 12 yo) <25 or >230
+#   
+#   # Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
+#   TFATOutliers <- function(totals.data, min = 15, max = 230){
+#     temp <- totals.data
+#     TFAT_outlier_rows <<- subset(temp, TFAT < min | TFAT > max)
+#     cat("There are", nrow(TFAT_outlier_rows), "observations with <", min, "TFAT/day or >", max, "TFAT/day. \n", sep = " ") 
+#     if(nrow(TFAT_outlier_rows) == 0){ cat("\n")}
+#     else{ 
+#           print(TFAT_outlier_rows)   # Show the outlier rows
+#           answer <- askYesNo("Remove?")
+#           if(answer==T){
+#             QCtotals <<- subset(temp, TFAT >= min & TFAT <= max)
+#       }
+#     }
+#   }
+# # ---------------------------------------------------------------------------------------------------------------
+# 
+# # ---------------------------------------------------------------------------------------------------------------
+# # Vitamin C 
+#   # Adult women (>= 12 yo) <5 or >350
+#   # Adult   men (>= 12 yo) <5 or >400
+# 
+#   # Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
+#   VCOutliers <- function(totals.data, min = 5, max = 400){
+#     temp <- totals.data
+#     VC_outlier_rows <<- subset(temp, VC < min | VC > max)
+#     cat("There are", nrow(VC_outlier_rows), "observations with <", min, "VC/day or >", max, "VC/day. \n", sep = " ") 
+#     if(nrow(VC_outlier_rows) == 0){ cat("\n")}
+#     else{ 
+#       print(VC_outlier_rows)   # Show the outlier rows
+#       answer <- askYesNo("Remove?")
+#       if(answer==T){
+#         QCtotals <<- subset(temp, VC >= min & VC <= max)
+#       }
+#     }
+#   }
+# # ---------------------------------------------------------------------------------------------------------------
+#   
+# # ---------------------------------------------------------------------------------------------------------------
+# # Beta-carotene 
+#   # Adult women (>= 12 yo) <15 or >7100
+#   # Adult   men (>= 12 yo) <15 or >8200
+#   
+#   # Flag if BCAR (beta carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
+#   BCAROutliers <- function(totals.data, min = 15, max = 8200){
+#     temp <- totals.data
+#     BCAR_outlier_rows <<- subset(temp, BCAR < min | BCAR > max)
+#     cat("There are", nrow(BCAR_outlier_rows), "observations with <", min, "BCAR/day or >", max, "BCAR/day. \n", sep = " ") 
+#     if(nrow(BCAR_outlier_rows) == 0){ cat("\n")}
+#     else{ 
+#       print(BCAR_outlier_rows)   # Show the outlier rows
+#       answer <- askYesNo("Remove?")
+#       if(answer==T){
+#         QCtotals <<- subset(temp, BCAR >= min & BCAR <= max)
+#       }
+#     }
+#   }
  
 # ---------------------------------------------------------------------------------------------------------------
 
