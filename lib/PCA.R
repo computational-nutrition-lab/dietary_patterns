@@ -1,8 +1,7 @@
 # FUNCTIONS ==============================================================================
 
 # ========================================================================================
-# Principal component analysis (PCA)  
-#  
+# Principal Component Analysis (PCA)    
 # Version 1
 # Created on 12.17.2021 by Rie Sadohara
 # ========================================================================================
@@ -31,6 +30,7 @@
       scale_x_continuous(breaks = 1:nrow(myPCs)) +
       labs(x = "Number of PCs",
            y = "Variance explained by PCs (%)") +
+      theme_bw(base_size = 13) +
       theme(panel.grid.major = element_blank()) +
       theme(panel.grid.minor = element_blank()) +
       theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
@@ -74,35 +74,31 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Function to save the variance explained by each PC in the result folder.
 
-  SaveVarExplained <- function(x=var_explained_df, name = "PC_var_explained"){
-    write.csv(x, paste("results/", name, ".csv", sep = ""))
+  SaveVarExplained <- function(x = var_explained_df, out.fn){
+    write.table(x, out.fn, sep = "\t", row.names = F)
   }   
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
-# Function to calculate loadings of each PC to the variables and save it as a csv file
-#  in the results folder.
+# Function to calculate loadings of each PC to the variables and save it as a txt file
   
-  SaveLoadings <- function(pca.result = scaled_pca, name){
+  SaveLoadings <- function(pca.result = scaled_pca, out.fn){
     # Calculate the loadings.  sweep function is similar to apply.
-    fc.l <<- sweep(pca.result$rotation, MARGIN = 2, pca.result$sdev, FUN = "*") 
+    fc.l <- sweep(pca.result$rotation, MARGIN = 2, pca.result$sdev, FUN = "*") 
     # Convert the matrix to a dataframe. 
-    fc.l.df <<- as.data.frame(fc.l)
-    # Save it as a csv file.
-    write.csv(fc.l.df, paste("results/", name, ".csv", sep = ""))
+    fc.l.df <- as.data.frame(fc.l)
+    # Save it as a txt file.
+    write.table(fc.l.df, out.fn, sep = "\t", row.names = F)
+  }
+# ---------------------------------------------------------------------------------------------------------------
+# Function to obtain PC values and save as a txt file
+  SaveInputAndPCs <- function(pca.result, out.fn){
+    
+    PCs <- as.data.frame(pca.result[["x"]])
+    
+    write.table(PCs, out.fn, sep="\t", row.names = F)
   }
 # ---------------------------------------------------------------------------------------------------------------
   
+  
  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-

@@ -77,26 +77,27 @@
   
   # Check how many participants were selected.
   length(unique(nhanes_food_1$SEQN)) 
+  dim(nhanes_food_1)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Take n random samples of participants.
-  RandomSample(data = nhanes_food_1, n=1500, out.fn = "sample1500.txt")
+  RandomSample(data = nhanes_food_1, n=30, out.fn = "NHANES_foods_QCed_30.txt")
 
 # Load the subsetted food items file. 
-  sample1500 <- read.table("sample1500.txt", sep="\t", header=T)
+  food_sampled <- read.table("NHANES_foods_QCed_30.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
-  # Check basic statistics of sample1500
+  # Check basic statistics of food_sampled
   
-  colnames(sample1500)
+  colnames(food_sampled)
   # KCAL
-  head(   sample1500$DR1IKCAL)
-  boxplot(sample1500$DR1IKCAL)
+  head(   food_sampled$DR1IKCAL)
+  boxplot(food_sampled$DR1IKCAL)
   
   # only items file has GRMS (grams) data. 
-  summary(sample1500$DR1IGRMS)
-  hist(   sample1500$DR1IGRMS)
-  boxplot(sample1500$DR1IGRMS)
+  summary(food_sampled$DR1IGRMS)
+  hist(   food_sampled$DR1IGRMS)
+  boxplot(food_sampled$DR1IGRMS)
   
   # For individual food data, there is no code for cleaning.
   # Outliers won't severely affect main analysis conclusions (ASA24 data cleaning doc)
@@ -130,7 +131,7 @@
 
   # Rename the dataset to work on.
   nhanes1516 <- nhanes1516_totals1
-  
+  dim(nhanes1516_totals1)
   # How many participants in the total dataset?
   length(unique(nhanes1516_totals1$SEQN))
   # 8704 for totals day 1.

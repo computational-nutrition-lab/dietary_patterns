@@ -51,17 +51,15 @@
 # NHANES data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
   totals <- read.table("nhanes_totals_1000.txt", quote = "", sep = "\t", header = T)
   
-  
-  
-  
-  
-    
 # Come back to the main directory
   setwd(main.wd)
 # ---------------------------------------------------------------------------------------------------------------
  
+######## CHOOSE EITHER 1 OR 2 OF THE FOLLOWING: 1: WITHOUT AVEAGING; 2: WITH AVERAGING. #########
+  
 # ---------------------------------------------------------------------------------------------------------------
-# If using each dataponit as is without averaging, 
+# 1. If using each dataponit as is WITHOUT AVERAGING, 
+  
 
 # Subset nutrients or food items data.
 # The columns specified as start.col, end.col, and all columns in between will be selected.
@@ -78,8 +76,10 @@
   colnames(subsetted_non0var)
 # ---------------------------------------------------------------------------------------------------------------
   
+######### OR #########
+  
 # ---------------------------------------------------------------------------------------------------------------
-# If taking average by each category (user or other treatment(s))
+# 2. Collapse variables by correlation: take only one variables if they are highly correlated.
 # Specify the data to be used, category to group by, and the range of columns (variables) 
 # to calculate the means of each variables
 # Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD"
@@ -116,7 +116,7 @@
 # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
 # Check to see the name of the original and filtered variables. 
-  # Among the variabels in the same group, the one with the highest variance is kept 
+  # Among the variables in the same group, the one with the highest variance is kept 
   #  (according to the explanation above.)
   # filtered
   head(selected_variables, 1)     

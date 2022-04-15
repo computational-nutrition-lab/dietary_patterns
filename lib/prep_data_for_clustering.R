@@ -133,19 +133,9 @@
 # ---------------------------------------------------------------------------------------------------------------  
 # Function to save the correlation matrix as a csv.
 # The correlation matrix (cc) is produced by ClusterByCorrelation().
-  SaveCorrMatrix <- function(x=cc, name = "corr_matrix"){
-    write.csv(as.data.frame(as.matrix(x)), paste("results/", name, ".csv", sep = ""))
+  SaveCorrMatrix <- function(x=cc, out.fn){
+    write.table(as.data.frame(as.matrix(x)), out.fn, sep = "\t", row.names = F)
   } 
 # ---------------------------------------------------------------------------------------------------------------  
   
   
-# ---------------------------------------------------------------------------------------------------------------
-  
-# ---------------------------------------------------------------------------------------------------------------
-  
-    
-
-  
-  
-    
-    
