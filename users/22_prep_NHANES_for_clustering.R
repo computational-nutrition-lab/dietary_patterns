@@ -18,12 +18,12 @@ source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R"
 # ========================================================================================
 
 # Load the QC-ed and sampled totals file. 
-  totals_QCed_1500 <- read.table("NHANES_totals_QCed_1500.txt", sep="\t", header=T)
+  totals_QCed_sampled <- read.table("NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
 
   colnames(totals_QCed_1500)
 
 # OR load the QC-ed and sampled food items file.
-  foods_QCed_30 <- read.table("NHANES_foods_QCed_30.txt", sep="\t", header=T)
+  foods_QCed <- read.table("NHANES_foods_QCed_30.txt", sep="\t", header=T)
   
 
 ###### CHOOSE EITHER 1 OR 2 OF THE FOLLOWING: 1: WITHOUT AVEAGING; 2: WITH AVERAGING. #######
@@ -34,14 +34,14 @@ source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R"
   
     # FOOD ITEMS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
        # Define the input data to be used.
-       input_data <- foods_QCed_30
+       input_data <- foods_QCed
       # The columns specified as start.col, end.col, and all columns in between will be selected.
       # Items   --> start.col = "DR1IPROT",     end.col = "DR1IP226"
       SubsetColumns(data=input_data, start.col="DR1IPROT", end.col = "DR1IP226")
        
     # TOTALS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
        # Define the input data to be used.
-       input_data <- totals_QCed_1500
+       input_data <- totals_QCed_sampled
       # The columns specified as start.col, end.col, and all columns in between will be selected.
       # Totals  --> start.col = "DR1TPROT",    end.col = "DR1TP226"
       SubsetColumns(data=input_data, start.col="DR1TPROT", end.col = "DR1TP226")
@@ -51,9 +51,8 @@ source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R"
     # pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
     # The removed columns will be shown if any.
     KeepNonZeroVarColumns(data = subsetted)
-    # The out put is a df called "subsetted_non0var", to be used in the subsequent
-    
-    # collapse by correlation procedure.
+
+    # The out put is a df called "subsetted_non0var".
     colnames(subsetted_non0var)
   # ---------------------------------------------------------------------------------------------------------------
     

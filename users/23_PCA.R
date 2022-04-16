@@ -26,14 +26,15 @@
 #
 
 # Set your working directory as to the main directory.
-# Session --> Set working directory --> Choose directory.
+  Session --> Set working direHctory --> Choose directory.
+  setwd("~/GitHub/dietary_patterns")
 
 # Name your main directory for future use. 
   main.wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  source("~/Documents/GitHub/dietary_patterns/lib/load_and_check_data.R")
-  source("lib/prep_data.R")
+  source("lib/specify_dir_and_check_col.R")
+  source("lib/prep_data_for_clustering.R")
   source("lib/PCA.R")
 
 # Define ggplot themes to use in creating plots.
@@ -48,11 +49,9 @@
 # Name your input data.
 # Your input data should be a data frame with variables with non-zero variance. 
   pca_input <- selected_variables
-  # pca_input <- selected_variables[, 1:8]
   dim(pca_input)
-  
+
 # Perform PCA with the subset data, scaled.
-  # scaled_pca <- prcomp(x = subsetted_non0var, scale = T)   
   scaled_pca <- prcomp(x=pca_input, scale = T)   
 
 # Create a scree plot.
@@ -66,13 +65,25 @@
   BiplotLabeled(pca.result = scaled_pca, 
                 pca.data = pca_input, 
                 individuals.label = T)
-  
+
+# A biplot with the individuals labeled without the variables' arrows.
+  BiplotLabeledwoArrows(pca.result = scaled_pca, 
+                        pca.data = pca_input, 
+                        individuals.label = T)
+
 # A The directions of the variables.
   BiplotLabeled(pca.result = scaled_pca, 
                 pca.data = pca_input, 
                 individuals.label = F)
-  
-  
+
+# Plot the contribution of the variables to a given PC.
+  # Variables' labels aligned on the X axis.
+  LoadingsPlot(pca.result=scaled_pca,  whichPC="PC1", 
+               positive.color="green2", negative.color="grey70", labels.aligned= TRUE)
+  # Variables' labels are placed right below the bars.
+  LoadingsPlot(pca.result=scaled_pca,  whichPC="PC1", 
+               positive.color="green2", negative.color="grey70", labels.aligned= FALSE)
+
 # ---------------------------------------------------------------------------------------------------------------  
 # Save the variance explained by each PC as a .txt file. 
 # Change the file name as necessary.  

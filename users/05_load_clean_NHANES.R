@@ -5,11 +5,11 @@
 # ===============================================================================================================
 
 # First time only: install the packages you need.
-  install.packages("SASxport")
-  install.packages("foreign")
+  # install.packages("SASxport")
+  # install.packages("foreign")
 
 # ===============================================================================================================
-# Load and clean NHANES food items data
+# Load and clean NHANES "food items" data
 # ===============================================================================================================
 
 # Load necessary packages.
@@ -66,14 +66,10 @@
   # Define the dataset to work on. 
   nhanes_food <- Food_D1
   
-  # Check the frequency (DR1DRSTZ) of Status code in the dataset. 
-  table(nhanes_food$DR1DRSTZ)
-  
-  # Take only DR1DRSTZ = 1
-  nhanes_food_1 <- subset(nhanes_food, DR1DRSTZ == 1)
-  
-  # Confirm that only entries that have DR1DRSTZ = 1 were retained.
-  table(nhanes_food_1$DR1DRSTZ)
+    # FOR DAY 1, take only DR1DRSTZ = 1
+    nhanes_food_1 <- subset(nhanes_food, DR1DRSTZ == 1)
+    # FOR DAY 2, take only DR2DRSTZ = 1
+    nhanes_food_1 <- subset(nhanes_food, DR2DRSTZ == 1)
   
   # Check how many participants were selected.
   length(unique(nhanes_food_1$SEQN)) 
@@ -135,7 +131,6 @@
   # How many participants in the total dataset?
   length(unique(nhanes1516_totals1$SEQN))
   # 8704 for totals day 1.
-  # 8505. 
   
 # ---------------------------------------------------------------------------------------------------------------
 # Status code - Only retain complete entries. 
@@ -200,10 +195,10 @@
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants.
-  RandomSample(data = QCtotals, n=1500, out.fn = "NHANES_totals_QCed_1500.txt")
+  RandomSample(data = QCtotals, n=30, out.fn = "NHANES_totals_QCed_sampled.txt")
   
   # Load the subsetted totals file. 
-  totals_QCed_1500 <- read.table("NHANES_totals_QCed_1500.txt", sep="\t", header=T)
+  totals_QCed_1500 <- read.table("NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
   

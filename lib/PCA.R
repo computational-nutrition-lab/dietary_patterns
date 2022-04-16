@@ -13,11 +13,20 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a scree plot.
 # If there are 10 or less PCs in total, plot all, and else plot the first 10 PCs. 
-  LineScreePlot <- function(pca.data = my_input, pca.result = scaled_pca){
+  LineScreePlot <- function(pca.data = pca_input, pca.result = scaled_pca){
     # Calculate the variance explained for each PC.
-    var_explained_df <<- data.frame(PC = rep(1:length(colnames(pca.data))),
-                                   var_explained = (pca.result$sdev)^2/sum((pca.result$sdev)^2))
-    if(length(colnames(pca.data))<9){
+    # var_explained_df <<- data.frame(PC = rep(1:length(colnames(pca.data))),
+    #                                var_explained = (pca.result$sdev)^2/sum((pca.result$sdev)^2))
+     
+    # Extract the importance of the PCs
+    pca_summary = summary(pca.result)
+    
+    # Create a dataframe that has the PCs and their importance (var explained by each PC)
+    var_explained_df <- data.frame(PC = rep(1:nrow(pca.data)),
+                                   var_explained = pca_summary[["importance"]][2, ])
+
+    # if there are only 9 or fewer variables, plot them all; otherwise plot the first 10 PCs.
+    if(length(colnames(pca.data))<10){
       myPCs <<- var_explained_df
     }else{
       myPCs <<- var_explained_df[1:10, ]    # Subset the first 10 PCs
@@ -42,6 +51,24 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a biplot with the individuals as black dots.
   BiplotDots <- function(pca.result = scaled_pca, pca.data = my_input){
+    s <- summary(pca.result)
+    PCs <<- pca.result[["x"]]
+        PCs
+        print(s)
+        print(head(PCs)[,1])
+    ggplot(PCs, aes(x=PC1, y=PC2)) +
+      geom_point() +
+      theme(panel.grid.major = element_blank()) +
+      theme(panel.grid.minor = element_blank()) +
+      theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+      theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+      theme(aspect.ratio = 1)
+  } 
+  
+
+# ---------------------------------------------------------------------------------------------------------------
+# Function to create a biplot with the individuals as black dots.
+  BiplotDots <- function(pca.result = scaled_pca, pca.data = my_input){
     require(ggfortify) # Need ggfortify packge to use 'autoplot'.
     autoplot(object = pca.result, data = pca.data,
              loadings = T, loadings.label = T, loadings.colour = 'pink',
@@ -51,8 +78,24 @@
       theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
       theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
       theme(aspect.ratio = 1)
-  } 
+  }
 
+# ---------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------
+# Function to create a biplot with the individuals labeled and without the variables' arrows.
+  BiplotLabeledwoArrows <- function(pca.result = scaled_pca, pca.data = pca_input, 
+                        individuals.label = T){
+    require(ggfortify)
+    autoplot(object = pca.result, data = pca.data, 
+             label = individuals.label, label.size = 3, shape =FALSE,  
+             loadings = F, loadings.label = F ) +
+      theme(panel.grid.major = element_blank()) +
+      theme(panel.grid.minor = element_blank()) +
+      theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+      theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+      theme(aspect.ratio = 1)
+  }
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -69,6 +112,35 @@
       theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
       theme(aspect.ratio = 1)
   } 
+# ---------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------
+# Plot the contribution of each variable to PC1.  
+  LoadingsPlot <- function(pca.result,  whichPC, positive.color="green2", negative.color="grey70", labels.aligned=c(TRUE, FALSE)){
+    p <- pca.result[["rotation"]]
+    variables <- rownames(p)
+    # create a numeric object ("n.pc1") containing values which will position text underneath the bars.
+    # i.e. shows the starting points for the label of the variables. 
+    n.PCx <- ifelse(p[, whichPC] > 0, yes= -0.01, no= p[, whichPC]-0.01)
+
+    # if loadings is positive, color it green, if not, color it red.
+    c.PCx <- ifelse(p[, whichPC] > 0, yes=positive.color, no=negative.color)  
+    
+    if(labels.aligned==TRUE){
+      par(mar=c(8,3,2,1)) # Set margins
+      b1 <- barplot(p[, whichPC], main=paste("PC", whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=T)
+      abline(h=0) # Add horizontal line
+      
+    }else if(labels.aligned==FALSE){
+      # Plot again 
+      par(mar=c(8,3,2,1)) # Set margins
+      b1 <- barplot(p[, whichPC], main=paste("PC", whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=FALSE)
+      abline(h=0) # Add horizontal line
+      # 
+      text(x=b1, y=n.PCx, labels= names(n.PCx), adj=1, srt=90, xpd= TRUE) # Add variable names
+      # xpd=TRUE tells R that it can plot the text outside the plot region.
+    }
+  }
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
