@@ -126,8 +126,8 @@
   hist(nhanes1516_totals1$DR1TKCAL) 
 
   # Rename the dataset to work on.
-  nhanes1516 <- nhanes1516_totals1
-  dim(nhanes1516_totals1)
+  # nhanes1516 <- nhanes1516_totals1
+  
   # How many participants in the total dataset?
   length(unique(nhanes1516_totals1$SEQN))
   # 8704 for totals day 1.
@@ -195,10 +195,9 @@
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants.
-  RandomSample(data = QCtotals, n=30, out.fn = "NHANES_totals_QCed_sampled.txt")
+  RandomSample(data = QCtotals, n=50, out.fn = "NHANES_totals_QCed_sampled.txt")
   
   # Load the subsetted totals file. 
-  totals_QCed_1500 <- read.table("NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
+  totals_QCed_sampled <- read.table("NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
-  

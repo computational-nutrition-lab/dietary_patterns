@@ -19,10 +19,10 @@
     #                                var_explained = (pca.result$sdev)^2/sum((pca.result$sdev)^2))
      
     # Extract the importance of the PCs
-    pca_summary = summary(pca.result)
+    pca_summary <- summary(pca.result)
     
     # Create a dataframe that has the PCs and their importance (var explained by each PC)
-    var_explained_df <- data.frame(PC = rep(1:nrow(pca.data)),
+    var_explained_df <- data.frame(PC = rep(1:ncol(pca.data)),
                                    var_explained = pca_summary[["importance"]][2, ])
 
     # if there are only 9 or fewer variables, plot them all; otherwise plot the first 10 PCs.
@@ -50,7 +50,7 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a biplot with the individuals as black dots.
-  BiplotDots <- function(pca.result = scaled_pca, pca.data = my_input){
+  BiplotDots <- function(pca.result = scaled_pca, pca.data = pca_input){
     s <- summary(pca.result)
     PCs <<- pca.result[["x"]]
         PCs
@@ -68,7 +68,7 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a biplot with the individuals as black dots.
-  BiplotDots <- function(pca.result = scaled_pca, pca.data = my_input){
+  BiplotDots <- function(pca.result = scaled_pca, pca.data = pca_inputt){
     require(ggfortify) # Need ggfortify packge to use 'autoplot'.
     autoplot(object = pca.result, data = pca.data,
              loadings = T, loadings.label = T, loadings.colour = 'pink',
@@ -100,7 +100,7 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a biplot with the individuals labeled.
-  BiplotLabeled <- function(pca.result = scaled_pca, pca.data = my_input, individuals.label = TRUE){
+  BiplotLabeled <- function(pca.result = scaled_pca, pca.data = pca_input, individuals.label = TRUE){
     require(ggfortify)
     autoplot(object = pca.result, data = pca.data, 
              label = individuals.label, label.size = 3, shape =FALSE,  
@@ -146,21 +146,37 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Function to save the variance explained by each PC in the result folder.
 
-  SaveVarExplained <- function(x = var_explained_df, out.fn){
-    write.table(x, out.fn, sep = "\t", row.names = F)
+  SaveVarExplained <- function(pca.data=pca_input, pca.result=scaled_pca, out.fn){
+    # Extract the importance of the PCs
+    pca_summary <- summary(pca.result)
+    
+    # # Extract the Proportion of Variance
+    var_explained_values <- pca_summary[["importance"]][2, ]
+    
+    # Create a dataframe that has the PCs and their importance (var explained by each PC)
+    var_explained_df <<- data.frame(PC = seq(1:length(var_explained_values)),
+                                   var_explained = var_explained_values)
+    write.table(var_explained_df, out.fn, sep = "\t", row.names = F, quote = F)
   }   
 # ---------------------------------------------------------------------------------------------------------------
-  
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # Function to calculate loadings of each PC to the variables and save it as a txt file
   
   SaveLoadings <- function(pca.result = scaled_pca, out.fn){
-    # Calculate the loadings.  sweep function is similar to apply.
-    fc.l <- sweep(pca.result$rotation, MARGIN = 2, pca.result$sdev, FUN = "*") 
-    # Convert the matrix to a dataframe. 
-    fc.l.df <- as.data.frame(fc.l)
-    # Save it as a txt file.
-    write.table(fc.l.df, out.fn, sep = "\t", row.names = F)
+    
+    p <- pca.result[["rotation"]]
+    sdev <- pca.result[["sdev"]]
+    print(p)
+    print(sdev)
+# 
+#     # Calculate the loadings.  sweep function is similar to apply.
+#     fc.l <- sweep(p, MARGIN = 2, sdev, FUN = "*") 
+#     # Convert the matrix to a dataframe. 
+#     fc.l.df <- as.data.frame(fc.l)
+#     # Save it as a txt file.
+#     write.table(fc.l.df, out.fn, sep = "\t", row.names = F)
   }
 # ---------------------------------------------------------------------------------------------------------------
 # Function to obtain PC values and save as a txt file

@@ -87,13 +87,13 @@
 # ---------------------------------------------------------------------------------------------------------------  
 # Save the variance explained by each PC as a .txt file. 
 # Change the file name as necessary.  
-  SaveVarExplained(x=var_explained_df, out.fn = "PCA_results/PC_var_explained.txt")
+  SaveVarExplained(pca.data = pca_input, pca.result = scaled_pca, out.fn = "results/PCA_results/PC_var_explained_18ind.txt")
 
 # ---------------------------------------------------------------------------------------------------------------  
 # Calculate loadings of each PC to the variables and 
 # save it as a txt file in the results folder.
   # Change the file name as necessary.  
-  SaveLoadings(pca.result = scaled_pca, out.fn = "PCA_results/PC_loadings.txt")
+  SaveLoadings(pca.result = scaled_pca, out.fn = "PCA_results/PC_loadings_18ind.txt")
   
 # ---------------------------------------------------------------------------------------------------------------  
 # Save the PC values with the input  ===== gives error... why???
