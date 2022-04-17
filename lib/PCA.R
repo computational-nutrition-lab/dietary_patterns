@@ -14,16 +14,16 @@
 # Function to create a scree plot.
 # If there are 10 or less PCs in total, plot all, and else plot the first 10 PCs. 
   LineScreePlot <- function(pca.data = pca_input, pca.result = scaled_pca){
-    # Calculate the variance explained for each PC.
-    # var_explained_df <<- data.frame(PC = rep(1:length(colnames(pca.data))),
-    #                                var_explained = (pca.result$sdev)^2/sum((pca.result$sdev)^2))
-     
+
     # Extract the importance of the PCs
     pca_summary <- summary(pca.result)
     
+    # # Extract the Proportion of Variance
+    var_explained_values <- pca_summary[["importance"]][2, ]
+    
     # Create a dataframe that has the PCs and their importance (var explained by each PC)
-    var_explained_df <- data.frame(PC = rep(1:ncol(pca.data)),
-                                   var_explained = pca_summary[["importance"]][2, ])
+    var_explained_df <<- data.frame(PC = seq(1:length(var_explained_values)),
+                                    var_explained = var_explained_values)
 
     # if there are only 9 or fewer variables, plot them all; otherwise plot the first 10 PCs.
     if(length(colnames(pca.data))<10){
@@ -117,6 +117,7 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Plot the contribution of each variable to PC1.  
   LoadingsPlot <- function(pca.result,  whichPC, positive.color="green2", negative.color="grey70", labels.aligned=c(TRUE, FALSE)){
+    
     p <- pca.result[["rotation"]]
     variables <- rownames(p)
     # create a numeric object ("n.pc1") containing values which will position text underneath the bars.
@@ -128,13 +129,13 @@
     
     if(labels.aligned==TRUE){
       par(mar=c(8,3,2,1)) # Set margins
-      b1 <- barplot(p[, whichPC], main=paste("PC", whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=T)
+      b1 <- barplot(p[, whichPC], main=paste(whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=T)
       abline(h=0) # Add horizontal line
       
     }else if(labels.aligned==FALSE){
       # Plot again 
       par(mar=c(8,3,2,1)) # Set margins
-      b1 <- barplot(p[, whichPC], main=paste("PC", whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=FALSE)
+      b1 <- barplot(p[, whichPC], main=paste(whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=FALSE)
       abline(h=0) # Add horizontal line
       # 
       text(x=b1, y=n.PCx, labels= names(n.PCx), adj=1, srt=90, xpd= TRUE) # Add variable names
@@ -160,32 +161,52 @@
   }   
 # ---------------------------------------------------------------------------------------------------------------
 
-
 # ---------------------------------------------------------------------------------------------------------------
 # Function to calculate loadings of each PC to the variables and save it as a txt file
   
   SaveLoadings <- function(pca.result = scaled_pca, out.fn){
     
     p <- pca.result[["rotation"]]
-    sdev <- pca.result[["sdev"]]
-    print(p)
-    print(sdev)
-# 
-#     # Calculate the loadings.  sweep function is similar to apply.
-#     fc.l <- sweep(p, MARGIN = 2, sdev, FUN = "*") 
-#     # Convert the matrix to a dataframe. 
-#     fc.l.df <- as.data.frame(fc.l)
-#     # Save it as a txt file.
-#     write.table(fc.l.df, out.fn, sep = "\t", row.names = F)
+    p <- as.data.frame(scaled_pca[["rotation"]])
+    
+    # make a variable column. 
+    variables <- rownames(p)
+    p$Var <- variables
+
+    # Sort the columns so that the rownames (variable names) come first
+    sortedp <- p[, c(length(colnames(p)), 1:length(colnames(p))-1)]
+    
+    write.table(sortedp, out.fn, sep = "\t", row.names = F, quote = F)
   }
 # ---------------------------------------------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------------------------------------------
 # Function to obtain PC values and save as a txt file
-  SaveInputAndPCs <- function(pca.result, out.fn){
+  SaveInputAndPCs <- function(input, pca.results, out.fn){
     
-    PCs <- as.data.frame(pca.result[["x"]])
+    # Define your food input file from which you derived the input for the PCA. 
+    pca_input <- read.table(input, sep="\t", header=T)
+    # This has food codes and food names.
     
-    write.table(PCs, out.fn, sep="\t", row.names = F)
+    # extract the PCs
+    PCs <- as.data.frame(pca.results[["x"]]) 
+    
+    # These should have the same number of rows, so their difference should be zero.  
+    diff <- nrow(pca_input) - nrow(PCs)
+
+    # Gives an error message if the input and pca.result have a different number of rows.
+    if(diff != 0){
+      cat("Error: The input and the PCA results should have the same number of samples.")
+    }else{
+      
+      # Add columns
+      Input_PCs <<-  cbind(pca_input, PCs)
+      
+      # Save as a txt file.
+      write.table(Input_PCs, out.fn, sep="\t", row.names = F, quote = F)
+    }
   }
+  
 # ---------------------------------------------------------------------------------------------------------------
   
   
