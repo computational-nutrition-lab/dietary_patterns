@@ -8,23 +8,28 @@
 # ========================================================================================
 # Use the prep_data, PCA, and k_means scripts to analyze this data!   
 # ========================================================================================
+
+Set working directory by: Session --> Set Working Directory --> Choose Directory
+setwd("~/GitHub/dietary_patterns")
+
 # Load the necessary functions
-source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/prep_data_for_clustering.R")
-source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/PCA.R")
-source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R")
+source("lib/prep_data_for_clustering.R")
+source("lib/PCA.R")
+source("lib/k-means.R")
 
 # ========================================================================================
 # Load QC-ed NHANES items or totals    
 # ========================================================================================
 
   # Load the QC-ed and sampled totals file. 
-    totals_QCed_sampled <- read.table("NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
-    totals_QCed_sampled <- read.table("NHANES_totals_QCed_sampled_PCAs_18ind.txt", sep="\t", header=T)
-    dim(totals_QCed_sampled)
+    totals_QCed_sampled <- read.table("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/NHANES_totals_QCed_sampled_PCAs_18ind.txt", sep="\t", header=T)
+    totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled_PCAs_18ind.txt", sep="\t", header=T)
+    totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
+    dim(totals_QCed_sampled)                                                            
     head(totals_QCed_sampled,1)
   
   # OR load the QC-ed and sampled food items file.  
-    foods_QCed <- read.table("NHANES_foods_QCed_30.txt", sep="\t", header=T)
+    foods_QCed <- read.table("eg_data/NHANES/NHANES_foods_QCed_sampled.txt", sep="\t", header=T)
   
 
 ###### CHOOSE EITHER 1 OR 2 OF THE FOLLOWING: 1: WITHOUT AVEAGING; 2: WITH AVERAGING. #######
@@ -110,10 +115,13 @@ source("C:/Users/sadoh/OneDrive/Documents/GitHub/dietary_patterns/lib/k-means.R"
   dim(subsetted_non0var)
 # ---------------------------------------------------------------------------------------------------------------
   
+# Save the variables after removing correlated variables
+  write.table(selected_variables, "results/PCA_results/18 ind/variables_retained_18ind.txt", sep="\t", row.names=F, quote=F)
+  
 # ---------------------------------------------------------------------------------------------------------------
   # Save the correlation matrix for record in the results folder.
   # cc is the correlation matrix produced when variables are collapsed by correlation. 
-  SaveCorrMatrix(x=cc, out.fn = "NHANEStotals_18ind_corr_matrix.txt")
+  SaveCorrMatrix(x=cc, out.fn = "results/PCA_results/50 ind/NHANES_totals_QCed_sampled_PCAs_50ind_corr_matrix.txt")
 # ---------------------------------------------------------------------------------------------------------------
   
 

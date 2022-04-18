@@ -4,6 +4,19 @@
 # Created on 04/13/2022 by Rie Sadohara
 # ===============================================================================================================
 
+# Folder structure 
+# 
+#                          |----- eg_data -- NAHES -- Data -- Food Items and Totals files 
+#                          |
+#                          |----- lib
+#                          |
+#                          |----- users -- where this script is located
+#  Main -------------------|
+#  (dietary_patterns)      |----- results -- PCA_results -- where the results will be saved
+#                          |
+#                          |----- ...
+#
+
 # First time only: install the packages you need.
   # install.packages("SASxport")
   # install.packages("foreign")
@@ -16,46 +29,46 @@
   library(SASxport)
   library(foreign)
 
-# Load necessary functions.
-  source("~/GitHub/dietary_patterns/lib/load_clean_NHANES.R")
-
 # Set where the NHANES data and food code table are.
 # it is not in the eg_data folder because it's too large to save in GitHub folder. 
-  setwd("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16")
+  # setwd("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16")
+  setwd("~/GitHub/dietary_patterns")
 
+# Load necessary functions.
+  source("lib/load_clean_NHANES.R")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Prep the code table - replace special characters with "_" or "and"
   
   # Format the food table and save it as a .txt file.
-  PrepareFoodCodeTable(raw.food.code.table = "FoodCodes_DRXFCD_I.XPT", 
-                       out.fn = "FoodCodes_DRXFCD_I_f.txt")  
+  PrepareFoodCodeTable(raw.food.code.table = "eg_data/NHANES/FoodCodes_DRXFCD_I.XPT", 
+                       out.fn =              "eg_data/NHANES/FoodCodes_DRXFCD_I_f.txt")  
   
   # Load the formatted food code table.
-  foodcodetable_f <- read.table("FoodCodes_DRXFCD_I_f.txt", sep="\t", header=T)
+  foodcodetable_f <- read.table("eg_data/NHANES/FoodCodes_DRXFCD_I_f.txt", sep="\t", header=T)
 
 # ---------------------------------------------------------------------------------------------------------------
 # If analyzing both Day 1 and Day 2, save day 1 and day 2 with different names.
 
 # Import items data Day 1, add food item descriptions, and save it as a txt file.
 # LIKELY IT WILL BE A HUGE FILE.
-  ImportNHANESFoodItems(data.name="Interview_IndFoods_Day1_DR1IFF_I.XPT", 
+  ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day1_DR1IFF_I.XPT", 
                         food.code.column = "DR1IFDCD", 
                         food.code.table = foodcodetable_f,
-                        out.fn = "Food_D1_w_code.txt")
+                        out.fn = "eg_data/NHANES/Interview_IndFoods_Day1_DR1IFF_I_d.txt") # 'd' stands for food descriptions
 
 # Load the saved food items file. 
-  Food_D1 <- read.table("Food_D1_w_code.txt", sep="\t", header=T)
+  Food_D1 <- read.table("eg_data/NHANES/Interview_IndFoods_Day1_DR1IFF_I_d.txt", sep="\t", header=T)
  
 
 # Import items data Day 2, add food item descriptions, and save it as a txt file.
-  ImportNHANESFoodItems(data.name="Interview_IndFoods_Day2_DR2IFF_I.XPT", 
+  ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day2_DR2IFF_I.XPT", 
                         food.code.column = "DR2IFDCD", 
                         food.code.table = foodcodetable_f,
-                        out.fn = "Food_D2_w_code.txt")
+                        out.fn = "eg_data/NHANES/Interview_IndFoods_Day2_DR2IFF_I_d.txt")
   
 # Add food item description and save it as a txt file. 
-  Food_D2 <- read.table("Food_D2_w_code.txt", sep="\t", header=T)
+  Food_D2 <- read.table("eg_data/NHANES/Interview_IndFoods_Day2_DR2IFF_I_d.txt", sep="\t", header=T)
 
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -77,10 +90,10 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Take n random samples of participants.
-  RandomSample(data = nhanes_food_1, n=30, out.fn = "NHANES_foods_QCed_30.txt")
+  RandomSample(data = nhanes_food_1, n=30, out.fn = "NHANES_foods_QCed_sampled.txt")
 
 # Load the subsetted food items file. 
-  food_sampled <- read.table("NHANES_foods_QCed_30.txt", sep="\t", header=T)
+  food_sampled <- read.table("NHANES_foods_QCed_sampled.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
   # Check basic statistics of food_sampled
@@ -107,8 +120,8 @@
 # ===============================================================================================================
 
 # Load total nutrient intake of day 1 or day 2. Day 1 has more columns that can be used as metadata.
-  nhanes1516_totals1 <- read.xport('Total_Nutrient_Day1_DR1TOT_J.XPT')
-  nhanes1516_totals2 <- read.xport('Total_Nutrient_Day2_DR2TOT_J.XPT')
+  nhanes1516_totals1 <- read.xport('E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Total_Nutrient_Day1_DR1TOT_J.XPT')
+  nhanes1516_totals2 <- read.xport('E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Total_Nutrient_Day2_DR2TOT_J.XPT')
   
 # Data documentation: https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR1IFF_I.htm#Appendix_3._List_of_Nutrients/Food_Components_(Unit)
 # Descriptions of the columns are there.
@@ -151,7 +164,7 @@
 # ---------------------------------------------------------------------------------------------------------------
   # For totals, the same QC can be applied as ASA24 totals QC procedure.
   # Functions to clean ASA24 data.
-  source("~/GitHub/dietary_patterns/lib/load_clean_ASA24.R")
+  source("lib/load_clean_ASA24.R")
   
 # Run all these QC steps in this order.  When asked, choose to remove the outliers
 # that fall outside the specified range for each nutrient.
@@ -184,20 +197,20 @@
     
       # or show the outliers if too many.
       bcaroutliers <- Outlier_rows[, c('SEQN', 'DR1TKCAL', 'DR1TBCAR')]
-    # Show the first n rows of the outliers in a descending order. 
-    head(bcaroutliers[order(bcaroutliers$DR1TBCAR, decreasing = T), ], n=10)
+      # Show the first n rows of the outliers in a descending order. 
+      head(bcaroutliers[order(bcaroutliers$DR1TBCAR, decreasing = T), ], n=10)
   
 
 # ---------------------------------------------------------------------------------------------------------------
   # Save QCtotals as "Totals_QCed.txt" 
-  write.table(QCtotals, "NHANES_totals_QCed.txt", sep="\t", quote=F, row.names=F)  
+  write.table(QCtotals, "eg_data/NHANES/NHANES_totals_QCed.txt", sep="\t", quote=F, row.names=F)  
   write.table(QCtotals, "eg_data/VVKAJ101-105/VVKAJ_2021-11-09_7963_Totals_QCed.txt", sep="\t", quote=F, row.names=F)  
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants.
-  RandomSample(data = QCtotals, n=50, out.fn = "NHANES_totals_QCed_sampled.txt")
+  RandomSample(data = QCtotals, n=50, out.fn = "eg_data/NHANES/NHANES_totals_QCed_sampled.txt")
   
   # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table("NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
+  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
