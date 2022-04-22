@@ -59,7 +59,7 @@
 
 # Load the saved food items file. 
   Food_D1 <- read.table("eg_data/NHANES/Interview_IndFoods_Day1_DR1IFF_I_d.txt", sep="\t", header=T)
- 
+ head(Food_D1,2)
 
 # Import items data Day 2, add food item descriptions, and save it as a txt file.
   ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day2_DR2IFF_I.XPT", 
@@ -90,7 +90,7 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Take n random samples of participants.
-  RandomSample(data = nhanes_food_1, n=30, out.fn = "NHANES_foods_QCed_sampled.txt")
+  RandomSample(data = nhanes_food_1, n=70, out.fn = "NHANES_foods_QCed_sampled.txt")
 
 # Load the subsetted food items file. 
   food_sampled <- read.table("NHANES_foods_QCed_sampled.txt", sep="\t", header=T)
@@ -141,12 +141,12 @@
   # Rename the dataset to work on.
   # nhanes1516 <- nhanes1516_totals1
   
-  # How many participants in the total dataset?
-  length(unique(nhanes1516_totals1$SEQN))
-  # 8704 for totals day 1.
+  # How many participants are in the total dataset?
+  length(unique(nhanes1516_totals1$SEQN))   # 8704 for totals day 1.
+  length(unique(nhanes1516_totals2$SEQN))   # 8704 for totals day 2.
   
 # ---------------------------------------------------------------------------------------------------------------
-# Status code - Only retain complete entries. 
+# Status code - Only retain complete entries.
   # Code descriptions in Analytic notes: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
   #  1: reliable and all relevant variables associated with the 24-hour dietary recall contain a value.
   table(nhanes1516_totals1$DR1DRSTZ)
@@ -155,12 +155,19 @@
   # Take only DR1DRSTZ = 1
   nhanes_totals_1 <- subset(nhanes1516_totals1, DR1DRSTZ == 1)
   nhanes_totals_2 <- subset(nhanes1516_totals2, DR2DRSTZ == 1)
-  table(nhanes_totals_1$DR1DRSTZ)
+  table(nhanes_totals_2$DRDINT)
   
   # How many participants selected?
   length(unique(nhanes_totals_1$SEQN)) 
   length(unique(nhanes_totals_2$SEQN)) 
+
+  matched = merge(x=nhanes_totals_2, y=nhanes_totals_1, by = "SEQN", all.x = T)
+  length(unique(matched$SEQN)) # So, day 1 data is all included in Day 2 data.
   
+  head(nhanes_totals_1, 1)
+  colnames(nhanes_totals_2)
+  
+
 # ---------------------------------------------------------------------------------------------------------------
   # For totals, the same QC can be applied as ASA24 totals QC procedure.
   # Functions to clean ASA24 data.
