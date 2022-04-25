@@ -25,13 +25,14 @@ source("lib/k-means.R")
     totals_QCed_sampled <- read.table("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/NHANES_totals_QCed_sampled_PCAs_18ind.txt", sep="\t", header=T)
     totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled_PCAs_18ind.txt", sep="\t", header=T)
     totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
+    totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_2days_totals_QCed_sampled.txt", sep="\t", header=T)
+    
     dim(totals_QCed_sampled)                                                            
     head(totals_QCed_sampled,1)
   
   # OR load the QC-ed and sampled food items file.  
     foods_QCed <- read.table("eg_data/NHANES/NHANES_foods_QCed_sampled.txt", sep="\t", header=T)
   
-
 ###### CHOOSE EITHER 1 OR 2 OF THE FOLLOWING: 1: WITHOUT AVEAGING; 2: WITH AVERAGING. #######
 
   # ---------------------------------------------------------------------------------------------------------------
@@ -49,8 +50,8 @@ source("lib/k-means.R")
        # Define the input data to be used.
        input_data <- totals_QCed_sampled
       # The columns specified as start.col, end.col, and all columns in between will be selected.
-      # Totals  --> start.col = "DR1TPROT",    end.col = "DR1TP226"
-      SubsetColumns(data=input_data, start.col="DR1TPROT", end.col = "DR1TP226")
+      # Totals  --> start.col = "KCAL",    end.col = "P226"
+      SubsetColumns(data=input_data, start.col="KCAL", end.col = "P226")
 
     # The output is a df called "subsetted".
     
@@ -116,12 +117,12 @@ source("lib/k-means.R")
 # ---------------------------------------------------------------------------------------------------------------
   
 # Save the variables after removing correlated variables
-  write.table(selected_variables, "results/PCA_results/18 ind/variables_retained_18ind.txt", sep="\t", row.names=F, quote=F)
+  write.table(selected_variables, "results/PCA_results/2 days 50 ind/variables_retained_2day_50.txt", sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
   # Save the correlation matrix for record in the results folder.
   # cc is the correlation matrix produced when variables are collapsed by correlation. 
-  SaveCorrMatrix(x=cc, out.fn = "results/PCA_results/50 ind/NHANES_totals_QCed_sampled_PCAs_50ind_corr_matrix.txt")
+  SaveCorrMatrix(x=cc, out.fn = "results/PCA_results/2 days 50 ind/NHANES_2days_totals_QCed_sampled_50ind_corr_matrix.txt")
 # ---------------------------------------------------------------------------------------------------------------
   
 

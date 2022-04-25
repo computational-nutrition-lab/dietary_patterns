@@ -155,21 +155,85 @@
   # Take only DR1DRSTZ = 1
   nhanes_totals_1 <- subset(nhanes1516_totals1, DR1DRSTZ == 1)
   nhanes_totals_2 <- subset(nhanes1516_totals2, DR2DRSTZ == 1)
-  table(nhanes_totals_2$DRDINT)
   
   # How many participants selected?
   length(unique(nhanes_totals_1$SEQN)) 
   length(unique(nhanes_totals_2$SEQN)) 
-
-  matched = merge(x=nhanes_totals_2, y=nhanes_totals_1, by = "SEQN", all.x = T)
-  length(unique(matched$SEQN)) # So, day 1 data is all included in Day 2 data.
   
-  head(nhanes_totals_1, 1)
-  colnames(nhanes_totals_2)
+  matchedall = merge(x=nhanes_totals_2, y=nhanes_totals_1, by = "SEQN")
+  length(unique(matchedall$SEQN)) 
+  # So, there are 6491 participants who have both day 1 and day 2 data. 
   
+# ---------------------------------------------------------------------------------------------------------------
+# Take average of day 1 and day 2 of totals 
+  # Day 1
+  # Import the list of variables present in Day 1. 
+  day1variables <- read.table('eg_data/NHANES/NHANES_VarNames_Day1.txt', header=F)
+  head(day1variables)
+  
+  # Which variables to pick up from the totals data
+  names.to.use <- names(nhanes_totals_1) %in% day1variables$V1
+  # pick up only the specified variables 
+  nhanes_totals_1.subset <- nhanes_totals_1[, names.to.use]
+  # Add a column that says "Day 1"
+  nhanes_totals_1.subset$Day <- "Day1"
+  # Remove "DR1T", "DR1" from the column names 
+  colnames(nhanes_totals_1.subset) <- gsub(colnames(nhanes_totals_1.subset), pattern = "DR1T", replacement = "")
+  colnames(nhanes_totals_1.subset) <- gsub(colnames(nhanes_totals_1.subset), pattern = "DR1", replacement = "")
+  # Check
+  head(nhanes_totals_1.subset, 1)
+  
+  # Do the same for Day 2.
+  day2variables <- read.table('eg_data/NHANES/NHANES_VarNames_Day2.txt', header=F)
+  head(day2variables)
+  names.to.use <- names(nhanes_totals_2) %in% day2variables$V1
+  nhanes_totals_2.subset <- nhanes_totals_2[, names.to.use]
+  nhanes_totals_2.subset$Day <- "Day2"
+  colnames(nhanes_totals_2.subset) <- gsub(colnames(nhanes_totals_2.subset), pattern = "DR2T", replacement = "")
+  colnames(nhanes_totals_2.subset) <- gsub(colnames(nhanes_totals_2.subset), pattern = "DR2", replacement = "")
+  head(nhanes_totals_2.subset, 1)
+  
+  # Make a data frame that has the column names of day 1 and day 2 totals, and ensure they match.
+  colnames <- data.frame(day1=colnames(nhanes_totals_1.subset), day2=colnames(nhanes_totals_2.subset)) 
+  head(colnames)
+  identical(x=colnames$day1, y=colnames$day2) # they match if TRUE.
+  
+  # Create a long table
+  bound <- rbind(nhanes_totals_1.subset, nhanes_totals_2.subset)
+  
+  # Create a frequency table of SEQN.  
+  SEQNtable <- as.data.frame(table(bound$SEQN))
+  table(SEQNtable$Freq)
+  # So, there are 6491 SEQNs that have both Day 1 and Day 2.
+  
+  # Sort the freq table.
+  orderedSEQNtable <- SEQNtable[order(SEQNtable$Freq, decreasing = T), ]
+  head(orderedSEQNtable)
+  
+  # Pick up the SEQN that are present in both days.
+  orderedSEQNtable_2 <- subset(orderedSEQNtable, Freq==2)
+  colnames(orderedSEQNtable_2)[1] <- "SEQN"
+  
+  # Select only the SEQN that are in orderedSEQNtable_2.
+  twodays <- merge(x=orderedSEQNtable_2, y=bound, by="SEQN", all.x = T)
+  head(twodays,4)
+  table(twodays$Day)
+  
+  # Then take average of Day 1 and Day 2.
+  meantotals <- aggregate(twodays[, 3:67], by=list(twodays$SEQN), FUN=mean)
+  dim(meantotals)
+  head(meantotals)
+  colnames(meantotals)[1] <- "SEQN"
+  subset(meantotals, SEQN=="100001")
+  
+  # Save meantotals as a txt file.
+  write.table(meantotals, "eg_data/NHANES/NHANES1516_totals_2daymean.txt", sep="\t", row.names=F, quote=F)
+  
+# Load the meantotals from next session --
+  nhanes2days <- read.table("eg_data/NHANES/NHANES1516_totals_2daymean.txt", sep="\t", header=T)
 
 # ---------------------------------------------------------------------------------------------------------------
-  # For totals, the same QC can be applied as ASA24 totals QC procedure.
+# For totals, the same QC can be applied as ASA24 totals QC procedure.
   # Functions to clean ASA24 data.
   source("lib/load_clean_ASA24.R")
   
@@ -177,47 +241,47 @@
 # that fall outside the specified range for each nutrient.
   
 # Define the input data.  This will be modified after each filter.
-  QCtotals <- nhanes_totals_1
+  QCtotals <- nhanes2days
   
   # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
   QCOutliers(input.data = QCtotals, 
-             target.colname = "DR1TKCAL", min = 600, max = 5700)
+             target.colname = "KCAL", min = 600, max = 5700)
   
   # Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
   QCOutliers(input.data = QCtotals, 
-             target.colname = "DR1TPROT", min = 10, max = 240)
+             target.colname = "PROT", min = 10, max = 240)
   
   # Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
   QCOutliers(input.data = QCtotals, 
-             target.colname = "DR1TTFAT", min = 15, max = 230)
+             target.colname = "TFAT", min = 15, max = 230)
 
   # Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
   QCOutliers(input.data = QCtotals,  
-             target.colname = "DR1TVC", min = 5, max = 400)
+             target.colname = "VC", min = 5, max = 400)
   
       # or show the outliers if too many.
-      VC_outlier_rows[, c('SEQN', 'DR1TKCAL', 'DR1TDR1TVC')]
+      VC_outlier_rows[, c('SEQN', 'KCAL', 'VC')]
   
   # Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
   QCOutliers(input.data = QCtotals,  
-             target.colname = "DR1TBCAR", min = 15, max = 8200)
+             target.colname = "BCAR", min = 15, max = 8200)
     
       # or show the outliers if too many.
-      bcaroutliers <- Outlier_rows[, c('SEQN', 'DR1TKCAL', 'DR1TBCAR')]
+      bcaroutliers <- Outlier_rows[, c('SEQN', 'KCAL', 'BCAR')]
       # Show the first n rows of the outliers in a descending order. 
-      head(bcaroutliers[order(bcaroutliers$DR1TBCAR, decreasing = T), ], n=10)
+      head(bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ], n=10)
   
 
 # ---------------------------------------------------------------------------------------------------------------
   # Save QCtotals as "Totals_QCed.txt" 
-  write.table(QCtotals, "eg_data/NHANES/NHANES_totals_QCed.txt", sep="\t", quote=F, row.names=F)  
+  write.table(QCtotals, "eg_data/NHANES/NHANES_totals_2days_QCed.txt", sep="\t", quote=F, row.names=F)  
   write.table(QCtotals, "eg_data/VVKAJ101-105/VVKAJ_2021-11-09_7963_Totals_QCed.txt", sep="\t", quote=F, row.names=F)  
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants.
-  RandomSample(data = QCtotals, n=50, out.fn = "eg_data/NHANES/NHANES_totals_QCed_sampled.txt")
+  RandomSample(data = QCtotals, n=50, out.fn = "eg_data/NHANES/NHANES_2days_totals_QCed_sampled.txt")
   
   # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
+  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_2days_totals_QCed_sampled.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
