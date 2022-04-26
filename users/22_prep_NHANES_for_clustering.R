@@ -26,6 +26,7 @@ source("lib/k-means.R")
     totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled_PCAs_18ind.txt", sep="\t", header=T)
     totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_totals_QCed_sampled.txt", sep="\t", header=T)
     totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_2days_totals_QCed_sampled.txt", sep="\t", header=T)
+    totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_2days_totals_QCed_1000sampled.txt", sep="\t", header=T)
     
     dim(totals_QCed_sampled)                                                            
     head(totals_QCed_sampled,1)
@@ -58,8 +59,9 @@ source("lib/k-means.R")
   # pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
   # The removed columns will be shown if any.
   KeepNonZeroVarColumns(data = subsetted)
+  # The output is a df called "subsetted_non0var".
 
-  # The out put is a df called "subsetted_non0var".
+  # Check the columns (variables) remained.
   colnames(subsetted_non0var)
 # ---------------------------------------------------------------------------------------------------------------
     
@@ -117,12 +119,12 @@ source("lib/k-means.R")
 # ---------------------------------------------------------------------------------------------------------------
   
 # Save the variables after removing correlated variables
-  write.table(selected_variables, "results/PCA_results/2 days 50 ind/variables_retained_2day_50.txt", sep="\t", row.names=F, quote=F)
+  write.table(selected_variables, "results/PCA_results/2 days 50 ind/variables_retained_2day_1000.txt", sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
   # Save the correlation matrix for record in the results folder.
   # cc is the correlation matrix produced when variables are collapsed by correlation. 
-  SaveCorrMatrix(x=cc, out.fn = "results/PCA_results/2 days 50 ind/NHANES_2days_totals_QCed_sampled_50ind_corr_matrix.txt")
+  SaveCorrMatrix(x=cc, out.fn = "results/PCA_results/2 days 50 ind/NHANES_2days_totals_QCed_sampled_1000ind_corr_matrix.txt")
 # ---------------------------------------------------------------------------------------------------------------
   
 

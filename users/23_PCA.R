@@ -57,31 +57,30 @@
 # Create a scree plot.
   screep <- LineScreePlot(pca.data = pca_input, pca.result = scaled_pca)
   screep
-  ggsave("results/PCA_results/2 days 50 ind/2days_50ind_screep.png", screep, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_screep.png", screep, device="png", width=5, height=5, dpi=200)
   
 # Create a biplot.
   # A biplot with the individuals as black dots and variables labelled.
-  biplotdots <- BiplotDots(pca.result = scaled_pca, pca.data = pca_input)
+  biplotdots <- BiplotDots(pca.result = scaled_pca, pca.data = pca_input, alpha = 0.5)
   biplotdots
-  ggsave("results/PCA_results/2 days 50 ind/2days_50ind_biplotdots.png", biplotdots, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_biplotdots.png", biplotdots, device="png", width=5, height=5, dpi=200)
   
   
 # A biplot with the individuals labeled.
   biplotlabeled <- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label = T)
   biplotlabeled
-  ggsave("results/PCA_results/2 days 50 ind/2days_50ind_biplotlabeled.png", biplotlabeled, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_biplotlabeled.png", biplotlabeled, device="png", width=5, height=5, dpi=200)
   
 # A biplot with the individuals labeled without the variables' arrows.
-  biplotlabeledwoarrows <- BiplotLabeledwoArrows(pca.result = scaled_pca, 
-                                                 pca.data = pca_input, 
-                                                 individuals.label = T)
+  biplotlabeledwoarrows <- BiplotLabeledwoArrows(pca.result=scaled_pca, pca.data=pca_input, 
+                                                 individuals.label=T)
   biplotlabeledwoarrows
-  ggsave("results/PCA_results/2 days 50 ind/2days_50ind_biplotlabeledwoarrows.png", biplotlabeledwoarrows, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_biplotlabeledwoarrows.png", biplotlabeledwoarrows, device="png", width=5, height=5, dpi=200)
 
 # Plot the directions of the variables.
   directions <- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label=F)
   directions
-  ggsave("results/PCA_results/2 days 50 ind/2days_50ind_directions.png", directions, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_directions.png", directions, device="png", width=5, height=5, dpi=200)
   
   
 # Plot the contribution of the variables to a given PC.
@@ -90,7 +89,7 @@
                       positive.color="green2", negative.color="grey70", labels.aligned= TRUE)
   loadings_aligned
   # cannot use png function as it only creates a null image.
-  png(filename="results/PCA_results/2 days 50 ind/2days_50ind_loadings_aligned.png", loadings_aligned, width=5, height=5, res=200)
+  png(filename="results/PCA_results/2 days 50 ind/2days_1000ind_loadings_aligned.png", loadings_aligned, width=5, height=5, res=200)
 
   # Variables' labels are placed right below the bars.
   LoadingsPlot(pca.result=scaled_pca,  whichPC="PC1", 
@@ -100,14 +99,14 @@
 # Save the variance explained by each PC as a .txt file. 
 # Change the file name as necessary.  
   SaveVarExplained(pca.data = pca_input, pca.result = scaled_pca, 
-                   out.fn = "results/PCA_results/2 days 50 ind/2days_PC_var_explained_50ind.txt")
+                   out.fn = "results/PCA_results/2 days 50 ind/2days_PC_var_explained_1000ind.txt")
 
 # ---------------------------------------------------------------------------------------------------------------  
 # Calculate loadings of each PC to the variables and 
 # save it as a txt file in the results folder.
   # Change the file name as necessary.  
   SaveLoadings(pca.result=scaled_pca, 
-               out.fn = "results/PCA_results/2 days 50 ind/2days_PC_loadings_50ind.txt")
+               out.fn = "results/PCA_results/2 days 50 ind/2days_PC_loadings_1000ind.txt")
   
 # ---------------------------------------------------------------------------------------------------------------  
 # Save the PC values with the input which has the metadata and food codes, food names.  
@@ -124,7 +123,7 @@
                   pca.results = scaled_pca, 
                   out.fn = "results/PCA_results/50 ind/ind50_totalsinput_QCed_PCs.txt")
   
-  SaveInputAndPCs(input = "eg_data/NHANES/NHANES_2days_totals_QCed_sampled.txt",
+  SaveInputAndPCs(input = "eg_data/NHANES/NHANES_2days_totals_QCed_1000sampled.txt",
                   pca.results = scaled_pca, 
-                  out.fn = "results/PCA_results/2 days 50 ind/ind50_2days_totalsinput_QCed_PCs.txt")
+                  out.fn = "results/PCA_results/2 days 50 ind/ind1000_2days_totalsinput_QCed_PCs.txt")
   

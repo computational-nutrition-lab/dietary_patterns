@@ -59,7 +59,7 @@
 
 # Load the saved food items file. 
   Food_D1 <- read.table("eg_data/NHANES/Interview_IndFoods_Day1_DR1IFF_I_d.txt", sep="\t", header=T)
- head(Food_D1,2)
+  head(Food_D1,2)
 
 # Import items data Day 2, add food item descriptions, and save it as a txt file.
   ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day2_DR2IFF_I.XPT", 
@@ -76,13 +76,13 @@
   #  1: reliable and all relevant variables associated with the 24-hour dietary recall contain a value.
   # Code descriptions in Analytic notes: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
   
-  # Define the dataset to work on. 
-  nhanes_food <- Food_D1
+    # DAY 1
+    # Take only DR1DRSTZ = 1
+      nhanes_food_1 <- subset(Food_D1, DR1DRSTZ == 1)
   
-    # FOR DAY 1, take only DR1DRSTZ = 1
-    nhanes_food_1 <- subset(nhanes_food, DR1DRSTZ == 1)
-    # FOR DAY 2, take only DR2DRSTZ = 1
-    nhanes_food_1 <- subset(nhanes_food, DR2DRSTZ == 1)
+    # DAY 2 
+    # take only DR2DRSTZ = 1
+      nhanes_food_2 <- subset(Food_D2, DR2DRSTZ == 1)
   
   # Check how many participants were selected.
   length(unique(nhanes_food_1$SEQN)) 
@@ -113,7 +113,7 @@
   # But it's always a good idea to take a look at the distributions of variables of interest. 
   # Could calculate totals by occasion, similar to ASA24 code.
   
- 
+  
   
 # ===============================================================================================================
 # Load and clean NHANES totals data. 
@@ -172,34 +172,34 @@
   head(day1variables)
   
   # Which variables to pick up from the totals data
-  names.to.use <- names(nhanes_totals_1) %in% day1variables$V1
+  names_to_use <- names(nhanes_totals_1) %in% day1variables$V1
   # pick up only the specified variables 
-  nhanes_totals_1.subset <- nhanes_totals_1[, names.to.use]
+  nhanes_totals_1_subset <- nhanes_totals_1[, names_to_use]
   # Add a column that says "Day 1"
-  nhanes_totals_1.subset$Day <- "Day1"
+  nhanes_totals_1_subset$Day <- "Day1"
   # Remove "DR1T", "DR1" from the column names 
-  colnames(nhanes_totals_1.subset) <- gsub(colnames(nhanes_totals_1.subset), pattern = "DR1T", replacement = "")
-  colnames(nhanes_totals_1.subset) <- gsub(colnames(nhanes_totals_1.subset), pattern = "DR1", replacement = "")
+  colnames(nhanes_totals_1_subset) <- gsub(colnames(nhanes_totals_1_subset), pattern = "DR1T", replacement = "")
+  colnames(nhanes_totals_1_subset) <- gsub(colnames(nhanes_totals_1_subset), pattern = "DR1", replacement = "")
   # Check
-  head(nhanes_totals_1.subset, 1)
+  head(nhanes_totals_1_subset, 1)
   
   # Do the same for Day 2.
   day2variables <- read.table('eg_data/NHANES/NHANES_VarNames_Day2.txt', header=F)
   head(day2variables)
-  names.to.use <- names(nhanes_totals_2) %in% day2variables$V1
-  nhanes_totals_2.subset <- nhanes_totals_2[, names.to.use]
-  nhanes_totals_2.subset$Day <- "Day2"
-  colnames(nhanes_totals_2.subset) <- gsub(colnames(nhanes_totals_2.subset), pattern = "DR2T", replacement = "")
-  colnames(nhanes_totals_2.subset) <- gsub(colnames(nhanes_totals_2.subset), pattern = "DR2", replacement = "")
-  head(nhanes_totals_2.subset, 1)
+  names_to_use <- names(nhanes_totals_2) %in% day2variables$V1
+  nhanes_totals_2_subset <- nhanes_totals_2[, names_to_use]
+  nhanes_totals_2_subset$Day <- "Day2"
+  colnames(nhanes_totals_2_subset) <- gsub(colnames(nhanes_totals_2_subset), pattern = "DR2T", replacement = "")
+  colnames(nhanes_totals_2_subset) <- gsub(colnames(nhanes_totals_2_subset), pattern = "DR2", replacement = "")
+  head(nhanes_totals_2_subset, 1)
   
   # Make a data frame that has the column names of day 1 and day 2 totals, and ensure they match.
-  colnames <- data.frame(day1=colnames(nhanes_totals_1.subset), day2=colnames(nhanes_totals_2.subset)) 
+  colnames <- data.frame(day1=colnames(nhanes_totals_1_subset), day2=colnames(nhanes_totals_2_subset)) 
   head(colnames)
   identical(x=colnames$day1, y=colnames$day2) # they match if TRUE.
   
   # Create a long table
-  bound <- rbind(nhanes_totals_1.subset, nhanes_totals_2.subset)
+  bound <- rbind(nhanes_totals_1_subset, nhanes_totals_2_subset)
   
   # Create a frequency table of SEQN.  
   SEQNtable <- as.data.frame(table(bound$SEQN))
@@ -210,15 +210,15 @@
   orderedSEQNtable <- SEQNtable[order(SEQNtable$Freq, decreasing = T), ]
   head(orderedSEQNtable)
   
-  # Pick up the SEQN that are present in both days.
+  # Pick up the SEQNs that are present in both days.
   orderedSEQNtable_2 <- subset(orderedSEQNtable, Freq==2)
   colnames(orderedSEQNtable_2)[1] <- "SEQN"
   
   # Select only the SEQN that are in orderedSEQNtable_2.
   twodays <- merge(x=orderedSEQNtable_2, y=bound, by="SEQN", all.x = T)
-  head(twodays,4)
+  head(twodays, 4)
   table(twodays$Day)
-  
+
   # Then take average of Day 1 and Day 2.
   meantotals <- aggregate(twodays[, 3:67], by=list(twodays$SEQN), FUN=mean)
   dim(meantotals)
@@ -279,9 +279,9 @@
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants.
-  RandomSample(data = QCtotals, n=50, out.fn = "eg_data/NHANES/NHANES_2days_totals_QCed_sampled.txt")
+  RandomSample(data = QCtotals, n=1000, out.fn = "eg_data/NHANES/NHANES_2days_totals_QCed_1000sampled.txt")
   
   # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_2days_totals_QCed_sampled.txt", sep="\t", header=T)
+  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES_2days_totals_QCed_1000sampled.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------
