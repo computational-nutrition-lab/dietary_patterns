@@ -1,8 +1,8 @@
 # ========================================================================================
 # Prepare NHANES food and items data for clustering analysis.
-# 
-# Version 1
-# Created on 04/12 by Rie Sadohara
+# Modified version, after finishing writing code to load_clean_NHANES_food.R.
+# Version 2
+# Created on 05/04/2022 by Rie Sadohara
 # ========================================================================================
 
 # ========================================================================================
@@ -10,6 +10,7 @@
 # ========================================================================================
 
 Set working directory by: Session --> Set Working Directory --> Choose Directory
+
 setwd("~/GitHub/dietary_patterns")
 
 # Load the necessary functions
@@ -18,8 +19,35 @@ source("lib/PCA.R")
 source("lib/k-means.R")
 
 # ========================================================================================
-# Load QC-ed NHANES items or totals    
+# Load QC-ed NHANES FOOD ITEMS    
 # ========================================================================================
+
+# Load the QC-ed food items. 
+  food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_QC_1000sampled.txt", sep="\t", header=T)
+
+
+
+
+# ========================================================================================
+# Load QC-ed NHANES TOTAL     
+# ========================================================================================
+
+# Load the subsetted totals file. 
+  food12d <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_1000sampled.txt", sep="\t", header=T) 
+
+
+   ###### RESUME FROM HERE  ######
+  
+  
+  
+  
+  
+  
+  
+  
+  ###### CODE BELOW MAY OR MAY NOT BE USEFUL #########  
+
+
 
   # Load the QC-ed and sampled totals file. 
     totals_QCed_sampled <- read.table("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/NHANES_totals_QCed_sampled_PCAs_18ind.txt", sep="\t", header=T)

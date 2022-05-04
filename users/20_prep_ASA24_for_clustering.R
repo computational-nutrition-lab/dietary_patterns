@@ -42,10 +42,7 @@
 # Load the totals data:
   totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
 
-# If totals data is a csv:
-# totals <- read.csv(list.files(pattern = '\\Totals.csv$'))
-
-# Load the items.csv
+# Load the items.txt
   items <- read.table("Items_to_use.txt", quote = "", sep = "\t", header = T)
 
 # NHANES data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
@@ -59,7 +56,6 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # 1. If using each dataponit as is WITHOUT AVERAGING, 
-  
 
 # Subset nutrients or food items data.
 # The columns specified as start.col, end.col, and all columns in between will be selected.
