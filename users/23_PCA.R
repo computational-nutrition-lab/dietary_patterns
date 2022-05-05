@@ -33,8 +33,8 @@
   main.wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  source("lib/specify_dir_and_check_col.R")
-  source("lib/prep_data_for_clustering.R")
+  # source("lib/specify_dir_and_check_col.R")
+  # source("lib/prep_data_for_clustering.R")
   source("lib/PCA.R")
 
 # Define ggplot themes to use in creating plots.
@@ -49,81 +49,72 @@
 # Name your input data.
 # Your input data should be a data frame with variables with non-zero variance. 
   pca_input <- selected_variables
+
+# Ensure your input file has the correct number of rows and columns.
   dim(pca_input)
 
 # Perform PCA with the subset data, scaled.
-  scaled_pca <- prcomp(x=pca_input, scale = T)   
+  scaled_pca <- prcomp(x=pca_input, scale = TRUE)   
 
 # Create a scree plot.
   screep <- LineScreePlot(pca.data = pca_input, pca.result = scaled_pca)
   screep
-  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_screep.png", screep, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_screep.pdf", screep, device="pdf", width=5, height=5, units="in")
   
 # Create a biplot.
   # A biplot with the individuals as black dots and variables labelled.
   biplotdots <- BiplotDots(pca.result = scaled_pca, pca.data = pca_input, alpha = 0.5)
   biplotdots
-  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_biplotdots.png", biplotdots, device="png", width=5, height=5, dpi=200)
-  
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_biplotdots.pdf", biplotdots, device="pdf", width=5, height=5, units="in")
   
 # A biplot with the individuals labeled.
   biplotlabeled <- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label = T)
   biplotlabeled
-  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_biplotlabeled.png", biplotlabeled, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_biplotlabeled.pdf", biplotlabeled, device="pdf", width=5, height=5, units="in")
   
 # A biplot with the individuals labeled without the variables' arrows.
   biplotlabeledwoarrows <- BiplotLabeledwoArrows(pca.result=scaled_pca, pca.data=pca_input, 
                                                  individuals.label=T)
   biplotlabeledwoarrows
-  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_biplotlabeledwoarrows.png", biplotlabeledwoarrows, device="png", width=5, height=5, dpi=200)
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_biplotlabeledwoarrows.pdf", biplotlabeledwoarrows, device="pdf", width=5, height=5, units="in")
 
 # Plot the directions of the variables.
   directions <- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label=F)
   directions
-  ggsave("results/PCA_results/2 days 50 ind/2days_1000ind_directions.png", directions, device="png", width=5, height=5, dpi=200)
-  
-  
-# Plot the contribution of the variables to a given PC.
-  # Variables' labels aligned on the X axis.
-  loadings_aligned <- LoadingsPlot(pca.result=scaled_pca,  whichPC="PC1", 
-                      positive.color="green2", negative.color="grey70", labels.aligned= TRUE)
-  loadings_aligned
-  # cannot use png function as it only creates a null image.
-  png(filename="results/PCA_results/2 days 50 ind/2days_1000ind_loadings_aligned.png", loadings_aligned, width=5, height=5, res=200)
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_directions.pdf", directions, device="pdf", width=5, height=5, units="in")
 
-  # Variables' labels are placed right below the bars.
-  LoadingsPlot(pca.result=scaled_pca,  whichPC="PC1", 
-               positive.color="green2", negative.color="grey70", labels.aligned= FALSE)
+# Plot the contribution of the variables to a given PC.
+  LoadingsPlot(pca.result=scaled_pca,  whichPC="PC2", 
+               positive.color="green2", negative.color="grey70", sort.variables = T)
+  loadings_plot
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_loadings_PC2.pdf", loadings_plot, device="pdf", width=8, height=4.8, units="in")
 
 # ---------------------------------------------------------------------------------------------------------------  
 # Save the variance explained by each PC as a .txt file. 
 # Change the file name as necessary.  
   SaveVarExplained(pca.data = pca_input, pca.result = scaled_pca, 
-                   out.fn = "results/PCA_results/2 days 50 ind/2days_PC_var_explained_1000ind.txt")
+                   out.fn = "results/PCA_results/temporary/total_d12_mean_QC1000_PC_var_explained.txt")
 
 # ---------------------------------------------------------------------------------------------------------------  
 # Calculate loadings of each PC to the variables and 
 # save it as a txt file in the results folder.
   # Change the file name as necessary.  
   SaveLoadings(pca.result=scaled_pca, 
-               out.fn = "results/PCA_results/2 days 50 ind/2days_PC_loadings_1000ind.txt")
+               out.fn = "results/PCA_results/temporary/total_d12_mean_QC1000_PC_loadings.txt")
   
 # ---------------------------------------------------------------------------------------------------------------  
 # Save the PC values with the input which has the metadata and food codes, food names.  
-    # This may not be correct
-    # SaveInputAndPCs(input = "E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/NHANES_totals_QCed_sampled_PCAs_18ind_input.txt",
-    #                 pca.results = scaled_pca, 
-    #                 out.fn = "results/PCA_results/18 ind/ind18_totalsinput_QCed_PCs.txt")
-  
-  SaveInputAndPCs(input = "E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/NHANES_totals_QCed_sampled_PCAs_18ind.txt",
+# Input is your food input file before any prep for clustering, from which you derived the input for the PCA.
+
+  SaveInputAndPCs(input = "eg_data/NHANES/NHANES1516_total_d12_mean_QC_1000sampled.txt",
                   pca.results = scaled_pca, 
-                  out.fn = "results/PCA_results/18 ind/ind18_totalsinput_QCed_PCs_2.txt")
+                  out.fn = "results/PCA_results/temporary/total_d12_mean_QC1000_input_PCs.txt")
   
-  SaveInputAndPCs(input = "E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/NHANES_totals_QCed_sampled.txt",
-                  pca.results = scaled_pca, 
-                  out.fn = "results/PCA_results/50 ind/ind50_totalsinput_QCed_PCs.txt")
-  
-  SaveInputAndPCs(input = "eg_data/NHANES/NHANES_2days_totals_QCed_1000sampled.txt",
-                  pca.results = scaled_pca, 
-                  out.fn = "results/PCA_results/2 days 50 ind/ind1000_2days_totalsinput_QCed_PCs.txt")
+  # SaveInputAndPCs(input = "E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/NHANES_totals_QCed_sampled.txt",
+  #                 pca.results = scaled_pca, 
+  #                 out.fn = "results/PCA_results/50 ind/ind50_totalsinput_QCed_PCs.txt")
+  # 
+  # SaveInputAndPCs(input = "eg_data/NHANES/NHANES_2days_totals_QCed_1000sampled.txt",
+  #                 pca.results = scaled_pca, 
+  #                 out.fn = "results/PCA_results/2 days 50 ind/ind1000_2days_totalsinput_QCed_PCs.txt")
   

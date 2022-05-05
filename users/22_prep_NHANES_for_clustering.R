@@ -14,9 +14,9 @@ Set working directory by: Session --> Set Working Directory --> Choose Directory
 setwd("~/GitHub/dietary_patterns")
 
 # Load the necessary functions
-source("lib/prep_data_for_clustering.R")
-source("lib/PCA.R")
-source("lib/k-means.R")
+  source("lib/prep_data_for_clustering.R")
+  source("lib/PCA.R")
+  source("lib/k-means.R")
 
 # ========================================================================================
 # Load QC-ed NHANES FOOD ITEMS    
@@ -25,18 +25,73 @@ source("lib/k-means.R")
 # Load the QC-ed food items. 
   food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_QC_1000sampled.txt", sep="\t", header=T)
 
-
-
+# How do you use food items data of just 2 days for clustering? Maybe not needed.
 
 # ========================================================================================
 # Load QC-ed NHANES TOTAL     
 # ========================================================================================
 
 # Load the subsetted totals file. 
-  food12d <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_1000sampled.txt", sep="\t", header=T) 
+  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_1000sampled.txt", sep="\t", header=T) 
+  head(totals_QCed_sampled,2)
+  hist(totals_QCed_sampled$MOIS)
+  totals_QCed_sampled$GRMSminusMOIS <- totals_QCed_sampled$GRMS - totals_QCed_sampled$MOIS
+  plot(totals_QCed_sampled$MOIS, totals_QCed_sampled$GRMS)
+  hist(totals_QCed_sampled$GRMSminusMOIS)
+  
+# Define the input data to be used.
+  input_data <- totals_QCed_sampled
 
+# The columns specified as start.col, end.col, and all columns in between will be selected.
+  SubsetColumns(data=input_data, start.col="GRMS", end.col = "NoOfItems")
 
-   ###### RESUME FROM HERE  ######
+  # The output is a df called "subsetted".
+  
+# Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
+  # The removed columns will be shown if any.
+  KeepNonZeroVarColumns(data = subsetted)
+  # The output is a df called "subsetted_non0var".
+  
+# Check the columns (variables) remained.
+  colnames(subsetted_non0var)  
+
+# ---------------------------------------------------------------------------------------------------------------
+# Collapse variables by correlation: take only one variables if they are highly correlated.
+  cbc_res <- CollapseByCorrelation(x = subsetted_non0var,
+                                   min.cor = 0.75, 
+                                   select.rep.fcn = 'mean', verbose = T)
+  
+# Filter out highly correlated variables from the original dataset.  
+  selected_variables <- subsetted_non0var[, cbc_res$reps]
+  
+# ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+  
+# Check to see the name of the original and filtered variables. 
+# Among the variables in the same group, the one with the highest variance is kept 
+#  (according to the explanation above.)
+  # filtered
+  head(selected_variables, 1)     
+  dim(selected_variables)     
+  
+  # original
+  head(subsetted_non0var, 1)
+  dim(subsetted_non0var)
+
+# ---------------------------------------------------------------------------------------------------------------
+# Save the variables after removing correlated variables
+  write.table(selected_variables, 
+              "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_1000sampled_rv.txt", 
+              sep="\t", row.names=F, quote=F)
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Save the correlation matrix for record in the results folder.
+# cc is the correlation matrix produced when variables are collapsed by correlation. 
+  SaveCorrMatrix(x=cc, 
+                 out.fn = "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_1000sampled_corr_mat.txt")
+  # ---------------------------------------------------------------------------------------------------------------
+  
+
+   ###### DONE ######
   
   
   
@@ -45,7 +100,7 @@ source("lib/k-means.R")
   
   
   
-  ###### CODE BELOW MAY OR MAY NOT BE USEFUL #########  
+  ###### CODE BELOW MAY OR MAY NOT BE USEFUL --- TO BE DELETED AS IT'S NOT NEEDED #########  
 
 
 
@@ -93,66 +148,3 @@ source("lib/k-means.R")
   colnames(subsetted_non0var)
 # ---------------------------------------------------------------------------------------------------------------
     
-### No. 2 below is not needed, I think, because the average is totals, and as is is food items.
-###    since there is only 1 day of NHANES data. 
-  # 
-  # # ---------------------------------------------------------------------------------------------------------------
-  # #  2. If taking average of the food items of each user for each of the nutrients.
-  #   
-  # # Define the input data to be used.
-  #   input_data <- foods_QCed_30
-  #   input_data <- totals_QCed_1500
-  #   colnames(input_data)
-  #   
-  #   # Totals  --> start.col = "DR1TPROT",    end.col = "DR1TP226"
-  #   SubsetColumns(data=input_data, start.col="DR1TPROT", end.col = "DR1TP226")
-  #   # Items   --> start.col = "DR1IPROT",     end.col = "DR1IP226"
-  #   SubsetColumns(data=input_data, start.col="DR1IPROT", end.col = "DR1IP226")
-  #   # The output is a df called "subsetted".
-  #   
-  #   AverageBy(data = subsetted, by = "SEQN", start.col = "DR1TKCAL", end.col = "DR1TP226")
-  #   
-  #   # The column names should be the same as start.col - end.col. 
-  #   colnames(meansbycategorydf)
-  #   
-  #   # pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
-  #   # The removed columns will be shown if any.
-  #   KeepNonZeroVarColumns(data = subsetted)
-  #   
-  #   # "subsetted_non0var" is the dataframe to be used in the subsequent collapse by correlation procedure.
-  #   
-  # # ---------------------------------------------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------------------------------------------
-# Collapse variables by correlation: take only one variables if they are highly correlated.
-  cbc_res <- CollapseByCorrelation(x = subsetted_non0var,
-                                   min.cor = 0.75, 
-                                   select.rep.fcn = 'mean', verbose = T)
-  
-  # Filter out highly correlated variables from the original dataset.  
-  selected_variables <- subsetted_non0var[, cbc_res$reps]
-  
-  # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
-  
-  # Check to see the name of the original and filtered variables. 
-  # Among the variables in the same group, the one with the highest variance is kept 
-  #  (according to the explanation above.)
-  # filtered
-  head(selected_variables, 1)     
-  dim(selected_variables)     
-  
-  # original
-  head(subsetted_non0var, 1)
-  dim(subsetted_non0var)
-# ---------------------------------------------------------------------------------------------------------------
-  
-# Save the variables after removing correlated variables
-  write.table(selected_variables, "results/PCA_results/2 days 50 ind/variables_retained_2day_1000.txt", sep="\t", row.names=F, quote=F)
-  
-# ---------------------------------------------------------------------------------------------------------------
-  # Save the correlation matrix for record in the results folder.
-  # cc is the correlation matrix produced when variables are collapsed by correlation. 
-  SaveCorrMatrix(x=cc, out.fn = "results/PCA_results/2 days 50 ind/NHANES_2days_totals_QCed_sampled_1000ind_corr_matrix.txt")
-# ---------------------------------------------------------------------------------------------------------------
-  
-

@@ -73,6 +73,8 @@
     autoplot(object = pca.result, data = pca.data,
              loadings = T, loadings.label = T, loadings.colour = 'pink',
              loadings.label.size=3, alpha=alpha) +
+      scale_x_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of X (to fit text).
+      scale_y_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of Y (to fit text).
       theme(panel.grid.major = element_blank()) +
       theme(panel.grid.minor = element_blank()) +
       theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
@@ -90,6 +92,8 @@
     autoplot(object = pca.result, data = pca.data, 
              label = individuals.label, label.size = 3, shape =FALSE,  
              loadings = F, loadings.label = F, alpha=alpha) +
+      scale_x_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of X (to fit text).
+      scale_y_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of Y (to fit text).
       theme(panel.grid.major = element_blank()) +
       theme(panel.grid.minor = element_blank()) +
       theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
@@ -106,6 +110,8 @@
              label = individuals.label, label.size = 3, shape =FALSE,  
              loadings = T, loadings.label = T, loadings.colour = 'pink',
              loadings.label.size=3) +
+      scale_x_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of X (to fit text).
+      scale_y_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of Y (to fit text).
       theme(panel.grid.major = element_blank()) +
       theme(panel.grid.minor = element_blank()) +
       theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
@@ -116,32 +122,84 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Plot the contribution of each variable to PC1.  
-  LoadingsPlot <- function(pca.result,  whichPC, positive.color="green2", negative.color="grey70", labels.aligned=c(TRUE, FALSE)){
+  LoadingsPlot <- function(pca.result,  whichPC, positive.color="green2", negative.color="grey70", sort.variables=c(TRUE, FALSE)){
     
-    p <- pca.result[["rotation"]]
-    variables <- rownames(p)
-    # create a numeric object ("n.pc1") containing values which will position text underneath the bars.
-    # i.e. shows the starting points for the label of the variables. 
-    n.PCx <- ifelse(p[, whichPC] > 0, yes= -0.01, no= p[, whichPC]-0.01)
+    # Save the rotation (contribution of the Variables to each PC) as a dataframe.  
+    Rota <- pca.result[["rotation"]]
+    Rotadf = as.data.frame(Rota)
+    
+    # Make a column that contains the variable names (rownames).
+    Rotadf$Variables <- rownames(Rotadf)
+    
+    # IF keeping the original order of the Variables --------------------------------------------
+    if(sort.variables==FALSE){
 
-    # if loadings is positive, color it green, if not, color it red.
-    c.PCx <- ifelse(p[, whichPC] > 0, yes=positive.color, no=negative.color)  
-    
-    if(labels.aligned==TRUE){
-      par(mar=c(8,3,2,1)) # Set margins
-      b1 <- barplot(p[, whichPC], main=paste(whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=T)
-      abline(h=0) # Add horizontal line
+      # Select the Variables and only the specified PC to plot.
+      aaa <- data.frame(Variables=Rotadf$Variables, Ytoplot= Rotadf[, whichPC])
       
-    }else if(labels.aligned==FALSE){
-      # Plot again 
-      par(mar=c(8,3,2,1)) # Set margins
-      b1 <- barplot(p[, whichPC], main=paste(whichPC, "Loadings Plot"), col=c.PCx, las=2, axisnames=FALSE)
-      abline(h=0) # Add horizontal line
-      # 
-      text(x=b1, y=n.PCx, labels= names(n.PCx), adj=1, srt=90, xpd= TRUE) # Add variable names
-      # xpd=TRUE tells R that it can plot the text outside the plot region.
+      # Make Variables as an ordered factor (the order of levels will be presereved). 
+      aaa$Variables <- factor(aaa$Variables, levels=aaa$Variables)
+      
+      # Calculate the position at which labels are placed for each bar. 
+      n.PCx <- ifelse(aaa[, "Ytoplot"] > 0, yes= -0.01, no= aaa[, "Ytoplot"]-0.01)
+      
+      # Assign each value a positive color and negative color. 
+      c.PCx <- ifelse(aaa[, "Ytoplot"] > 0, yes=positive.color, no=negative.color)  
+      
+      # Make a plot with the original order of Variables.
+      loadings_plot <<- ggplot(data= aaa, aes(x=Variables, y=Ytoplot)) +
+        geom_bar(stat="identity", fill=c.PCx) + 
+        theme_bw() +
+        labs(y=paste0(whichPC)) +
+        # theme(axis.text.x = element_text(angle = 45, hjust = 1) ) + # to check if the variable orders are correct.
+        theme(axis.ticks.x = element_blank(),
+              axis.text.x = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+              axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ),
+              axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+        # geom_text(aes(label=Variables), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
+        geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
+        scale_y_continuous(expand = expansion(mult=c(0.3, 0.1))) # give 0.3 space at the lower limit of Y (to fit text). 
+      print(loadings_plot)
+      
+      # IF sorting the Variables by their contributions ---------------------------------------
+    }else if(sort.variables==TRUE){
+      
+      # Select the Variables and only the specified PC to plot.
+      bbb <- data.frame(Variables=Rotadf$Variables, Ytoplot= Rotadf[, whichPC])
+      
+      # Sort the Variables in the order of Y (the contribution to the specified PC.)
+      bbb_s <- bbb[ order(bbb$Ytoplot, decreasing=T),  ]
+      
+      # Make Variables as an ordered factor.
+      bbb_s$Variables <- factor(bbb_s$Variables, levels=bbb_s$Variables)   
+      
+      print("bbb_s is below.")
+      print(head(bbb_s,4))
+      
+      # Calculate the position at which labels are placed for each bar. 
+      n.PCx <- ifelse(bbb_s[, "Ytoplot"] > 0, yes= -0.01, no= bbb_s[, "Ytoplot"]-0.01)
+      
+      # Assign each value a positive color and negative color. 
+      c.PCx <- ifelse(bbb_s[, "Ytoplot"] > 0, yes=positive.color, no=negative.color)  
+      
+      # Make a plot with the original order of the Variables.
+      loadings_plot <<- ggplot(data= bbb_s, aes(x=Variables, y=Ytoplot)) +
+        geom_bar(stat='identity', fill=c.PCx) +
+        theme_bw() +
+        labs(y=paste0(whichPC)) +
+        theme(axis.ticks.x = element_blank(),
+              axis.text.x = element_blank(),
+              panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+              axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ),
+              axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+        geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
+        scale_y_continuous(expand = expansion(mult=c(0.3, 0.1))) # give 0.3 space at the lower limit of Y (to fit text). 
+      
+      print(loadings_plot)
     }
   }
+  
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
