@@ -27,7 +27,7 @@
 
 # Load necessary packages.
   library(SASxport)
-  library(foreign)
+  # library(foreign)
 
 # Set where the NHANES data and food code table are.
 # it is not in the eg_data folder because it's too large to save in GitHub folder. 
@@ -36,6 +36,7 @@
 
 # Load necessary functions.
   source("lib/load_clean_NHANES.R")
+  source("lib/prep_data_for_clustering.R")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Prep the code table - replace special characters with "_" or "and"
@@ -158,7 +159,7 @@
       
 # ---------------------------------------------------------------------------------------------------------------
 # Take n random samples of participants (SEQN).
-  RandomSample(data= food12d, n=1000, out.fn="eg_data/NHANES/NHANES1516_items_d12_QC_1000sampled.txt")
+  RandomSample(data= food12d, n=500, out.fn="eg_data/NHANES/NHANES1516_items_d12_QC_500sampled.txt")
 
 # ---------------------------------------------------------------------------------------------------------------
             
@@ -175,14 +176,26 @@
   food12d_d1 <- subset(food12d, Day==1) 
   colnames(food12d_d1)
       
-# Sum nutrients; this is total data calculated by hand.         
-  total1 <- aggregate(food12d_d1[, 2:67], by=list(food12d_d1$SEQN), FUN=sum)
+# Sum nutrients; this is total data calculated by hand.
+# First, speicfy the first and the last column (variable) names to calculate totals for. 
+  first.val <- "GRMS"
+  last.val <- "P226"
+  
+  start_col_num <- match(first.val, names(food12d_d1))  # The number of column that matches the first variable specified.
+  end_col_num <-   match(last.val, names(food12d_d1)) # The number of column that matches the last variable specified.
+    
+  # Sum food items by SEQN from start through end columns.
+  total1 <- aggregate(food12d_d1[, start_col_num:end_col_num], 
+                      by=list(food12d_d1$SEQN), 
+                      FUN=sum)
+
   total1$Day <- 1
   colnames(total1)[1] <- "SEQN"
 
 # Create a vector of number of food items reported by each participant.
   n_items1 <- as.data.frame(table(food12d_d1$SEQN))
   colnames(n_items1) <- c("SEQN", "NoOfItems")
+  
   # Add it to total1
   total1b <- merge(x=total1, y=n_items1, by="SEQN", all.x=T)
   
@@ -194,8 +207,19 @@
 # Calculate total for day 2. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   food12d_d2 <- subset(food12d, Day==2) 
   
-  # Sum nutrients.        
-  total2 <- aggregate(food12d_d2[, 2:67], by=list(food12d_d2$SEQN), FUN=sum)
+  # Sum nutrients.  
+  # First, speicfy the first and the last column (variable) names to calculate totals for. 
+  first.val <- "GRMS"
+  last.val <- "P226"
+  
+  start_col_num <- match(first.val, names(food12d_d2))  # The number of column that matches the first variable specified.
+  end_col_num <-   match(last.val, names(food12d_d2)) # The number of column that matches the last variable specified.
+  
+  # Sum food items by SEQN from start through end columns.
+  total2 <- aggregate(food12d_d2[, start_col_num:end_col_num], 
+                      by=list(food12d_d2$SEQN), 
+                      FUN=sum)
+  
   total2$Day <- 2
   colnames(total2)[1] <- "SEQN"
   
@@ -205,10 +229,10 @@
   # Add it to total1
   total2b <- merge(x=total2, y=n_items2, by="SEQN", all.x=T)
   
-  # Some checking
-  subset(total2b, NoOfItems<2) # should be zero.
-  # Look for any missing data
-  total2b[is.na(total2b$NoOfItems), ]
+     # Some checking
+     subset(total2b, NoOfItems<2) # should be zero.
+     # Look for any missing data
+     total2b[is.na(total2b$NoOfItems), ]
       
 # Merge the totals
   # Check if all the columnnames match.
@@ -228,7 +252,18 @@
   colnames(total12d)
 
 # Take average of Day 1 and Day 2.
-  meantotal12a <- aggregate(total12d[, 2:69], by=list(total12d$SEQN), FUN=mean)
+  # First, speicify the first and the last column (variable) names to calculate means for. 
+  first.val <- "GRMS"
+  last.val <- "NoOfItems"  #### Now you want the average of No of Items reported, too. 
+  
+  start_col_num <- match(first.val, names(total12d))  # The number of column that matches the first variable specified.
+  end_col_num <-   match(last.val,  names(total12d)) # The number of column that matches the last variable specified.
+  
+  # Sum food items by SEQN from start through end columns.
+  meantotal12a <- aggregate(total12d[, start_col_num:end_col_num], 
+                            by=list(total12d$SEQN), 
+                            FUN=mean) 
+
   # Remove the day, which is now all 1.5 (the average of 1 and 2.)
   meantotal12 <- meantotal12a[, !names(meantotal12a) %in% "Day"]
   # Change "Group.1" to "SEQN".
@@ -293,13 +328,13 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Save QCtotals as a .txt file. 
-  write.table(QCtotals, "eg_data/NHANES/NHANES1516_total_d12_mean_QC.txt", sep="\t", quote=F, row.names=F)  
+  write.table(QCtotals, "eg_data/NHANES/NHANES1516_total_d12_mean_QC_2.txt", sep="\t", quote=F, row.names=F)  
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants (SEQN).
-  RandomSample(data=QCtotals, n=1000, out.fn="eg_data/NHANES/NHANES1516_total_d12_mean_QC_1000sampled.txt")
+  RandomSample(data=QCtotals, n=500, out.fn="eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt")
   
   # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_1000sampled.txt", sep="\t", header=T)
+  totals_QCed_sampled <- read.table(        "eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt", sep="\t", header=T)
   
 # ---------------------------------------------------------------------------------------------------------------

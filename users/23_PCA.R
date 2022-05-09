@@ -59,13 +59,13 @@
 # Create a scree plot.
   screep <- LineScreePlot(pca.data = pca_input, pca.result = scaled_pca)
   screep
-  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_screep.pdf", screep, device="pdf", width=5, height=5, units="in")
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC500_screep.pdf", screep, device="pdf", width=5, height=5, units="in")
   
 # Create a biplot.
   # A biplot with the individuals as black dots and variables labelled.
   biplotdots <- BiplotDots(pca.result = scaled_pca, pca.data = pca_input, alpha = 0.5)
   biplotdots
-  ggsave("results/PCA_results/temporary/total_d12_mean_QC1000_biplotdots.pdf", biplotdots, device="pdf", width=5, height=5, units="in")
+  ggsave("results/PCA_results/temporary/total_d12_mean_QC500_biplotdots.pdf", biplotdots, device="pdf", width=5, height=5, units="in")
   
 # A biplot with the individuals labeled.
   biplotlabeled <- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label = T)

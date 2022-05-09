@@ -23,17 +23,17 @@ setwd("~/GitHub/dietary_patterns")
 # ========================================================================================
 
 # Load the QC-ed food items. 
-  food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_QC_1000sampled.txt", sep="\t", header=T)
+  food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_QC_500sampled.txt", sep="\t", header=T)
 
 # How do you use food items data of just 2 days for clustering? Maybe not needed.
 
 # ========================================================================================
-# Load QC-ed NHANES TOTAL     
+# OR Load QC-ed NHANES TOTAL     
 # ========================================================================================
 
 # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_1000sampled.txt", sep="\t", header=T) 
-  head(totals_QCed_sampled,2)
+  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt", sep="\t", header=T) 
+  head(totals_QCed_sampled, 2)
   hist(totals_QCed_sampled$MOIS)
   totals_QCed_sampled$GRMSminusMOIS <- totals_QCed_sampled$GRMS - totals_QCed_sampled$MOIS
   plot(totals_QCed_sampled$MOIS, totals_QCed_sampled$GRMS)

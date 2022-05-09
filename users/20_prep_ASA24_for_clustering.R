@@ -45,9 +45,6 @@
 # Load the items.txt
   items <- read.table("Items_to_use.txt", quote = "", sep = "\t", header = T)
 
-# NHANES data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-  totals <- read.table("nhanes_totals_1000.txt", quote = "", sep = "\t", header = T)
-  
 # Come back to the main directory
   setwd(main.wd)
 # ---------------------------------------------------------------------------------------------------------------
