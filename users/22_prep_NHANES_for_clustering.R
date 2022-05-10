@@ -33,17 +33,22 @@ setwd("~/GitHub/dietary_patterns")
 
 # Load the subsetted totals file. 
   totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt", sep="\t", header=T) 
+  
+  # Some checking... about MOIS and GRMS...
   head(totals_QCed_sampled, 2)
   hist(totals_QCed_sampled$MOIS)
-  totals_QCed_sampled$GRMSminusMOIS <- totals_QCed_sampled$GRMS - totals_QCed_sampled$MOIS
   plot(totals_QCed_sampled$MOIS, totals_QCed_sampled$GRMS)
+  totals_QCed_sampled$GRMSminusMOIS <- totals_QCed_sampled$GRMS - totals_QCed_sampled$MOIS
   hist(totals_QCed_sampled$GRMSminusMOIS)
+  plot(totals_QCed_sampled$GRMS, totals_QCed_sampled$GRMSminusMOIS)
+  cor.test(totals_QCed_sampled$GRMS, totals_QCed_sampled$GRMSminusMOIS)
+  colnames(totals_QCed_sampled)
   
 # Define the input data to be used.
   input_data <- totals_QCed_sampled
 
 # The columns specified as start.col, end.col, and all columns in between will be selected.
-  SubsetColumns(data=input_data, start.col="GRMS", end.col = "NoOfItems")
+  SubsetColumns(data=input_data, start.col="GRMS", end.col="NoOfItems")
 
   # The output is a df called "subsetted".
   
@@ -54,6 +59,7 @@ setwd("~/GitHub/dietary_patterns")
   
 # Check the columns (variables) remained.
   colnames(subsetted_non0var)  
+  dim(subsetted_non0var)  
 
 # ---------------------------------------------------------------------------------------------------------------
 # Collapse variables by correlation: take only one variables if they are highly correlated.
@@ -80,14 +86,14 @@ setwd("~/GitHub/dietary_patterns")
 # ---------------------------------------------------------------------------------------------------------------
 # Save the variables after removing correlated variables
   write.table(selected_variables, 
-              "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_1000sampled_rv.txt", 
+              "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_2_500sampled_rv.txt", 
               sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Save the correlation matrix for record in the results folder.
 # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc, 
-                 out.fn = "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_1000sampled_corr_mat.txt")
+                 out.fn = "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_2_500sampled_corr_mat.txt")
   # ---------------------------------------------------------------------------------------------------------------
   
 

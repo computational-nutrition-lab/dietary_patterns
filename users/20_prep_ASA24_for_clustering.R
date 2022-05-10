@@ -25,7 +25,7 @@
 #
 
 # Set your working directory as to the main directory.
-  Session --> Set working directory --> Choose directory.
+  # Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
   main.wd <- file.path(getwd())

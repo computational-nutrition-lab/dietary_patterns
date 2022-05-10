@@ -160,7 +160,6 @@
         # geom_text(aes(label=Variables), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
         geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
         scale_y_continuous(expand = expansion(mult=c(0.3, 0.1))) # give 0.3 space at the lower limit of Y (to fit text). 
-      print(loadings_plot)
       
       # IF sorting the Variables by their contributions ---------------------------------------
     }else if(sort.variables==TRUE){
@@ -173,9 +172,6 @@
       
       # Make Variables as an ordered factor.
       bbb_s$Variables <- factor(bbb_s$Variables, levels=bbb_s$Variables)   
-      
-      print("bbb_s is below.")
-      print(head(bbb_s,4))
       
       # Calculate the position at which labels are placed for each bar. 
       n.PCx <- ifelse(bbb_s[, "Ytoplot"] > 0, yes= -0.01, no= bbb_s[, "Ytoplot"]-0.01)
@@ -195,8 +191,6 @@
               axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
         geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
         scale_y_continuous(expand = expansion(mult=c(0.3, 0.1))) # give 0.3 space at the lower limit of Y (to fit text). 
-      
-      print(loadings_plot)
     }
   }
   

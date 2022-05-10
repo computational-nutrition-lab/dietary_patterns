@@ -328,11 +328,12 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Save QCtotals as a .txt file. 
-  write.table(QCtotals, "eg_data/NHANES/NHANES1516_total_d12_mean_QC_2.txt", sep="\t", quote=F, row.names=F)  
+  write.table(QCtotals, "eg_data/NHANES/NHANES1516_total_d12_mean_QC_2.txt", sep="\t", quote=F, row.names=F)
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants (SEQN).
   RandomSample(data=QCtotals, n=500, out.fn="eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt")
+      # This is the "input" file for the SaveInputAndPCs() function at the end of 23_PCA.R. 
   
   # Load the subsetted totals file. 
   totals_QCed_sampled <- read.table(        "eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt", sep="\t", header=T)
