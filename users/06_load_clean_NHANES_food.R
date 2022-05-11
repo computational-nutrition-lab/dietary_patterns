@@ -58,6 +58,65 @@
 
 # Load the saved food items file. 
   Food_D1 <- read.table("eg_data/NHANES/Interview_IndFoods_Day1_DR1IFF_I_d.txt", sep="\t", header=T)
+  
+# Add the food items information, too.
+# Load FPED15-16. 
+  FPED <- read.table("eg_data/NHANES/FPED/FPED_1516_forR.txt", sep="\t", header=T)
+  head(FPED)
+  colnames(FPED)[1] <- "Food_code"
+  dim(FPED)
+  
+  # Take a row
+  pickedrow <- Food_D1[15, ] # observation No.15.
+  
+  # Look for a row in FPED that contains the food_code in pickedrow.
+  pickedFPED <- FPED[FPED$Food_code == pickedrow$Food_code, ] 
+  
+  # GRMS
+  quantity <- pickedrow$DR1IGRMS
+   
+  # GRMS x each food category --> cup or servings of that food in that particular amount. 
+  cup_oz <- quantity * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
+  
+  # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz. 
+  newrow <- cbind(pickedrow, cup_oz)
+  is(newrow)
+  
+  Food_D1_fc <- data.frame(No=seq(1,nrow(Food_D1)))
+  head(Food_D1_fc)
+  
+  rbind()
+  # probably I need to use a loop for i=1 ... and i=2 onwards... 
+  
+  Food_D1$Food_code[1]
+  # $DR1IGRMS
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
 
 # Import items data Day 2, add food item descriptions, and save it as a txt file.
   ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day2_DR2IFF_I.XPT", 

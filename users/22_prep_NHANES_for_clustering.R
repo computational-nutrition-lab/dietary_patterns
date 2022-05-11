@@ -35,20 +35,30 @@ setwd("~/GitHub/dietary_patterns")
   totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt", sep="\t", header=T) 
   
   # Some checking... about MOIS and GRMS...
-  head(totals_QCed_sampled, 2)
-  hist(totals_QCed_sampled$MOIS)
-  plot(totals_QCed_sampled$MOIS, totals_QCed_sampled$GRMS)
-  totals_QCed_sampled$GRMSminusMOIS <- totals_QCed_sampled$GRMS - totals_QCed_sampled$MOIS
-  hist(totals_QCed_sampled$GRMSminusMOIS)
-  plot(totals_QCed_sampled$GRMS, totals_QCed_sampled$GRMSminusMOIS)
-  cor.test(totals_QCed_sampled$GRMS, totals_QCed_sampled$GRMSminusMOIS)
-  colnames(totals_QCed_sampled)
+     head(totals_QCed_sampled, 2)
+     hist(totals_QCed_sampled$MOIS)
+     plot(totals_QCed_sampled$MOIS, totals_QCed_sampled$GRMS)
+     totals_QCed_sampled$GRMSminusMOIS <- totals_QCed_sampled$GRMS - totals_QCed_sampled$MOIS
+     hist(totals_QCed_sampled$GRMSminusMOIS)
+     plot(totals_QCed_sampled$GRMS, totals_QCed_sampled$GRMSminusMOIS)
+     cor.test(totals_QCed_sampled$GRMS, totals_QCed_sampled$GRMSminusMOIS)
+     colnames(totals_QCed_sampled)
   
+  # Define which columns to drop.
+  drops <- c("KCAL","GRMS", "MOIS", "NoOfItems")
+  
+  # Drop only the columns whose names are in the drop vector. 
+  aaa <- totals_QCed_sampled[ , !(names(totals_QCed_sampled) %in% drops)]
+  
+  # Save it as totals_QCed_sampled. 
+  totals_QCed_sampled <- aaa
+  colnames(totals_QCed_sampled)
+
 # Define the input data to be used.
   input_data <- totals_QCed_sampled
 
 # The columns specified as start.col, end.col, and all columns in between will be selected.
-  SubsetColumns(data=input_data, start.col="GRMS", end.col="NoOfItems")
+  SubsetColumns(data=input_data, start.col="PROT", end.col="P226")
 
   # The output is a df called "subsetted".
   
