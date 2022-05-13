@@ -33,7 +33,6 @@
 
 # Import source code to run the analyses to follow.
   source("lib/load_and_check.R")
-  source("lib/prep_data.R")
   source("lib/k-means.R")
 # ---------------------------------------------------------------------------------------------------------------
 

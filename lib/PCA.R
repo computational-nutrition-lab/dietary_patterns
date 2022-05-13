@@ -106,17 +106,34 @@
 # Function to create a biplot with the individuals labeled.
   BiplotLabeled <- function(pca.result = scaled_pca, pca.data = pca_input, individuals.label = TRUE){
     require(ggfortify)
-    autoplot(object = pca.result, data = pca.data, 
-             label = individuals.label, label.size = 3, shape =FALSE,  
-             loadings = T, loadings.label = T, loadings.colour = 'pink',
-             loadings.label.size=3) +
-      scale_x_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of X (to fit text).
-      scale_y_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of Y (to fit text).
-      theme(panel.grid.major = element_blank()) +
-      theme(panel.grid.minor = element_blank()) +
-      theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
-      theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
-      theme(aspect.ratio = 1)
+    
+    if(individuals.label == TRUE){
+      autoplot(object = pca.result, data = pca.data, 
+               label = individuals.label, label.size = 3, shape =FALSE,  
+               loadings = T, loadings.label = T, loadings.colour = 'pink',
+               loadings.label.size=3) +
+        scale_x_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of X (to fit text).
+        scale_y_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of Y (to fit text).
+        theme(panel.grid.major = element_blank()) +
+        theme(panel.grid.minor = element_blank()) +
+        theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+        theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+        theme(aspect.ratio = 1)
+      
+    }else if(individuals.label == FALSE){
+      # variables only, so needs more space around the plot, to fit long-named variables within the chart. 
+      autoplot(object = pca.result, data = pca.data, 
+               label = individuals.label, label.size = 3, shape =FALSE,
+               loadings = T, loadings.label = T, loadings.colour = 'pink',
+               loadings.label.size=3) +
+        scale_x_continuous(expand = expansion(mult=c(0.3, 0.3))) + # give some space on the lower and the upper limits of X (to fit text).
+        scale_y_continuous(expand = expansion(mult=c(0.3, 0.3))) + # give some space on the lower and the upper limits of Y (to fit text).
+        theme(panel.grid.major = element_blank()) +
+        theme(panel.grid.minor = element_blank()) +
+        theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+        theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
+        theme(aspect.ratio = 1)
+    }
   } 
 # ---------------------------------------------------------------------------------------------------------------
 
@@ -137,7 +154,7 @@
       # Select the Variables and only the specified PC to plot.
       aaa <- data.frame(Variables=Rotadf$Variables, Ytoplot= Rotadf[, whichPC])
       
-      # Make Variables as an ordered factor (the order of levels will be presereved). 
+      # Make Variables as an ordered factor (the order of levels will be preserved). 
       aaa$Variables <- factor(aaa$Variables, levels=aaa$Variables)
       
       # Calculate the position at which labels are placed for each bar. 
@@ -158,8 +175,8 @@
               axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ),
               axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
         # geom_text(aes(label=Variables), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
-        geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
-        scale_y_continuous(expand = expansion(mult=c(0.3, 0.1))) # give 0.3 space at the lower limit of Y (to fit text). 
+        geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1, angle=90)+
+        scale_y_continuous(expand = expansion(mult=c(0.5, 0.1))) # give 0.5 space at the lower limit of Y (to fit text). 
       
       # IF sorting the Variables by their contributions ---------------------------------------
     }else if(sort.variables==TRUE){
@@ -189,8 +206,8 @@
               panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
               axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ),
               axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
-        geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1.1, angle=90)+
-        scale_y_continuous(expand = expansion(mult=c(0.3, 0.1))) # give 0.3 space at the lower limit of Y (to fit text). 
+        geom_text(aes(label=Variables, y=n.PCx), position=position_dodge(width = 0.5), hjust=1, angle=90)+
+        scale_y_continuous(expand = expansion(mult=c(0.5, 0.1))) # give 0.5 space at the lower limit of Y (to fit text). 
     }
   }
   

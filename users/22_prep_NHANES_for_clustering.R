@@ -11,7 +11,7 @@
 
 Set working directory by: Session --> Set Working Directory --> Choose Directory
 
-setwd("~/GitHub/dietary_patterns")
+  setwd("~/GitHub/dietary_patterns")
 
 # Load the necessary functions
   source("lib/prep_data_for_clustering.R")
@@ -23,7 +23,7 @@ setwd("~/GitHub/dietary_patterns")
 # ========================================================================================
 
 # Load the QC-ed food items. 
-  food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_QC_500sampled.txt", sep="\t", header=T)
+  # food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_QC_500sampled.txt", sep="\t", header=T)
 
 # How do you use food items data of just 2 days for clustering? Maybe not needed.
 
@@ -32,9 +32,9 @@ setwd("~/GitHub/dietary_patterns")
 # ========================================================================================
 
 # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_mean_QC_2_500sampled.txt", sep="\t", header=T) 
-  
-  # Some checking... about MOIS and GRMS...
+  totals_QCed_sampled <- read.table(        "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt", sep="\t", header=T)
+
+    # Some checking... about MOIS and GRMS...
      head(totals_QCed_sampled, 2)
      hist(totals_QCed_sampled$MOIS)
      plot(totals_QCed_sampled$MOIS, totals_QCed_sampled$GRMS)
@@ -47,7 +47,7 @@ setwd("~/GitHub/dietary_patterns")
   # Define which columns to drop.
   drops <- c("KCAL","GRMS", "MOIS", "NoOfItems")
   
-  # Drop only the columns whose names are in the drop vector. 
+  # Take only the columns whose names are NOT in the drop vector. 
   aaa <- totals_QCed_sampled[ , !(names(totals_QCed_sampled) %in% drops)]
   
   # Save it as totals_QCed_sampled. 
@@ -58,7 +58,10 @@ setwd("~/GitHub/dietary_patterns")
   input_data <- totals_QCed_sampled
 
 # The columns specified as start.col, end.col, and all columns in between will be selected.
+  # Nutrients
   SubsetColumns(data=input_data, start.col="PROT", end.col="P226")
+  # OR food categories
+  SubsetColumns(data=input_data, start.col="F_CITMLB", end.col="A_DRINKS")
 
   # The output is a df called "subsetted".
   
@@ -96,14 +99,14 @@ setwd("~/GitHub/dietary_patterns")
 # ---------------------------------------------------------------------------------------------------------------
 # Save the variables after removing correlated variables
   write.table(selected_variables, 
-              "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_2_500sampled_rv.txt", 
+              "results/PCA_results/NHANES1516_totalsbyhand_nut_n100/NHANES1516_total_d12_nut_mean_QC_2_100sampled_rv.txt", 
               sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Save the correlation matrix for record in the results folder.
 # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc, 
-                 out.fn = "results/PCA_results/NHANES1516_totalbyhand1000/NHANES1516_total_d12_mean_QC_2_500sampled_corr_mat.txt")
+                 out.fn = "results/PCA_results/NHANES1516_totalsbyhand_nut_n100/NHANES1516_total_d12_nut_mean_QC_2_100sampled_corr_mat.txt")
   # ---------------------------------------------------------------------------------------------------------------
   
 

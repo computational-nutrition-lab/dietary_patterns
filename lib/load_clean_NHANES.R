@@ -92,6 +92,19 @@ ImportNHANESFoodItems <- function(data.name, food.code.column, food.code.table, 
 }
 
 # ========================================================================================
+# Add food category and quantity based on FPED and nutrition info on food data.   
+# ========================================================================================
+
+AddFoodCat <- function(input.food, fped, grams="DR1IGRMS", out.fn){
+  
+
+  
+  # Save as a txt file.
+      write.table(Food_Cat, out.fn, sep="\t", row.names=F, quote=F)
+}
+
+
+# ========================================================================================
 # Take a random subsample.   
 # ========================================================================================
 
