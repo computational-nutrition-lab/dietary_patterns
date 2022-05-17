@@ -85,7 +85,7 @@
   Food_Cat <- cbind(pickedrow, cup_oz)
   
   # Create a dataframe to save results; has the same ncol as Food_Cat.
-  result <- data.frame(matrix(NA, nrow=1000, ncol=ncol(Food_Cat)))
+  result <- data.frame(matrix(NA, nrow=10000, ncol=ncol(Food_Cat)))
   colnames(result) <- colnames(Food_Cat)
   head(result)
   
@@ -98,7 +98,7 @@
   
 #i=2 and onwards -----------------------------------------------------------------
   system.time(
-  for(i in 2:1000){
+  for(i in 2:10000){
     # Select only one row at a time.
     pickedrow <- Food_D1[i, ]
     
@@ -125,11 +125,46 @@
   }
   )  
   head(result)
+ 
+  # -------------------------------------------------------------------- 
+  # DoParallel version
+  
+  system.time(
+  foreach(
+    i = 1:10000, 
+    .combine = 'c'
+  ) %dopar% {
+
+    # Select only one row at a time.
+    pickedrow <- Food_D1[i, ]
+    
+    pickedfoodcode <- pickedrow$Food_code 
+    
+    # Look for a row in FPED that contains the food_code in pickedrow.
+    pickedFPED <- FPED[FPED$Food_code == pickedfoodcode, ] 
+    
+    # GRMS
+    quantity <- pickedrow[, "DR1IGRMS"]
+    
+    # GRMS x each food category --> cup or servings of that food in that particular amount.
+    cup_oz <- quantity * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
+    
+    # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
+    tempnewrow <- cbind(pickedrow, cup_oz)
+    
+    # Join the tempnewrow to the existing newrow.
+    # Food_Cat <<- rbind(Food_Cat, tempnewrow)
+    
+    # Put Food_Cat to the corresponding row.
+    result[i, ] <- tempnewrow[1, ]
+  }
+  )
+  
   
 # function 
   AddFoodCat <- function(input.food, fped, grams="DR1IGRMS", output.fn){
     
-    for(i in 2:10)
+    for(i in 2:10){
         
         # Select only one row at a time.
         pickedrow <- input.food[i, ]
@@ -151,7 +186,6 @@
         
       }
     }
-  }
   
   AddFoodCat(input.food=Food_D1, fped=FPED, grams="DR1IGRMS", out.fn="eg_data/NHANES/FPED/Food_D1_Cat.txt")
   #
@@ -629,7 +663,7 @@
       tail(hhh[order(hhh$Freq), ], 10)
       subset(food12d, SEQN==86563)[, 'Day'] # Participant No. 86563 reported only 1 food/day. Should be nonexistent.
 
-# save the combined and QCed food items as a .txt file. (IT WILL BE A HUGE FILE.)
+# save the combined and QCed food items as a .txt file. #### THIS WILL BE A HUGE FILE ####
   write.table(food12d, "eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", quote=F, row.names=F)  
 
 # ---------------------------------------------------------------------------------------------------------------
