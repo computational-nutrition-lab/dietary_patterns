@@ -32,7 +32,7 @@ Set working directory by: Session --> Set Working Directory --> Choose Directory
 # ========================================================================================
 
 # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table(        "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt", sep="\t", header=T)
+  totals_QCed_sampled <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt", sep="\t", header=T)
 
     # Some checking... about MOIS and GRMS...
      head(totals_QCed_sampled, 2)

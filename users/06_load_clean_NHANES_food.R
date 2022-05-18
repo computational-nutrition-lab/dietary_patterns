@@ -1,7 +1,7 @@
 # ===============================================================================================================
 # Load NHANES 2015-16 FOOD data, add food description, QC, and calculate total. 
-# Version 1
-# Created on 04/26/2022 by Rie Sadohara
+# Version 2
+# Created on 05/18/2022 by Rie Sadohara and Suzie Hoops
 # ===============================================================================================================
 
 # Folder structure 
@@ -49,530 +49,63 @@
   foodcodetable_f <- read.table("eg_data/NHANES/FoodCodes_DRXFCD_I_f.txt", sep="\t", header=T)
 
 # ---------------------------------------------------------------------------------------------------------------
+# Load FPED15-16, needed for the AddFoodCat function. 
+  FPED <- read.table("eg_data/NHANES/FPED/FPED_1516_forR.txt", sep="\t", header=T)
+  head(FPED, 1)
+  colnames(FPED)[1] <- "Food_code" # Important! Change the food code column name as Food_code.
+
+# ---------------------------------------------------------------------------------------------------------------
 # Import items data Day 1, add food item descriptions, and save it as a txt file.
 # LIKELY IT WILL BE A HUGE FILE.
-  ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day1_DR1IFF_I.XPT", 
+  ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR1IFF_I.XPT", 
                         food.code.column = "DR1IFDCD", 
                         food.code.table = foodcodetable_f,
                         out.fn = "eg_data/NHANES/Interview_IndFoods_Day1_DR1IFF_I_d.txt") # 'd' stands for food descriptions
 
 # Load the saved food items file. 
   Food_D1 <- read.table("eg_data/NHANES/Interview_IndFoods_Day1_DR1IFF_I_d.txt", sep="\t", header=T)
-  
-# Add the food items information, too.
-# Load FPED15-16. 
-  FPED <- read.table("eg_data/NHANES/FPED/FPED_1516_forR.txt", sep="\t", header=T)
-  head(FPED, 1)
-  colnames(FPED)[1] <- "Food_code" # Important! Change the food code column name as Food_code.
-  dim(FPED)
-  
-  # Create the first row then do loop for the rest. ==============================================================================
-  # i=1 ----------------------------------------------------------------------------
-  # Select only one row at a time.
-  pickedrow <- Food_D1[1, ]
-  
-  # # food code of the selected row:
-  # selectedfoodcode <- pickedrow$Food_code
- 
-  # Pick up a row in FPED that contains the food_code in pickedrow.
-  pickedFPED <- FPED[FPED$Food_code == pickedrow$Food_code, ] 
-  
-  # GRMS x each food category --> cup or servings of that food in that particular amount. 
-  cup_oz <- pickedrow[, "DR1IGRMS"] * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-  head(pickedFPED)
-  
-  # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz. 
-  Food_Cat <- cbind(pickedrow, cup_oz)
-  
-  # Create a dataframe to save results; has the same ncol as Food_Cat.
-  result <- data.frame(matrix(NA, nrow=10000, ncol=ncol(Food_Cat)))
-  colnames(result) <- colnames(Food_Cat)
-  head(result)
-  
-  # Put Food_Cat to the corresponding row.
-  result[1, ] <- Food_Cat[1, ]
-  #i=1 is done.
-  
-  print(Food_Cat)
-  print(output.fn)
-  
-#i=2 and onwards -----------------------------------------------------------------
-  system.time(
-  for(i in 2:10000){
-    # Select only one row at a time.
-    pickedrow <- Food_D1[i, ]
-    
-    pickedfoodcode <- pickedrow$Food_code 
-    
-    # Look for a row in FPED that contains the food_code in pickedrow.
-    pickedFPED <- FPED[FPED$Food_code == pickedfoodcode, ] 
-    
-    # GRMS
-    quantity <- pickedrow[, "DR1IGRMS"]
-    
-    # GRMS x each food category --> cup or servings of that food in that particular amount.
-    cup_oz <- quantity * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-    
-    # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
-    tempnewrow <- cbind(pickedrow, cup_oz)
-    
-    # Join the tempnewrow to the existing newrow.
-    # Food_Cat <<- rbind(Food_Cat, tempnewrow)
-    
-    # Put Food_Cat to the corresponding row.
-    result[i, ] <- tempnewrow[1, ]
-    
-  }
-  )  
-  head(result)
- 
-  # -------------------------------------------------------------------- 
-  # DoParallel version
-  
-  system.time(
-  foreach(
-    i = 1:10000, 
-    .combine = 'c'
-  ) %dopar% {
 
-    # Select only one row at a time.
-    pickedrow <- Food_D1[i, ]
-    
-    pickedfoodcode <- pickedrow$Food_code 
-    
-    # Look for a row in FPED that contains the food_code in pickedrow.
-    pickedFPED <- FPED[FPED$Food_code == pickedfoodcode, ] 
-    
-    # GRMS
-    quantity <- pickedrow[, "DR1IGRMS"]
-    
-    # GRMS x each food category --> cup or servings of that food in that particular amount.
-    cup_oz <- quantity * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-    
-    # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
-    tempnewrow <- cbind(pickedrow, cup_oz)
-    
-    # Join the tempnewrow to the existing newrow.
-    # Food_Cat <<- rbind(Food_Cat, tempnewrow)
-    
-    # Put Food_Cat to the corresponding row.
-    result[i, ] <- tempnewrow[1, ]
-  }
-  )
-  
-  
-# function 
-  AddFoodCat <- function(input.food, fped, grams="DR1IGRMS", output.fn){
-    
-    for(i in 2:10){
-        
-        # Select only one row at a time.
-        pickedrow <- input.food[i, ]
+# Add the food items info and serving for each item. #### WILL TAKE A FEW MOMENTS. ####
+  AddFoodCat(input.food= Food_D1, 
+             fped= FPED, 
+             grams= "DR1IGRMS", 
+             out.fn= "eg_data/NHANES/Food_D1_FC.txt")
+  # OK to see a message saying "NAs introduced by coercion."
+  # NAs will be removed later in the filtering process.
 
-        # Look for a row in FPED that contains the food_code in pickedrow.
-        pickedFPED <- fped[fped$Food_code == pickedrow$Food_code, ] 
-
-        # GRMS
-        quantity <- pickedrow[, grams]
-
-        # GRMS x each food category --> cup or servings of that food in that particular amount.
-        cup_oz <- quantity * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-
-        # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
-        tempnewrow <- cbind(pickedrow, cup_oz)
-
-        # Join the tempnewrow to the existing newrow.
-        Food_Cat <<- rbind(Food_Cat, tempnewrow)
-        
-      }
-    }
-  
-  AddFoodCat(input.food=Food_D1, fped=FPED, grams="DR1IGRMS", out.fn="eg_data/NHANES/FPED/Food_D1_Cat.txt")
-  #
-  Food_Cat
-  
-# This one works better. Food_D1
-# Create a smaller result dataframe and then join with Food_D1 after it's done. =========================================================
-# i=1 ----------------------------------------------------------------------------
-  
-  Fdcd_GRMS <- Food_D1[, c("Food_code", "DR1IGRMS")]
-  
-  # Select only one row at a time.
-  pickedrow <- Fdcd_GRMS[1, ]
-  
-  # # food code of the selected row:
-  # selectedfoodcode <- pickedrow$Food_code
-  
-  # Pick up a row in FPED that contains the food_code in pickedrow.
-  pickedFPED <- FPED[FPED$Food_code == pickedrow$Food_code, ] 
-  
-  # GRMS x each food category --> cup or servings of that food in that particular amount. 
-  cup_oz <- pickedrow[, "DR1IGRMS"] * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-  head(cup_oz)
-  
-  # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz. 
-  Food_Cat <- cbind(pickedrow, cup_oz)
-  
-  # Create a dataframe to save results; has the same ncol as Food_Cat.
-  result_v <- data.frame(matrix(NA, nrow=nrow(Fdcd_GRMS), ncol=ncol(Food_Cat)))
-  colnames(result_v) <- colnames(Food_Cat)
-  head(result_v,1)
-  
-  # Put Food_Cat to the corresponding row.
-  result_v[1, ] <- Food_Cat[1, ]
-  #i=1 is done.
-  
-  #i=2 and onwards -----------------------------------------------------------------
-  system.time(
-    # create a progressbar object outside the loop
-    # pb = txtProgressBar(min = 0, max = 1000, initial = 0)
-    
-  for(i in 2:nrow(Fdcd_GRMS)){
-    # Select only one row at a time.
-    pickedrow <- Fdcd_GRMS[i, ]
-
-    pickedfoodcode <- pickedrow$Food_code 
-    
-    # Look for a row in FPED that contains the food_code in pickedrow.
-    pickedFPED <- FPED[FPED$Food_code == pickedfoodcode, ] 
-    
-    # GRMS
-    quantity <- pickedrow[, "DR1IGRMS"]
-    
-    # Use dataframe ---------------------------------------
-
-    # # GRMS x each food category --> cup or servings of that food in that particular amount.
-    # cup_oz <- quantity * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-    # 
-    # # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
-    # tempnewrow <- cbind(pickedrow, cup_oz)
-    # 
-    # # Join the tempnewrow to the existing newrow.
-    # result[i, ] <- tempnewrow[1, ] 
-    
-          # OR        
-          # Make a vector of pickedFPED[, -1][1,]/100) ---------------------
-            vec <-as.numeric(as.vector(pickedFPED[, -1][1,]/100))
-          # is(vec)
-          
-          # GRMS x each food category --> cup or servings of that food in that particular amount.
-           cup_oz_vec <- quantity * vec  # "-1" is to exclude food_code from multiplication.
-          
-          # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
-           tempnewrow <- c(pickedfoodcode, quantity, cup_oz_vec)
-      
-          # Put Food_Cat to the corresponding row.
-           result_v[i, ] <- tempnewrow
-    
-        
-    # # Join the tempnewrow to the existing newrow.
-    # Food_Cat <<- rbind(Food_Cat, tempnewrow)
-    # dim(result)
-    
-    # inside you need to update with every iteration
-    #setTxtProgressBar(pb, i)
-    # close progress bar at the end of your loop:
-    #close(pb)
-    
-  }
-  )
-  
-  head(result)
-  tail(result)
-  dim(result)
-  head(result_v)
-  tail(result_v)
-  dim(result_v)
-  mmm = result$Food_code - result_v$Food_code
-  
-  head(result$Food_code, 10)
-  head(result_v$Food_code, 10)
-  
-  # create a progressbar object outside the loop
-  pb = txtProgressBar(min = 0, max = 1000, initial = 0) 
-  # inside you need to update with every iteration
-  setTxtProgressBar(pb, i)
-  # close progress bar at the end of your loop:
-  close(pb)
-  
-  
-  # Put things back together.
-  head(result_v, 3)
-  dim(result)
-  head(Food_D1, 3)
-  dim(Food_D1)
-  shortfood = Food_D1[1:50000, ]
-  identical(shortfood$Food_code, result$Food_code)
-  
-  # Some checking...
-  eee = Food_D1$Food_code - result_v$Food_code
-  min(eee)
-  max(eee)
-
-  # Exclude the first 2 columns. 
-  dropcol = c("Food_code", "DR1IGRMS")
-  result_1 <- result_v[, !(names(result_v) %in% dropcol)]
-  
-  # Join Food_Dx and result_v.
-  Food_D1_FC = cbind(Food_D1, result_1)
-  head(Food_D1_FC, 1)
-  
-  # Save as a txt file. **** WILL TAKE A FEW MINUTES. *****
-  write.table(Food_D1_FC, "eg_data/NHANES/FPED/Food_D1_FC.txt", sep="\t", row.names=F, quote=F)
-  #
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-# --- divide up Food_D2 -- this works, but asking Suzie's advice how to speed up a loop without dividing up the input data. ------- 
+# ---------------------------------------------------------------------------------------------------------------
 # Import items data Day 2, add food item descriptions, and save it as a txt file.
-  ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day2_DR2IFF_I.XPT", 
-                        food.code.column = "DR2IFDCD", 
+  # Import items data Day 2, add food item descriptions, and save it as a txt file.
+  ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day2_DR2IFF_I.XPT",
+                        food.code.column = "DR2IFDCD",
                         food.code.table = foodcodetable_f,
                         out.fn = "eg_data/NHANES/Interview_IndFoods_Day2_DR2IFF_I_d.txt")
-  
-# Add food item description and save it as a txt file. 
+
+# Add food item description and save it as a txt file.
   Food_D2 <- read.table("eg_data/NHANES/Interview_IndFoods_Day2_DR2IFF_I_d.txt", sep="\t", header=T)
-  
-  # Divide Food_D2 into smaller batches.
-  Food_D2_original <- Food_D2
-  dim(Food_D2_original)
-  Food_D2_a <- Food_D2_original[1:20000, ]
-  Food_D2_b <- Food_D2_original[20001:40000, ]
-  Food_D2_c <- Food_D2_original[40001:60000, ]
-  Food_D2_d <- Food_D2_original[60001:80000, ]
-  Food_D2_e <- Food_D2_original[80001:100680, ]
-  
-  
-  # This one works better. Food_D2  
-  Food_D2 <- Food_D2_e
-  dim(Food_D2)
-  head(Food_D2_e, 2)
-  
-  # Create a smaller result dataframe and then join with Food_D2 after it's done. =========================================================
-  # i=1 ----------------------------------------------------------------------------
-  
-  Fdcd_GRMS <- Food_D2[, c("Food_code", "DR2IGRMS")] 
-  # write.table(Fdcd_GRMS, "TableA.txt", sep="\t", row.names=F, quote=F)
-  # write.table(FPED, "TableB.txt", sep="\t", row.names=F, quote=F)
-  
-  # Select only one row at a time.
-  pickedrow <- Fdcd_GRMS[1, ]
-  
-  # Pick up a row in FPED that contains the food_code in pickedrow.
-  pickedFPED <- FPED[FPED$Food_code == pickedrow$Food_code, ] 
-  
-  # GRMS x each food category --> cup or servings of that food in that particular amount. 
-  cup_oz <- pickedrow[, "DR2IGRMS"] * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-  head(cup_oz)
-  
-  # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz. 
-  Food_Cat <- cbind(pickedrow, cup_oz)
-  
-  # Create a dataframe to save results; has the same ncol as Food_Cat.
-  result_v2 <- data.frame(matrix(NA, nrow=nrow(Fdcd_GRMS), ncol=ncol(Food_Cat)))
-  colnames(result_v2) <- colnames(Food_Cat)
-  head(result_v2, 1)
-  
-  # Put Food_Cat to the corresponding row.
-  result_v2[1, ] <- Food_Cat[1, ]
-  #i=1 is done.
-  
-  #i=2 and onwards -----------------------------------------------------------------
-  # system.time(
-    # create a progressbar object outside the loop
-    pb = txtProgressBar(min = 0, max = nrow(Fdcd_GRMS), initial = 0)
-    
-    for(i in 2:nrow(Fdcd_GRMS)){
-      
-      # Select only one row at a time.
-      pickedrow <- Fdcd_GRMS[i, ]
-      
-      pickedfoodcode <- pickedrow$Food_code 
-      
-      # Look for a row in FPED that contains the food_code in pickedrow.
-      pickedFPED <- FPED[FPED$Food_code == pickedfoodcode, ] 
-      
-      # GRMS
-      quantity <- pickedrow[, "DR2IGRMS"]
-      
-      # Make a vector of pickedFPED[, -1][1,]/100) ---------------------
-      vec <-as.numeric(as.vector(pickedFPED[, -1][1,]/100))
-      
-      # GRMS x each food category --> cup or servings of that food in that particular amount.
-      cup_oz_vec <- quantity * vec  # "-1" is to exclude food_code from multiplication.
-      
-      # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
-      tempnewrow <- c(pickedfoodcode, quantity, cup_oz_vec)
-      
-      # Put Food_Cat to the corresponding row.
-      result_v2[i, ] <- tempnewrow
-      
-      # inside you need to update with every iteration
-      setTxtProgressBar(pb, i)
-      
-      # close progress bar at the end of your loop:
-      close(pb)
-      
-    }
-  # )
-  
-  # aaa <- result_v2
-  # bbb <- result_v2
-  # ccc <- result_v2
-  # ddd <- result_v2
-  eee <- result_v2
-  head(eee)
-  head(Food_D2_e, 1)
-  
-  
-  # Put things back together.
-  result_v2_original <- rbind(aaa, bbb, ccc, ddd, eee)
-  dim(result_v2_original)
-  head(result_v2_original, 2)
-  dim(Food_D2_original)
-  head(Food_D2_original, 2)
-  result_v2_original
-  
-  # Some checking...
-  kkk = Food_D2_original$Food_code - result_v2_original$Food_code
-  min(kkk)
-  max(kkk)
-  
-  # Exclude the first 2 columns in result_2 to avoid duplication. 
-  dropcol <- c("Food_code", "DR2IGRMS")
-  result_2 <- result_v2_original[, !(names(result_v2_original) %in% dropcol)]
-  
-  # Join Food_Dx and result_v.
-  Food_D2_FC <- cbind(Food_D2_original, result_2)
-  head(Food_D2_FC, 1)
-  
-  # Save as a .txt file. **** WILL TAKE A FEW MINUTES. *****
-  write.table(Food_D2_FC, "eg_data/NHANES/FPED/Food_D2_FC.txt", sep="\t", row.names=F, quote=F)
-  
-  
-  
-  
-# Make it into a function. NEEDS SOME WORK HOW TO MAKE IT EFFICIENT ==========================================================================  
-  AddFoodCat <- function(input.food, fped, grams="DR1IGRMS", out.fn){
-    
-    # i=1 ----------------------------------------------------------------------------
-    grams="DR1IGRMS"
-    # Fdcd_GRMS <- Food_D1[, c("Food_code", "DR1IGRMS")]
-    Fdcd_GRMS <- subset(input.food, select=c("Food_code", grams)]  ## Needs checking
-    
-    # Select only one row at a time.
-    pickedrow <- Fdcd_GRMS[1, ]
-    
-    # Pick up a row in FPED that contains the food_code in pickedrow.
-    pickedFPED <- fped[fped$Food_code == pickedrow$Food_code, ] 
-    
-    # GRMS x each food category --> cup or servings of that food in that particular amount. 
-    cup_oz <- pickedrow[, "DR1IGRMS"] * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-    cup_oz <- subset(pickedrow, select=grams) * pickedFPED[, -1]/100  # "-1" is to exclude food_code from multiplication.
-    # head(cup_oz)
-    
-    # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz. 
-    Food_Cat <- cbind(pickedrow, cup_oz)
-    
-    # Create a dataframe to save results; has the same ncol as Food_Cat.
-    result_v <- data.frame(matrix(NA, nrow=nrow(Fdcd_GRMS), ncol=ncol(Food_Cat)))
-    colnames(result_v) <- colnames(Food_Cat)
-    # head(result_v,1)
-    
-    # Put Food_Cat to the corresponding row.
-    result_v[1, ] <- Food_Cat[1, ]
-    #i=1 is done.
-    
-    print(out.fn)
-    # Save as a txt file.
-    # write.table(result_v, out.fn, sep="\t", row.names=F, quote=F)
-  
-  # i=2 and onwards...
-    for(i in 2:nrow(Fdcd_GRMS)){
-      # Select only one row at a time.
-      pickedrow <- Fdcd_GRMS[i, ]
-      
-      pickedfoodcode <- pickedrow$Food_code 
-      
-      # Look for a row in FPED that contains the food_code in pickedrow.
-      pickedFPED <- FPED[FPED$Food_code == pickedfoodcode, ] 
-      
-      # GRMS
-      quantity <- pickedrow[, "DR1IGRMS"]
-      
-      # Make a vector of pickedFPED[, -1][1,]/100) ---------------------
-      vec <-as.numeric(as.vector(pickedFPED[, -1][1,]/100))  # "-1" is to exclude food_code from multiplication.
-      # is(vec)
-      
-      # GRMS x each food category --> cup or servings of that food in that particular amount.
-      cup_oz_vec <- quantity * vec  
-      
-      # Join pickedrow and cup_oz, which is the categorized food items converted to cup or oz.
-      tempnewrow <- c(pickedfoodcode, quantity, cup_oz_vec)
-      
-      # Put Food_Cat to the corresponding row.
-      result_v[i, ] <- tempnewrow
-    }
-    
-  # Put things back together.
-    # Some checking...
-    # eee = subset(input.food, select= Food_code) - result_v$Food_code
-    # min(eee)
-    # max(eee)
-    
-    # Exclude the first 2 columns. 
-    dropcol = c("Food_code", grams)
-    result_vv <- result_v[, !(names(result_v) %in% dropcol)]
-    
-    # Join Food_Dx and result_v.
-    Food_FdCat <<-  cbind(input.food, result_vv)
-    head(Food_FdCat, 1)
-    
-  # Save as a txt file. **** WILL TAKE A FEW MINUTES. *****
-    write.table(Food_FdCat, "eg_data/NHANES/FPED/Food_Dx_FdCat.txt", sep="\t", row.names=F, quote=F)
-    
-  }
-  
-    
-  
-  
-  
-  
-  
-  
-  
-  
+
+# Day 2. Add the food items info and serving for each item. #### WILL TAKE A FEW MOMENTS. ####
+  AddFoodCat(input.food= Food_D2, 
+             fped= FPED, 
+             grams= "DR2IGRMS", 
+             out.fn= "eg_data/NHANES/Food_D2_FC.txt")
+  # OK to see a message saying "NAs introduced by coercion."
+  # NAs will be removed later in the filtering process.
+
 # ===============================================================================================================
 # Load the Food_Dx_FC which has food category data!  
 # ===============================================================================================================
   # Food Day 1 with Food Category *** WILL BE A HUGE TABLE. ***
-  Food_D1_FC <- read.table("eg_data/NHANES/FPED/Food_D1_FC.txt", sep="\t", header=T)
+  Food_D1_FC <- read.table("eg_data/NHANES/Food_D1_FC.txt", sep="\t", header=T)
   dim(Food_D1_FC)
   colnames(Food_D1_FC)
   
   # Food Day 2 with Food Category *** WILL BE A HUGE TABLE. ***
-  Food_D2_FC <- read.table("eg_data/NHANES/FPED/Food_D2_FC.txt", sep="\t", header=T)
+  Food_D2_FC <- read.table("eg_data/NHANES/Food_D2_FC.txt", sep="\t", header=T)
   dim(Food_D2_FC)
   colnames(Food_D2_FC)
   tail(Food_D2_FC)
+  table(Food_D2_FC$DR2DRSTZ) # 1902 rows are incomplete.
 
 # ===============================================================================================================
 # QC the food data: filter by age, completeness, >1 food item reported/day, data exists on both days. 

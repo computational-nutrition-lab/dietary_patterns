@@ -172,6 +172,7 @@
               sep="\t", quote=F)
   
 # Let's see how different thoese diet groups are .....  
+  library(ggplot2)
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=KCAL)) + geom_boxplot()
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=TFAT)) + geom_boxplot()
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=PROT)) + geom_boxplot()

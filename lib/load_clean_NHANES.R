@@ -95,14 +95,65 @@ ImportNHANESFoodItems <- function(data.name, food.code.column, food.code.table, 
 # Add food category and quantity based on FPED and nutrition info on food data.   
 # ========================================================================================
 
-AddFoodCat <- function(input.food, fped, grams="DR1IGRMS", out.fn){
+# Matrix Mutiplication function to add food category and multiply the weight and serving for each row.
+AddFoodCat <- function(input.food, fped, grams, out.fn){     # grams are "DR1IGRMS" or "DR2IGRMS" etc..
   
-
+  # Pick up only the foodcode and grams.
+  columnstopick <- c("Food_code", grams)
+  FPED <- fped
+  
+  Fdcd_GRMS <- input.food[, columnstopick]
+  n_food_cat <- length(colnames(FPED))-1  # Define the number of food categories.
+  
+  # Create temporary dataframes for procesing.
+  dfA <- Fdcd_GRMS                                      # keep all because all match in FPED
+  dfB <- FPED[FPED$Food_code %in% Fdcd_GRMS$Food_code,] # keep only the matching codes
+  # rearrange dataframes to match on food_code
+  dfA2 <- cbind(dfA, rep(dfA[2], n_food_cat-1))         # repeat the DR2IGRMS values in table A
+  tabA <- as.matrix(dfA2[, -1])                           # convert to matrix, leave out food code
+  rownames(tabA) <- paste0(dfA2$Food_code, '_', dfA2[,2])  # rownames will be FOODCODE_GRAMS.
+  colnames(tabA) <- colnames(dfB)[2:(n_food_cat+1)]        # colnames will be food category names. 
+  
+  dfB2 <- dfB[match(dfA$Food_code, dfB$Food_code),]      # match table B to table A
+  tabB <- as.matrix(dfB2[,-1])                           # convert to matrix, leave out food code
+  rownames(tabB) <- dfB2$Food_code
+  
+  # safety check: food codes match - un-commnt if editing.
+  # print(identical(dim(tabA), dim(tabB)))
+  # print(identical(gsub("_.*", "", rownames(tabA)), rownames(tabB)))
+  # print(identical(colnames(tabA), colnames(tabB)))
+  
+  # Then we can perform matrix multiplication (element-wise)
+  #   I thought this would be advantageous as you just want to multiply one value
+  #   by a matching row in another table
+  out <- tabA * tabB/100
+  
+  # reformatting to get a clean table
+  foodcode_grams_df <- data.frame(Food_code = gsub("_.*", "", rownames(out)),
+                                  GRMS = as.numeric(gsub(".*_","", rownames(out))))  # use a temporary column name
+  
+  # Change the temporary columnname "GRMS" to the specified 'grams' argument.
+  colnames(foodcode_grams_df)[2] <- paste(grams) 
+  
+  # Convert to a df.
+  out <- data.frame(out)
+  # Number the rows.
+  rownames(out) <- 1:nrow(out)
+  
+  # Join 
+  out_df <- cbind(foodcode_grams_df, out)
+  
+  # Exclude the first 2 columns.
+  dropcol = c("Food_code", grams)
+  result_1 <- out_df[, !(names(out_df) %in% dropcol)]
+  
+  # Join Food_Dx and result_v.
+  Food_DX_FC = cbind(input.food, result_1)
   
   # Save as a txt file.
-      write.table(Food_Cat, out.fn, sep="\t", row.names=F, quote=F)
+  write.table(Food_DX_FC, out.fn, sep="\t", row.names=F, quote=F)
+  
 }
-
 
 # ========================================================================================
 # Take a random subsample.   
