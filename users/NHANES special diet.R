@@ -60,8 +60,8 @@
 
   library(dplyr)
 # Extract only those following any specific diet.
-  # metadata_1 <- metadata %>% filter(DRQSDIET == 1) 
-  metadata_1 <- metadata %>% filter(DRQSDIET == 2)  # for checking.
+  metadata_1 <- metadata %>% filter(DRQSDIET == 1)
+  # metadata_1 <- metadata %>% filter(DRQSDIET == 2)  # for checking.
 # How many are on each diet?
   table(metadata_1$DRQSDT1) 
   table(metadata_1$DRQSDT2) 
@@ -136,7 +136,12 @@
   # Extract only necessary info.
   metadata_b <- metadata_1diet[, c("SEQN", "dietcode", "dietname")]
   head(metadata_b)
-  
+
+# ========================================================================================
+# Scenario A: the top most followed diets 
+#  Weight_loss, Diabetic, Low_salt, Low_fat, Low_carb, Regular 
+# ========================================================================================  
+
 # Take the first 20 individuals from weight-loss (low calorie; n=300), diabetic (n=97), 
   # low-salt (n=51), low-fat (n=43), and low-carb (n=33)
   weightloss <- subset(metadata_1diet, dietname == "Weight_loss")[1:20, "SEQN"]   
@@ -171,7 +176,7 @@
   write.table(QCtotal_1diet, "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_120diffdiet.txt",
               sep="\t", quote=F)
   
-# Let's see how different thoese diet groups are .....  
+# Let's see how different those diet groups are .....  
   library(ggplot2)
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=KCAL)) + geom_boxplot()
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=TFAT)) + geom_boxplot()
@@ -224,7 +229,97 @@
   
   #  
   
+# ========================================================================================
+# Scenario B: diets expected to separate more. 
+#  Low_salt, Low_carb, Weight_gain, GF, High_prot,Regular
+# ========================================================================================  
   
+# Take the first 20 individuals from High_prot (n=6), GF (n=4), Low_salt (n=51), weight_gain (n=12), 
+  # Low-carb (n=33).
+  highprot <- subset(metadata_1diet, dietname   == "High_prot")[1:6, "SEQN"]   
+  GF <-      subset(metadata_1diet, dietname    == "GF")[1:4, "SEQN"]   
+  lowsalt <- subset(metadata_1diet, dietname    == "Low_salt")[1:20, "SEQN"]   
+  wtgain <-  subset(metadata_1diet, dietname    == "Weight_gain")[1:12, "SEQN"]   
+  lowcarb <- subset(metadata_1diet, dietname    == "Low_carb")[1:20, "SEQN"]   
+  
+  regulardiet <- subset(metadata, DRQSDIET == 2)[1:20, "SEQN"] # those are not following any specific diet.
+  
+  head(highprot,2)
+  
+  # Combine those
+  diffdiet82 <- data.frame( Diet = c(rep('Highprot', length(highprot)), rep('Gluten_free', length(GF)),
+                                     rep('Low_salt', length(lowsalt)), rep('Weight_gain', length(wtgain)),
+                                     rep('Low_carb', length(lowcarb)), rep('Regular', length(regulardiet))),
+                            SEQN = c(highprot, GF, lowsalt, wtgain, lowcarb, regulardiet))
+
+# ---------------------------------------------------------------------------------------------------
+  # Add diet info while picking up the individuals from totalQC.
+  QCtotal_1diet <- merge(x=diffdiet82, y=QCtotal, by="SEQN", all.x=T)
+  head(QCtotal_1diet, 2)
+  
+  # Save it as an input file.
+  write.table(QCtotal_1diet, "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_82diffdiet.txt",
+              sep="\t", quote=F)
+  
+  # Let's see how different those diet groups are .....  
+  library(ggplot2)
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=KCAL)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=TFAT)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=PROT)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=CARB)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=FIBE)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=PF_TOTAL)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_TOTAL)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_STARCHY_OTHER)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_LEGUMES)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=D_TOTAL)) + geom_boxplot()
+  
+  # ---------------------------------------------------------------------------------------------------
+  # Define the sample total data with which you are going to do clustering. 
+  totals_QCed_sampled <- QCtotal_1diet
+  
+  # Follow the code in prep_for_clustering.    
+  
+  #### Clustering analysis ####  
+  
+  
+  # Plot PC1 and PC2 and color-code individuals by their diet.
+  # Load the FC results
+  PCA_FC <- read.table("results/PCA_results/NHANES1516_totalsbyhand_FC_n82/NHANES1516_total_d12_FC_mean_QC_2_82diffdiet_input_PCs.txt",
+                       sep="\t", header=T)
+  head(PCA_FC,2)
+  
+  # Plot PC1 and PC2 of the PCA results of Foof Categories.  
+  fillcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
+  colcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
+  FCbiplot <- 
+    ggplot(data=PCA_FC, aes(x=PC1, y=PC2, fill=Diet, color=Diet, shape=Diet))+
+      geom_point(size=3) + 
+      scale_fill_manual(values=fillcolor) +
+      scale_color_manual(values=colcolor) +
+      theme(legend.position = "bottom") +
+      theme(aspect.ratio = 1)
+  FCbiplot
+  ggsave("results/PCA_results/NHANES1516_totalsbyhand_FC_n82/FCbiplot.tif", FCbiplot, device = "tiff", width = 7, height=7, dpi=250)
+  
+  
+  # Load the nutrient results
+  PCA_nut <- read.table("results/PCA_results/NHANES1516_totalsbyhand_nut_n82/NHANES1516_total_d12_nut_mean_QC_2_82diffdiet_input_PCs.txt",
+                        sep="\t", header=T)
+  head(PCA_nut)
+  
+  # Plot PC1 and PC2 of the PCA results of Foof Categories.  
+  fillcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
+  colcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
+  nutbiplot <- 
+    ggplot(data=PCA_nut, aes(x=PC1, y=PC2, fill=Diet, color=Diet, shape=Diet))+
+      geom_point(size=3) + 
+      scale_fill_manual(values=fillcolor) +
+      scale_color_manual(values=colcolor) +
+      theme(legend.position = "bottom") +
+      theme(aspect.ratio = 1)
+  nutbiplot
+  ggsave("results/PCA_results/NHANES1516_totalsbyhand_nut_n82/nutbiplot.tif", nutbiplot, device = "tiff", width = 7, height=7, dpi=250)
   
   
   

@@ -99,14 +99,14 @@ Set working directory by: Session --> Set Working Directory --> Choose Directory
 # ---------------------------------------------------------------------------------------------------------------
 # Save the variables after removing correlated variables
   write.table(selected_variables, 
-              "results/PCA_results/NHANES1516_totalsbyhand_FC_n120/NHANES1516_total_d12_FC_mean_QC_2_120diffdiet_rv.txt", 
+              "results/PCA_results/NHANES1516_totalsbyhand_FC_n82/NHANES1516_total_d12_FC_mean_QC_2_82diffdiet_rv.txt", 
               sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Save the correlation matrix for record in the results folder.
 # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc, 
-                 out.fn = "results/PCA_results/NHANES1516_totalsbyhand_FC_n120/NHANES1516_total_d12_FC_mean_QC_2_120diffdiet_corr_mat.txt")
+                 out.fn = "results/PCA_results/NHANES1516_totalsbyhand_FC_n82/NHANES1516_total_d12_FC_mean_QC_2_82diffdiet_corr_mat.txt")
   # ---------------------------------------------------------------------------------------------------------------
   
 
