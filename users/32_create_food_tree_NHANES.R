@@ -40,46 +40,34 @@
 
 # Name your main directory for future use. 
   main.wd <- file.path(getwd())
-  
-  
+
   
 # ========================================================================================
-# Load source scripts
+# Import NHANES data
+# https://github.com/knights-lab/Food_Tree/blob/master/R/lib/import_NHANES_data.R
 # ========================================================================================
-  source("lib/Food_tree_scripts/newick.tree.r")
-  source("lib/Food_tree_scripts/check.db.r")
-  source("lib/Food_tree_scripts/format.foods.r")
-  source("lib/Food_tree_scripts/filter.db.by.diet.records.r")
-  source("lib/Food_tree_scripts/make.food.tree.r")
-  source("lib/Food_tree_scripts/make.food.otu.r")
-  source("lib/Food_tree_scripts/make.fiber.otu.r")
-  source("lib/Food_tree_scripts/make.dhydrt.otu.r")
 
 ### Abby's code
   library(Hmisc)
   library(dplyr)
   
-
-  
   library(SASxport)
   # library(foreign)
   
- 
-  
-  # read in SAS data for 2011-2012 dietary intake
+  # read in data for 2011-2012 dietary intake
   # food1 <- read.xport("data/NHANES/DR1IFF_G.XPT")
-  food1 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day1_DR1IFF_I.XPT")
+  food1 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR1IFF_I.XPT")
   # food2 <- read.xport("data/NHANES/DR2IFF_G.XPT")
-  food2 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Interview_IndFoods_Day2_DR2IFF_I.XPT")
+  food2 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR2IFF_I.XPT")
   # tots1 <- read.xport("data/NHANES/DR1TOT_G.XPT")
-  tots1 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Total_Nutrient_Day1_DR1TOT_J.XPT")
+  tots1 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR1TOT_I.XPT")
   # tots2 <- read.xport("data/NHANES/DR2TOT_G.XPT")
-  tots2 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/Total_Nutrient_Day2_DR2TOT_J.XPT")
+  tots2 <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR2TOT_I.XPT")
   
   # demo <- read.xport("data/NHANES/DEMO_G.XPT")
   demo <- read.xport("eg_data/NHANES/DEMO_I.XPT")
   
-  adults <- demo[demo$ridageyr >= 18,]
+  adults <- demo[demo$RIDAGEYR >= 18,]
   
   # read in food description files
   # foodcodes <- sasxport.get("data/NHANES/DRXFCD_G.XPT")
@@ -89,35 +77,156 @@
   
 # Quality filtering
 # did the food recall meet the minimum criteria to be considered reliable?
-  food1 <- food1[food1$dr1drstz == 1,] # this drops people with unreliable records and breastfed children
-  food2 <- food2[food2$dr2drstz == 1,]
+  food1 <- food1[food1$DR1DRSTZ == 1,] # this drops people with unreliable records and breastfed children
+  food2 <- food2[food2$DR2DRSTZ == 1,]
     
 # Naming notes
-# food codes: "dr1ifdcd" 
-# mod codes: "dr1mc"
-# weight in grams: "dr1igrms"
+# food codes: "DR1IFDCD" 
+# mod codes: "DR1MC" ?
+# weight in grams: "DR1IGRMS"
   
-  # fix nameing for downstream food tree use
+# fix naming for downstream food tree use
   # names(food1)[names(food1) == "dr1ifdcd"] <- "FoodCode"
   names(food1)[names(food1) == "DR1IFDCD"] <- "FoodCode"
+  names(food2)[names(food2) == "DR2IFDCD"] <- "FoodCode"
+  # names(food1)[names(food1) == "DR1MC"] <- "ModCode"  # No such column.
+  # names(food2)[names(food2) == "DR2MC"] <- "ModCode"
+  names(food1)[names(food1) == "DR1IGRMS"] <- "FoodAmt"
+  names(food2)[names(food2) == "DR2IGRMS"] <- "FoodAmt"
+  
+  names(foodcodes)[names(foodcodes) == "DRXFDCD"] <- "FoodCode"
+  names(foodcodes)[names(foodcodes) == "DRXFCLD"] <- "Main.food.description"
+  # names(modcodes)[names(modcodes) == "DRXMC"] <- "ModCode" 
+  
+## add main food description/or mod code to the raw data
+# food1
+  food1$FoodCode <- as.factor(food1$FoodCode)
+  # food1$ModCode <- as.factor(food1$ModCode)
+  head(food1, 1)
+  
+  # food1 <- left_join(food1, foodcodes, by = "FoodCode")
+  food1 <- merge(x=food1, y=foodcodes, by="FoodCode", all.x=T) # Careful, this will sort it by FoodCode.
+
+      # food1 <- left_join(food1, modcodes, by = "ModCode")
+      # replace names
+      # food1$Main.food.description <- ifelse(is.na(food1$drxmcd), food1$Main.food.description, food1$drxmcd)
+  
+# food2
+  food2$FoodCode <- as.factor(food2$FoodCode)
+  # food2$ModCode <- as.factor(food2$ModCode)
+  # food2 <- left_join(food2, foodcodes, by = "FoodCode")
+  food2 <- merge(x=food2, y=foodcodes, by="FoodCode", all.x=T) # Careful, this will sort it by FoodCode.
+      # food2 <- left_join(food2, modcodes, by = "ModCode")
+      # replace names
+      # food2$Main.food.description <- ifelse(is.na(food2$drxmcd), food2$Main.food.description, food2$drxmcd)
+  head(food2)
+  
+# subset to just people in both food1 and food2
+  food1names <- unique(food1$SEQN)
+  food2names <- unique(food2$SEQN)
+  keepnames <- food1names[food1names %in% food2names]
+  keepnames_adults <- keepnames[keepnames %in% adults$SEQN]
+  
+# subset to just the variables we need for food tree
+  food1 <- food1 %>% select(SEQN, FoodCode, FoodAmt, Main.food.description)
+  food2 <- food2 %>% select(SEQN, FoodCode, FoodAmt, Main.food.description)
+  
+# make a day varabile before we bind these together
+  food1$Day = 1
+  food2$Day = 2
+    
+  food12 <- rbind(food1, food2)
+  
+# limit to just people who have records from day 1 and 2
+  food12 <- food12[food12$SEQN %in% keepnames_adults,]
+  
+# look for people with no foods
+  sum(table(food12$SEQN, food12$Day)[,1] == 1) # No people with only one food reported
+  sum(table(food12$SEQN, food12$Day)[,2] == 1)  # 4 people with only one food reported
+  
+# dietary pattern/special diet map
+  # diet_type_map <- tots1 %>% select(SEQN, drqsdiet, drqsdt1, drqsdt2, drqsdt3, drqsdt4, drqsdt5, drqsdt6, drqsdt7, drqsdt8, drqsdt9, drqsdt10, drqsdt11, drqsdt12, drqsdt91)
+  diet_type_map <- tots1 %>% select(SEQN, DRQSDIET, DRQSDT1, DRQSDT2, DRQSDT3, DRQSDT4, DRQSDT5, DRQSDT6, DRQSDT7, DRQSDT8, DRQSDT9, DRQSDT10, DRQSDT11, DRQSDT12, DRQSDT91)
+  diet_type_map <- diet_type_map[diet_type_map$SEQN %in% keepnames_adults,]
+  
+# demographics map
+  demo <- demo[demo$SEQN %in% keepnames_adults, ]
+  head(demo, 1)
+  
+# write to text file (tab separated)
+  write.table(food1, file = "eg_data/NHANES1516/processed/foodday1.txt", sep = "\t", quote = F, row.names = F)
+  write.table(food2, file = "eg_data/NHANES1516/processed/foodday2.txt", sep = "\t", quote = F, row.names = F)
+  write.table(food12, file ="eg_data/NHANES1516/processed/foodday1and2.txt", sep = "\t", quote = F, row.names = F)
+  
+# database
+  head(foodcodes)
+  write.table(foodcodes, file = "eg_data/NHANES1516/processed/foodcodes.txt", sep = "\t", quote = F, row.names = F)
+  
+# write maps
+  write.table(diet_type_map, file = "eg_data/NHANES1516/processed/diet_type_map.txt", sep = "\t", quote = F, row.names = F)
+  write.table(demo, file = "eg_data/NHANES1516/processed/demo_map.txt", sep = "\t", quote = F, row.names = F)
+    
+  
+# ---------------------------------------------------------------------------------------------------------------
+  
+# ========================================================================================
+# Build food tree with NHANES data
+# https://github.com/knights-lab/Food_Tree/blob/master/R/bin/make.nhanes.tree.r 
+# ========================================================================================
+  
+  source("lib/Food_tree_scripts/newick.tree.r")
+  source("lib/Food_tree_scripts/check.db.r")
+  source("lib/Food_tree_scripts/format.foods.r")
+  source("lib/Food_tree_scripts/filter.db.by.diet.records.r")
+  source("lib/Food_tree_scripts/make.food.tree.r")
+  source("lib/Food_tree_scripts/make.food.otu.r")
+  source("lib/Food_tree_scripts/make.fiber.otu.r")
+  source("lib/Food_tree_scripts/make.dhydrt.otu.r")
+  
+# clean up files so they work with the tree building downstream
+  FormatFoods(input_fn="eg_data/NHANES1516/processed/foodcodes.txt", output_fn="eg_data/NHANES1516/processed/NHANESDatabase.txt") # build database from main FoodCodes
+ #format.foods(input_fn="data/NHANES/processed/individual.foods.from.deceased_NHANES_2007-2010.txt", output_fn="data/NHANES/dietrecords.txt", dedupe=F)
+
+  # This is the input. food items file. 
+  qqq = read.table("E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/individual.foods.from.NHANES_2007-2010.txt", sep="\t", header=T)
+  head(qqq,1)
+  
+  # ORIGINAL format.foods(input_fn="data/NHANES/processed/individual.foods.from.NHANES_2007-2010.txt", output_fn="data/NHANES/dietrecords_all.txt", dedupe=F)
+  FormatFoods(input_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/individual.foods.from.NHANES_2007-2010.txt", 
+               output_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/dietrecords_all_1.txt", dedupe=F)
+  
+  # do this for the entire database of people
+  check.db(food_database_fn = "E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/NHANESDatabase.txt", 
+           food_records_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/dietrecords_all_1.txt", 
+           output_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/missing_1.txt")
   
   ### RESUME FROM HERE ###
   
-  names(food2)[names(food2) == "dr2ifdcd"] <- "FoodCode"
-  names(food1)[names(food1) == "dr1mc"] <- "ModCode"
-  names(food2)[names(food2) == "dr2mc"] <- "ModCode"
-  names(food1)[names(food1) == "dr1igrms"] <- "FoodAmt"
-  names(food2)[names(food2) == "dr2igrms"] <- "FoodAmt"
-  names(foodcodes)[names(foodcodes) == "drxfdcd"] <- "FoodCode"
-  names(foodcodes)[names(foodcodes) == "drxfcld"] <- "Main.food.description"
-  names(modcodes)[names(modcodes) == "drxmc"] <- "ModCode" 
+  make.food.tree(nodes_fn="data/NodeLabelsMCT.txt", 
+                 addl_foods_fn = "data/NHANES/missing.txt",
+                 food_database_fn="data/NHANES/NHANESDatabase.txt", 
+                 output_tree_fn="output/nhanes.tree.txt", 
+                 output_taxonomy_fn = "output/nhanes.taxonomy.txt",
+                 num.levels=5)
+  
+  
+  
+  
+# Need to take average of 2 days in food12... 
+  head(food12)
+  tail(food12)
+
+  
+  
+  
+  
+  
   
   
   
   
 #### ASA24 
-  
-  
+
 # ========================================================================================
 # Prep data
 # ========================================================================================
