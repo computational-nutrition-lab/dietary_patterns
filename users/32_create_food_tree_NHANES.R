@@ -41,7 +41,6 @@
 # Name your main directory for future use. 
   main.wd <- file.path(getwd())
 
-  
 # ========================================================================================
 # Import NHANES data
 # https://github.com/knights-lab/Food_Tree/blob/master/R/lib/import_NHANES_data.R
@@ -72,6 +71,7 @@
   # read in food description files
   # foodcodes <- sasxport.get("data/NHANES/DRXFCD_G.XPT")
   foodcodes <- read.xport("eg_data/NHANES/FoodCodes_DRXFCD_I.XPT")
+  head(foodcodes)
      # There is no modcodes for NHANES1516...
      modcodes <-  sasxport.get("data/NHANES/DRXMCD_G.XPT")
   
@@ -81,9 +81,9 @@
   food2 <- food2[food2$DR2DRSTZ == 1,]
     
 # Naming notes
-# food codes: "DR1IFDCD" 
-# mod codes: "DR1MC" ?
-# weight in grams: "DR1IGRMS"
+  # food codes: "DR1IFDCD" 
+  # mod codes: "DR1MC" ?
+  # weight in grams: "DR1IGRMS"
   
 # fix naming for downstream food tree use
   # names(food1)[names(food1) == "dr1ifdcd"] <- "FoodCode"
@@ -119,23 +119,32 @@
       # food2 <- left_join(food2, modcodes, by = "ModCode")
       # replace names
       # food2$Main.food.description <- ifelse(is.na(food2$drxmcd), food2$Main.food.description, food2$drxmcd)
-  head(food2)
+  head(food2,2)
   
 # subset to just people in both food1 and food2
   food1names <- unique(food1$SEQN)
   food2names <- unique(food2$SEQN)
   keepnames <- food1names[food1names %in% food2names]
   keepnames_adults <- keepnames[keepnames %in% adults$SEQN]
+
+
   
+  
+  
+    
 # subset to just the variables we need for food tree
   food1 <- food1 %>% select(SEQN, FoodCode, FoodAmt, Main.food.description)
   food2 <- food2 %>% select(SEQN, FoodCode, FoodAmt, Main.food.description)
+  subset(food1, SEQN=="88925")
+  subset(food2, SEQN=="88925")
   
 # make a day varabile before we bind these together
   food1$Day = 1
   food2$Day = 2
     
   food12 <- rbind(food1, food2)
+  subset(food12, SEQN=="88925")
+  
   
 # limit to just people who have records from day 1 and 2
   food12 <- food12[food12$SEQN %in% keepnames_adults,]
@@ -152,6 +161,33 @@
 # demographics map
   demo <- demo[demo$SEQN %in% keepnames_adults, ]
   head(demo, 1)
+  
+# Need to format food12 so that it will be saved properly... replace special characters with '_'...
+  # FormatFoods(input_fn="eg_data/NHANES1516/processed/foodcodes.txt", 
+  #            output_fn="eg_data/NHANES1516/processed/NHANESDatabase.txt") 
+  #  "
+  #  '
+  #  #
+  #  &
+  
+  # food12
+  table(food12$Day)
+  dim(food12)
+  food12$Day # there should not be any NAs in Day column... 
+  
+  tail(food12$Main.food.description)
+  
+  
+  ### RESUME FROM HERE ###
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
 # write to text file (tab separated)
   write.table(food1, file = "eg_data/NHANES1516/processed/foodday1.txt", sep = "\t", quote = F, row.names = F)
@@ -184,37 +220,88 @@
   source("lib/Food_tree_scripts/make.dhydrt.otu.r")
   
 # clean up files so they work with the tree building downstream
-  FormatFoods(input_fn="eg_data/NHANES1516/processed/foodcodes.txt", output_fn="eg_data/NHANES1516/processed/NHANESDatabase.txt") # build database from main FoodCodes
+  FormatFoods(input_fn="eg_data/NHANES1516/processed/foodcodes.txt", 
+              output_fn="eg_data/NHANES1516/processed/NHANESDatabase.txt") # build database from main FoodCodes
  #format.foods(input_fn="data/NHANES/processed/individual.foods.from.deceased_NHANES_2007-2010.txt", output_fn="data/NHANES/dietrecords.txt", dedupe=F)
 
   # This is the input. food items file. 
   qqq = read.table("E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/individual.foods.from.NHANES_2007-2010.txt", sep="\t", header=T)
   head(qqq,1)
   
-  # ORIGINAL format.foods(input_fn="data/NHANES/processed/individual.foods.from.NHANES_2007-2010.txt", output_fn="data/NHANES/dietrecords_all.txt", dedupe=F)
+  # ORIGINAL 
+  FormatFoods(input_fn= "data/NHANES/processed/individual.foods.from.NHANES_2007-2010.txt", output_fn="data/NHANES/dietrecords_all.txt", dedupe=F)
+  # Mine
   FormatFoods(input_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/individual.foods.from.NHANES_2007-2010.txt", 
-               output_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/dietrecords_all_1.txt", dedupe=F)
+               output_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/dietrecords_all_1.txt", dedupe=F)
+  # What does the output look like..
+  ppp = read.table("E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/dietrecords_all_1.txt", sep="\t", header=T)
+  head(ppp,1)
+  # Old.Main.food.description and FoodID added.
+  
   
   # do this for the entire database of people
-  check.db(food_database_fn = "E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/NHANESDatabase.txt", 
-           food_records_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/dietrecords_all_1.txt", 
-           output_fn="E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/missing_1.txt")
+  check.db(food_database_fn = "eg_data/NHANES1516/processed/NHANESDatabase.txt", 
+           food_records_fn =  "E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/dietrecords_all_1.txt", 
+           output_fn = "E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/missing_1.txt")
+  # What does the output look like?
+  rrr = read.table("E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/missing_1.txt", sep="\t", header=T)
+  head(rrr)
   
-  ### RESUME FROM HERE ###
-  
-  make.food.tree(nodes_fn="data/NodeLabelsMCT.txt", 
-                 addl_foods_fn = "data/NHANES/missing.txt",
-                 food_database_fn="data/NHANES/NHANESDatabase.txt", 
-                 output_tree_fn="output/nhanes.tree.txt", 
-                 output_taxonomy_fn = "output/nhanes.taxonomy.txt",
+  MakeFoodTree(nodes_fn="data/Food_tree_data/NodeLabelsMCT.txt", 
+                 addl_foods_fn =   "E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/missing_1.txt",
+                 food_database_fn= "eg_data/NHANES1516/processed/NHANESDatabase.txt", 
+                 output_tree_fn=   "results/Food_tree_NHANES/NHANES1516_Lv5.txt", 
+                 output_taxonomy_fn = "results/Food_tree_NHANES/NHANES1516_Lv5.taxonomy.txt",
                  num.levels=5)
   
+# ---------------------------------------------------------------------------------------------------------------
+# Limit to just the foods reported in your study (formatted dietrecords.txt as the input)
+  FilterDbByDietRecords(food_database_fn = "eg_data/NHANES1516/processed/NHANESDatabase.txt", 
+                        food_records_fn  = "E:/MSU OneDrive 20210829/UMinn/Food_tree_unused/data/NHANES/processed/dietrecords_all_1.txt",   # output of FormatFoods above.
+                        output_fn = "eg_data/NHANES1516/processed/NHANES1516FilteredDatabase.txt")
+  
+  
+# make a food tree with the reduced data.
+  MakeFoodTree(nodes_fn=         "data/Food_tree_data/NodeLabelsMCT.txt", 
+               food_database_fn= "eg_data/NHANES1516/processed/NHANES1516FilteredDatabase.txt", 
+               addl_foods_fn=    NULL, 
+               num.levels =      5,
+               output_taxonomy_fn = "results/Food_tree_NHANES/NHANES1516.reduced_Lv5.taxonomy.txt",
+               output_tree_fn=      "results/Food_tree_NHANES/NHANES1516.reduced_Lv5.tree.nwk" 
+  )
   
   
   
-# Need to take average of 2 days in food12... 
-  head(food12)
-  tail(food12)
+  #
+  
+  
+  
+  
+  
+# Make the standard food otu table with data in gram weights of food.
+  MakeFoodOtu(food_records_fn=  "data/Food_tree_data/dietrecords.txt", 
+              food_record_id =  "X.SampleID",                       # Specify the ID of your participants
+              food_taxonomy_fn= "results/Food_tree_results/mct_Lv2.taxonomy.txt",  # Specify your taxonomy file produced by MakeFoodTree.
+              output_fn =       "results/Food_tree_results/mct_Lv2.food.otu.txt")  # Name your output otu file.
+  
+# Make a food otu table with data in grams of fiber per food
+  MakeFiberOtu(food_records_fn=  "data/Food_tree_data/dietrecords.txt", 
+               food_record_id=   "X.SampleID", 
+               food_taxonomy_fn= "results/Food_tree_results/mct_Lv2.taxonomy.txt", 
+               output_fn=        "results/Food_tree_results/mct_Lv2.fiber.otu.txt")
+  
+# Make a food otu table as dehydrated grams per kcal
+  MakeDhydrtOtu(food_records_fn=  "data/Food_tree_data/dietrecords.txt", 
+                food_record_id =  "X.SampleID", 
+                food_taxonomy_fn= "results/Food_tree_results/mct_Lv2.taxonomy.txt", 
+                output_fn =       "results/Food_tree_results/mct_Lv2.dhydrt.otu.txt")
+  
+# ---------------------------------------------------------------------------------------------------------------
+  
+  
+
+
+
 
   
   

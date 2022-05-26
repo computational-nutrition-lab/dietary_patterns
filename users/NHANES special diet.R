@@ -93,7 +93,7 @@
   metadata$n_diets <- 13 - metadata$count_na
   table(metadata$n_diets)
   # So, 575 people are on 1 diet.
-  sum(  metadata$n_diets) # Should be the same as sum(dietfreq$Yes).
+  sum(metadata$n_diets) # Should be the same as sum(dietfreq$Yes).
   
 # -----------------------------------------------------------------------------------------------------------------
 # Append the name of the diet to metadata and freqtable.
@@ -218,7 +218,7 @@
                        sep="\t", header=T)
   head(PCA_nut)
   
-  # Plot PC1 and PC2 of the PCA results of Foof Categories.  
+  # Plot PC1 and PC2 of the PCA results of Food Categories.  
   fillcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
   colcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
   ggplot(data=PCA_nut, aes(x=PC1, y=PC2, fill=Diet, color=Diet, shape=Diet))+
@@ -251,7 +251,8 @@
                                      rep('Low_salt', length(lowsalt)), rep('Weight_gain', length(wtgain)),
                                      rep('Low_carb', length(lowcarb)), rep('Regular', length(regulardiet))),
                             SEQN = c(highprot, GF, lowsalt, wtgain, lowcarb, regulardiet))
-
+  diffdiet82
+  
 # ---------------------------------------------------------------------------------------------------
   # Add diet info while picking up the individuals from totalQC.
   QCtotal_1diet <- merge(x=diffdiet82, y=QCtotal, by="SEQN", all.x=T)
@@ -263,16 +264,16 @@
   
   # Let's see how different those diet groups are .....  
   library(ggplot2)
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=KCAL)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=TFAT)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=PROT)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=CARB)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=FIBE)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=PF_TOTAL)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_TOTAL)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_STARCHY_OTHER)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_LEGUMES)) + geom_boxplot()
-  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=D_TOTAL)) + geom_boxplot()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=KCAL)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=TFAT)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=PROT)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=CARB)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=FIBE)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=PF_TOTAL)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_TOTAL)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_STARCHY_OTHER)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_LEGUMES)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=D_TOTAL)) + geom_boxplot() + theme_bw()
   
   # ---------------------------------------------------------------------------------------------------
   # Define the sample total data with which you are going to do clustering. 
@@ -321,6 +322,31 @@
   nutbiplot
   ggsave("results/PCA_results/NHANES1516_totalsbyhand_nut_n82/nutbiplot.tif", nutbiplot, device = "tiff", width = 7, height=7, dpi=250)
   
+  
+# ---------------------------------------------------------------------------------------------------  
+# Create a food tree and see.
+# Food tree uses individual food data, not total, so need to subset a QC-ed individual food data.
+# QC-ed individual food data has been created by create_food_tree_NHANES.R. So borrow from there:
+  
+  # This has the SEQN of people and their specific diets
+  diffdiet82 
+  
+  food12_QCed <- read.table("eg_data/NHANES1516/processed/foodday1and2.txt", sep = "\t", header=T)
+  head(food12_QCed)
+  
+  tail(food12)
+  write.table(head(food12_QCed),  "eg_data/NHANES1516/processed/foodday1and2_head.txt", sep = "\t", row.names = F, quote=F)
+  write.table(tail(food12_QCed)[, c("SEQN", "FoodCode", "FoodAmt", "Day")],  "eg_data/NHANES1516/processed/foodday1and2_tail_4var.txt", sep = "\t", row.names = F, quote=F)
+  
+  write.table(tail(food12), "eg_data/NHANES1516/processed/food12_tail.txt", sep = "\t", row.names=F, quote=F)
+  food12_tail <- read.table("eg_data/NHANES1516/processed/food12_tail.txt", sep = "\t", header=T)
+  food12_tail
+  
+  
+  
+  
+  totalsof82 <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_82diffdiet.txt",
+                           sep="\t", header=T) 
   
   
   

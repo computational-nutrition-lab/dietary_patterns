@@ -9,8 +9,8 @@
 # ========================================================================================
 # 
 # ---------------------------------------------------------------------------------------------------------------
-    # use this working directory until this script is complete. 
-      setwd("~/GitHub/dietary_patterns")
+# use this working directory until this script is complete. 
+  setwd("~/GitHub/dietary_patterns")
 
   # Folder structure 
   # 
@@ -41,14 +41,17 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Load your ggtree object. 
-  tree <- read.tree("results/Food_tree_results/mct.reduced_4Lv.tree.nwk")
-  tree <- read.tree("results/Food_tree_results/mct_Lv2.tree.nwk")
-  tree <- read.tree("results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
+  tree <- read.tree("results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
+  tree <- read.tree("results/Food_tree_ASA24/mct_Lv2.tree.nwk")
+  tree <- read.tree("results/Food_tree_ASA24/mct.reduced_1Lv.tree.nwk")
   
   # VVKAJ
-  tree <- read.tree("output/VVKAJ.reduced_2Lv.tree.nwk")
-  tree <- read.tree("output/VVKAJ.reduced_1Lv.tree.nwk")
+  tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_2Lv.tree.nwk")
+  tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_1Lv.tree.nwk")
   tree
+  
+  # NHANES
+  tree <- read.tree("results/Food_tree_NHANES/NHANES1516.reduced_Lv1.tree.nwk")
 
 # Use ggtree to plot the tree. It is critical to have 'ladderize=F' argument to preserve your L1 order.
   mytreeplot <- ggtree(tree, ladderize=F, layout = 'radial') + 
@@ -73,14 +76,14 @@
   
 # Create a color-coded and annotated food tree with 9 L1 levels.
   # Choose either 'circular' or 'radial' for layout.
-  # It is OK to see some warning messages.
+  # It is OK to see some warning messages about Coordinate system and scale for 'y' already being present.
   VizFoodTree(input.tree=tree, layout="radial")
   
 # Look at the color-coded and annotated food tree, saved as tree_an_hi_o_rt.
   tree_an_hi_o_rt
   
 # Save the tree as a tiff file if you'd like. 
-  ggsave("mytree.tif", tree_an_hi_o_rt, width=10, height=10, device='tiff', dpi=150)
+  ggsave("NHANES1516.reduced_Lv.1.tif", tree_an_hi_o_rt, width=10, height=10, device='tiff', dpi=150)
   
 
   
