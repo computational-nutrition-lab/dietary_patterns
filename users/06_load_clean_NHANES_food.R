@@ -69,8 +69,8 @@
   length(unique(Food_D1$SEQN)) #8505 people
 
 # Add the food category info and serving for each item. #### WILL TAKE A FEW MOMENTS. ####
-  AddFoodCat(input.food= Food_D1, 
-             fped= FPED, 
+  AddFoodCat(input.food= Food_D1,
+             fped= FPED,
              grams= "DR1IGRMS", 
              out.fn= "eg_data/NHANES/Food_D1_FC.txt")
   # OK to see a message saying "NAs introduced by coercion."
@@ -151,9 +151,9 @@
   head(Food_D2_FC_cc_f)
   length(unique(Food_D2_FC_cc_f$SEQN))
   # OK
-  # Food_code and foodcode are the same though 'identical()' sasy they are not...
+  # Food_code and foodcode are the same though 'identical()' says they are not...
   
-  # Use these resultant ojbects for the following procedures.
+  # Use these resultant objects for the following procedures.
   Food_D1_FC_cc_f
   Food_D2_FC_cc_f 
 
@@ -203,7 +203,7 @@
 
 
 # ================================================================================================================  
-# Now, choose Scenario A or B.  
+# Now, choose Scenario A or B. (B consists of B-1, B-2, ...)
 # ================================================================================================================  
   
 # ================================================================================================================  
@@ -253,10 +253,10 @@
 # Save. It will be a HUGE file.
   write.table(food12f, "eg_data/NHANES/Food_D12_FC_cc_f.txt", sep="\t", row.names=F, quote=F)
 
-  # Use this as an input of food tree.  
+  # Use this as an input for food tree.  
   
 # ================================================================================================================  
-# Scenario B: Further processing of food1b and food2b for calculating totals and clustering.  
+# Scenario B-1: Further processing of food1b and food2b for calculating totals and clustering.  
 # ================================================================================================================  
     
 # Combine day 1 and day 2 data.
@@ -315,13 +315,12 @@
       
       
 # ---------------------------------------------------------------------------------------------------------------
-            
 # You may also want to consider special diets that some participants are following: e.g. DASH diet, diabetic diet, etc.
 # Depending on your research question, you may want to exclude those following special diets.
 # The diet information is found in totals day 1.  
 
 # ===============================================================================================================
-# Calculate totals/day/participant with the food data of the selected SEQNs.
+# B-2: Calculate totals/day/participant with the food data of the selected SEQNs.
 # ===============================================================================================================
 
 # Calculate total for day 1. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -397,7 +396,7 @@
   write.table(total12c, "eg_data/NHANES/NHANES1516_total_d12_FC.txt", sep="\t", row.names=F, quote=F)
 
 # ===============================================================================================================
-# Calculate the mean of totals/participant. 
+# B-3: Calculate the mean of totals/participant. 
 # ===============================================================================================================
   
 # Load the calculated totals.
@@ -429,7 +428,7 @@
   meantotal12b <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt", sep="\t", header=T)
   
 # ===============================================================================================================
-# QC the mean total in the same way as ASA24. 
+# B-4: QC the mean total in the same way as ASA24. 
 # ===============================================================================================================
   
 # For individual food data, there is no code for cleaning.
