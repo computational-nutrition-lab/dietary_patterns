@@ -70,7 +70,7 @@
 
 # Flag outliers in the target column and min max values, and pop out a prompt asking whether to delete 
   # the outliers or not.
-  # Whether the outliers are removed or not, the output will be a df called 'QCtotals'.
+  # Whether the outliers are removed or not, the output will be a df called 'QCtotal'.
   QCOutliers <- function(input.data, target.colname, min, max){
     temp <- input.data
     
@@ -84,20 +84,20 @@
     cat("There are", nrow(Outlier_rows), "observations with <", min, "or >", max, ". \n", sep = " ") 
     
     if(nrow(Outlier_rows) == 0){ 
-      QCtotals <<- temp
-      cat("There are no outlier rows, but the input data was renamed as QCtotals.\n",
-          nrow(QCtotals), "rows remained.\n")}
+      QCtotal <<- temp
+      cat("There are no outlier rows, but the input data was renamed as QCtotal.\n",
+          nrow(QCtotal), "rows remained.\n")}
     else{
       answer <- askYesNo("Remove?")
       if(answer==T){
         # Save rows that are within the range of min-max as QCtotal.
-        QCtotals <<- temp[ temp[, nth_column] >= min & temp[, nth_column] <= max , ]
-        cat("Outlier rows were removed; the cleaned data is saved as an object called \"QCtotals\".\n",
-            nrow(QCtotals), "rows remained.\n")
+        QCtotal <<- temp[ temp[, nth_column] >= min & temp[, nth_column] <= max , ]
+        cat("Outlier rows were removed; the cleaned data is saved as an object called \"QCtotal\".\n",
+            nrow(QCtotal), "rows remained.\n")
       }else{
-        QCtotals <<- temp
-        cat("Outlier rows were not removed, but the input data was renamed as QCtotals.\n",
-            nrow(QCtotals), "rows remained.\n")}
+        QCtotal <<- temp
+        cat("Outlier rows were not removed, but the input data was renamed as QCtotal.\n",
+            nrow(QCtotal), "rows remained.\n")}
     }
   }
   
@@ -115,7 +115,7 @@
 #           print(KCAL_outlier_rows)   # Show the outlier rows # Some totals have 'RecallNo', others 'SutdyDayNo'...  
 #           answer <- askYesNo("Remove?")
 #           if(answer==T){
-#             QCtotals <<- subset(temp, KCAL >= min & KCAL <= max)
+#             QCtotal <<- subset(temp, KCAL >= min & KCAL <= max)
 #           }
 #         }
 #   }
@@ -137,7 +137,7 @@
 #             print(PROT_outlier_rows)   # Show the outlier rows
 #             answer <- askYesNo("Remove?")
 #             if(answer==T){
-#               QCtotals <<- subset(temp, PROT >= min & PROT <= max)
+#               QCtotal <<- subset(temp, PROT >= min & PROT <= max)
 #             }
 #         }
 #   }
@@ -158,7 +158,7 @@
 #           print(TFAT_outlier_rows)   # Show the outlier rows
 #           answer <- askYesNo("Remove?")
 #           if(answer==T){
-#             QCtotals <<- subset(temp, TFAT >= min & TFAT <= max)
+#             QCtotal <<- subset(temp, TFAT >= min & TFAT <= max)
 #       }
 #     }
 #   }
@@ -179,7 +179,7 @@
 #       print(VC_outlier_rows)   # Show the outlier rows
 #       answer <- askYesNo("Remove?")
 #       if(answer==T){
-#         QCtotals <<- subset(temp, VC >= min & VC <= max)
+#         QCtotal <<- subset(temp, VC >= min & VC <= max)
 #       }
 #     }
 #   }
@@ -200,7 +200,7 @@
 #       print(BCAR_outlier_rows)   # Show the outlier rows
 #       answer <- askYesNo("Remove?")
 #       if(answer==T){
-#         QCtotals <<- subset(temp, BCAR >= min & BCAR <= max)
+#         QCtotal <<- subset(temp, BCAR >= min & BCAR <= max)
 #       }
 #     }
 #   }

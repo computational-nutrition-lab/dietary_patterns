@@ -25,19 +25,21 @@ library(foreign)
     codetable <- read.xport(raw.food.code.table)
     
     # Replace symbols (/, \, ', #, &) in DRXFCSD column that cannot be loaded correctly 
-    codetable[, "DRXFCSD"] <- gsub("\"", "_", codetable[, "DRXFCSD"])
+    # codetable[, "DRXFCSD"] <- gsub("\"", "_", codetable[, "DRXFCSD"])
     codetable[, "DRXFCSD"] <- gsub("'", "_", codetable[, "DRXFCSD"])
     codetable[, "DRXFCSD"] <- gsub("#",  "_", codetable[, "DRXFCSD"])
     codetable[, "DRXFCSD"] <- gsub("&",  "and", codetable[, "DRXFCSD"])
+    codetable[, "DRXFCSD"] <- gsub("%",  "_", codetable[, "DRXFCSD"])
     codetable[, "DRXFCSD"] <- gsub("/",  "_", codetable[, "DRXFCSD"])
     codetable[, "DRXFCSD"] <- gsub("\"", "_", codetable[, "DRXFCSD"])
   
     # Replace symbols (/, \, ', #, &) in DRXFCLD column that cannot be loaded correctly 
-    codetable[, "DRXFCLD"] <- gsub("\"", "_", codetable[, "DRXFCLD"])
+    # codetable[, "DRXFCLD"] <- gsub("\"", "_", codetable[, "DRXFCLD"])
     codetable[, "DRXFCLD"] <- gsub("'", "_", codetable[, "DRXFCLD"]) 
     codetable[, "DRXFCLD"] <- gsub("#",  "_", codetable[, "DRXFCLD"])
     codetable[, "DRXFCLD"] <- gsub("&",  "and", codetable[, "DRXFCLD"])
     codetable[, "DRXFCLD"] <- gsub("/",  "_", codetable[, "DRXFCLD"])
+    codetable[, "DRXFCLD"] <- gsub("%",  "_", codetable[, "DRXFCLD"])
     codetable[, "DRXFCLD"] <- gsub("\"", "_", codetable[, "DRXFCLD"])
   
     # Save as a txt file.   

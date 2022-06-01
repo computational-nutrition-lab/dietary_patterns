@@ -45,9 +45,13 @@
   PrepareFoodCodeTable(raw.food.code.table = "eg_data/NHANES/FoodCodes_DRXFCD_I.XPT", 
                        out.fn =              "eg_data/NHANES/FoodCodes_DRXFCD_I_f.txt")  
   
-  # Load the formatted food code table.
+  # Load the formatted foodcode table.
   foodcodetable_f <- read.table("eg_data/NHANES/FoodCodes_DRXFCD_I_f.txt", sep="\t", header=T)
-  head(foodcodetable_f, 1)  # NOT FORMATTED??????????
+  foodcodetable_f[1:10, ]  
+  
+     # foodcodetable_f_byhand <-  foodcodetable_f
+     # foodcodetable_f_byhand[, "DRXFCSD"] <- gsub("%", "_", foodcodetable_f_byhand[, "DRXFCSD"])
+     # foodcodetable_f_byhand[1:10, ]  
 
 # ---------------------------------------------------------------------------------------------------------------
 # Load FPED15-16, needed for the AddFoodCat function. 
@@ -66,6 +70,7 @@
 # Load the saved food items file. 
   Food_D1 <- read.table("eg_data/NHANES/DR1IFF_I_d.txt", sep="\t", header=T)
   dim(Food_D1)
+  head(Food_D1, 1)
   length(unique(Food_D1$SEQN)) #8505 people
 
 # Add the food category info and serving for each item. #### WILL TAKE A FEW MOMENTS. ####
@@ -114,10 +119,8 @@
   tail(Food_D2_FC)
   table(Food_D2_FC$DR2DRSTZ) # 1902 rows are incomplete.
 
-# Here, I need to change the underscores and other special characters!!!!
-# PrepareFoodCodeTable function did not do that :( 
-  
-# First, need to change the colnames
+
+# Change the colnames for downstream analyses
   colnames(Food_D1_FC)
   # names(food1)[names(food1) == "dr1ifdcd"] <- "FoodCode"
   names(Food_D1_FC)[names(Food_D1_FC) == "DR1IFDCD"] <- "FoodCode"
@@ -129,26 +132,35 @@
   names(Food_D1_FC)[names(Food_D1_FC) == "DRXFCLD"] <- "Main.food.description"
   names(Food_D2_FC)[names(Food_D2_FC) == "DRXFCLD"] <- "Main.food.description"
   
-  head(Food_D1_FC,2)
+  head(Food_D1_FC,1)
   
-# Save after changing the columnnames.
+# Save after changing the columnnames. cc stands for columnnames changed.
   write.table(Food_D1_FC, "eg_data/NHANES/Food_D1_FC_cc.txt", sep="\t", row.names=F, quote=F)
   write.table(Food_D2_FC, "eg_data/NHANES/Food_D2_FC_cc.txt", sep="\t", row.names=F, quote=F)
   
 # Replace the special characters with "_" using FormatFoods
+# FotmatFoods() function adds "Main.Food.Description" where special characters are removed/replaced, the previous
+# Main.Food.Description as Old.Main.Food.Description, ModCode, and FoodID. $FoodID is a cha vector, but has .0 at the end. 
   # MAKE SURE dedupe=F. If true (default!), duplicated foods will be removed! 
+  source("lib/Food_tree_scripts/format.foods.r")
   FormatFoods(input_fn="eg_data/NHANES/Food_D1_FC_cc.txt", output_fn= "eg_data/NHANES/Food_D1_FC_cc_f.txt", dedupe=F)
   FormatFoods(input_fn="eg_data/NHANES/Food_D2_FC_cc.txt", output_fn= "eg_data/NHANES/Food_D2_FC_cc_f.txt", dedupe=F)
   
   length(Food_D1_FC$Food_code)
+  head(Food_D1_FC$Food_code)
   
   # Result
   Food_D1_FC_cc_f <- read.table("eg_data/NHANES/Food_D1_FC_cc_f.txt", sep="\t", header=T)
-  dim(Food_D1_FC_cc_f)
+  
+  is(Food_D1_FC_cc_f$FoodID)
+  head(Food_D1_FC_cc_f$FoodID)
   colnames(Food_D1_FC_cc_f)
+  Food_D1_FC_cc_f[1:10, c(89:90, 128:130)]
+  Food_D1_FC_cc_f[100:120, c(89:90, 128:130)]
   length(unique(Food_D1_FC_cc_f$SEQN))
+  
   Food_D2_FC_cc_f <- read.table("eg_data/NHANES/Food_D2_FC_cc_f.txt", sep="\t", header=T)
-  head(Food_D2_FC_cc_f)
+  head(Food_D2_FC_cc_f, 1)
   length(unique(Food_D2_FC_cc_f$SEQN))
   # OK
   # Food_code and foodcode are the same though 'identical()' says they are not...
@@ -174,7 +186,8 @@
   food1 <- subset(Food_D1_FC_cc_f, DR1DRSTZ == 1)
   food2 <- subset(Food_D2_FC_cc_f, DR2DRSTZ == 1)
   head(food1)
-  
+
+# Create a vector of SEQN of those who reported data for both days and are adults.   
   food1names <- unique(food1$SEQN) # 8326 adults
   food2names <- unique(food2$SEQN) # 6875 adults
   keepnames <- food1names[food1names %in% food2names]  # 6863
@@ -258,7 +271,15 @@
 # ================================================================================================================  
 # Scenario B-1: Further processing of food1b and food2b for calculating totals and clustering.  
 # ================================================================================================================  
-    
+
+# Copy to avoid overwriting
+  food1bb <- food1b
+  food2bb <- food2b
+  
+# Change "FoodAmt" back to "DR1GRMS" to be consistent with the variable names in dayXvariables
+  names(food1bb)[names(food1bb) == "FoodAmt"] <- "DR1IGRMS"
+  names(food2bb)[names(food2bb) == "FoodAmt"] <- "DR2IGRMS"
+      
 # Combine day 1 and day 2 data.
   # Day 1
   # Import the list of variables to be picked up in Day 1. 
@@ -266,9 +287,9 @@
   day1variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_FC_Day1.txt', header=F)
   tail(day1variables)
   # Which variables to pick up from the food data
-  var_to_use1 <- names(food1b) %in% day1variables$V1
+  var_to_use1 <- names(food1bb) %in% day1variables$V1
   # pick up only the specified variables 
-  food1c <- food1b[, var_to_use1]
+  food1c <- food1bb[, var_to_use1]
   # Remove "DR1T", "DR1" from the column names 
   colnames(food1c) <- gsub(colnames(food1c), pattern = "^DR1I", replacement = "")
   colnames(food1c) <- gsub(colnames(food1c), pattern = "^DR1",  replacement = "")
@@ -276,10 +297,10 @@
   head(food1c, 1)
  
   # Do the same for Day 2  
-   # day2variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_Day2.txt', header=F) # OLD, before adding food category data.
-   day2variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_FC_Day2.txt', header=F)
-  var_to_use2 <- names(food2b) %in% day2variables$V1
-  food2c <- food2b[, var_to_use2]
+  # day2variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_Day2.txt', header=F) # OLD, before adding food category data.
+  day2variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_FC_Day2.txt', header=F)
+  var_to_use2 <- names(food2bb) %in% day2variables$V1
+  food2c <- food2bb[, var_to_use2]
   colnames(food2c) <- gsub(colnames(food2c), pattern = "^DR2I", replacement = "")
   colnames(food2c) <- gsub(colnames(food2c), pattern = "^DR2", replacement = "")
   head(food2c, 1)
@@ -389,6 +410,7 @@
 # Merge totals day 1 and day 2
   # Check if all the columnnames match.
   identical(colnames(total1b), colnames(total2b))
+  
   # Merge
   total12c <- rbind(total1b, total2b)
   
@@ -445,22 +467,22 @@
 # that fall outside the specified range for each nutrient.
 
 # Define the input data.  This dataframe will be modified after each filter.
-  QCtotals <- meantotal12b
+  QCtotal <- meantotal12b
   
   # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotals, 
+  QCOutliers(input.data = QCtotal, 
              target.colname = "KCAL", min = 600, max = 5700)
   
   # Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotals, 
+  QCOutliers(input.data = QCtotal, 
              target.colname = "PROT", min = 10, max = 240)
   
   # Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotals, 
+  QCOutliers(input.data = QCtotal, 
              target.colname = "TFAT", min = 15, max = 230)
 
   # Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotals,  
+  QCOutliers(input.data = QCtotal,  
              target.colname = "VC", min = 5, max = 400)
   
       # or show the outliers if too many.
@@ -469,7 +491,7 @@
       head(VCoutliers[order(VCoutliers$VC, decreasing = T), ], n=10)
 
   # Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotals,  
+  QCOutliers(input.data = QCtotal,  
              target.colname = "BCAR", min = 15, max = 8200)
     
       # or show the outliers if too many.
@@ -477,14 +499,17 @@
       # Show the first n rows of the outliers in a descending order. 
       head(bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ], n=10)
       
-
+  # 
+  head(QCtotal)
+      
+      
 # ---------------------------------------------------------------------------------------------------------------
-# Save QCtotals as a .txt file. 
-  write.table(QCtotals, "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2.txt", sep="\t", quote=F, row.names=F)
+# Save QCtotal as a .txt file. 
+  write.table(QCtotal, "eg_data/NHANES/Total_D12_FC_mean_QC_1.txt", sep="\t", quote=F, row.names=F)
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants (SEQN).
-  RandomSample(data=QCtotals, n=100, out.fn="eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt")
+  RandomSample(data=QCtotal, n=100, out.fn="eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt")
       # This is the "input" file for the SaveInputAndPCs() function at the end of 23_PCA.R. 
   
   # Load the subsetted totals file. 

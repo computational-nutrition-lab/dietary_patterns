@@ -24,13 +24,14 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Load the QC-ed total (with food categories)
-  QCtotal <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2.txt", sep="\t", header=T)
+  # QCtotal <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2.txt", sep="\t", header=T)  # OLD
+  QCtotal <- read.table("eg_data/NHANES/Total_D12_FC_mean_QC_1.txt", sep="\t", header=T) # filtered for KCAL, PROT, TFAT, VC, BCAR. 3992 people.
   head(QCtotal)
   length(unique(QCtotal$SEQN))
   head(unique(QCtotal$SEQN))
   tail(unique(QCtotal$SEQN))
   
-# Load the metadata of people, which is in Total Day 1.  
+# Load the metadata of people, which is in Total Day 1.
   metadata_raw <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR1TOT_I.XPT")
   head(metadata_raw, 2)
   length(unique(metadata_raw$SEQN))
@@ -56,7 +57,7 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Take a look at how many people are following a specific diet?
   table(metadata$DRQSDIET)
-  # 682 people.
+  # 682 people.  # 620 people in filtered QC.
 
   library(dplyr)
 # Extract only those following any specific diet.
@@ -81,9 +82,11 @@
   dietsvec <- c("DRQSDT1","DRQSDT2","DRQSDT3","DRQSDT4","DRQSDT5","DRQSDT6","DRQSDT7","DRQSDT8","DRQSDT9","DRQSDT10","DRQSDT11","DRQSDT12","DRQSDT91")
   
   # Create a dataframe to count results.
-  dietfreq = data.frame(diet=dietsvec, Yes=c(345, 94, 97, 37, 1, 7, 124, 14, 58, 15, 5, 5, 17))
+  # dietfreq = data.frame(diet=dietsvec, Yes=c(345, 94, 97, 37, 1, 7, 124, 14, 58, 15, 5, 5, 17))
+  dietfreq = data.frame(diet=dietsvec, Yes=c(317, 84, 91, 34, 1, 4, 112, 13, 54, 12, 3, 5, 14))
   sum(dietfreq$Yes)
   # 819 > 682. So, some people are on more than 1 diet. 
+  # 744 > 620. So, some people are on more than 1 diet. 
 
 # Count the number of diet variables that are not NA. If 13, they are not on a specific diet. If 12, they are on 1 diet. If < 12, they are on multiple diets.
   metadata$count_na <- rowSums(is.na(metadata[, dietsvec])) # count number of NA's in the columns specified in "dietsvec".
@@ -93,6 +96,7 @@
   metadata$n_diets <- 13 - metadata$count_na
   table(metadata$n_diets)
   # So, 575 people are on 1 diet.
+  # So, 524 people are on 1 diet in filtered QCtotal.
   sum(metadata$n_diets) # Should be the same as sum(dietfreq$Yes).
   
 # -----------------------------------------------------------------------------------------------------------------
@@ -108,7 +112,7 @@
 # Select only those following 1 diet. -------------------------------------------------------------------
   metadata_a <- subset(metadata, n_diets==1)
   dim(metadata_a)
-  head(metadata_a)
+  head(metadata_a, 1)
   table(metadata_a$n_diets)  # OK
   table(metadata_a$count_na) # OK
   
@@ -126,7 +130,10 @@
   onedietfreq_name <- merge(x=onedietfreq, y=diettable, by="dietcode", all.x=T)
   sum(onedietfreq_name$Freq) # Should total to the number of individuals following one diet. 
   onedietfreq_name
-# Weight loss, diabetic, low salt are the top 3.   
+
+# Sort by Freq and show Freq and dietname next to each other.
+  onedietfreq_name[order(onedietfreq_name$Freq, decreasing=T), c(1,2,4,3)]
+  # Weight loss, diabetic, low salt are the top 3.   
 
 # Add the dietname to metadata.
   metadata_1diet <- merge(x=metadata_a, y=diettable, by="dietcode", all.x=T)
@@ -227,7 +234,6 @@
     scale_color_manual(values=colcolor) +
     theme(legend.position = "bottom")
   
-  #  
   
 # ========================================================================================
 # Scenario B: diets expected to separate more. 

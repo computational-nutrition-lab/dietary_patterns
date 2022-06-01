@@ -3,8 +3,20 @@
 # Version 1
 # Created on 05/31/2022 by Rie Sadohara
 # ========================================================================================
-
+#### CHECK IF SAVED??
   setwd("~/GitHub/dietary_patterns")
+
+# ========================================================================================
+# Load source scripts
+# ========================================================================================
+  source("lib/Food_tree_scripts/newick.tree.r")
+  source("lib/Food_tree_scripts/check.db.r")
+  source("lib/Food_tree_scripts/format.foods.r")
+  source("lib/Food_tree_scripts/filter.db.by.diet.records.r")
+  source("lib/Food_tree_scripts/make.food.tree.r")
+  source("lib/Food_tree_scripts/make.food.otu.r")
+  source("lib/Food_tree_scripts/make.fiber.otu.r")
+  source("lib/Food_tree_scripts/make.dhydrt.otu.r")
 
 # After running Scenario A in 06_load_clean_NHANES_food.R, 'eg_data/NHANES/Food_D12_FC_cc_f.txt' should have been created.
 # This has Day 1 AND Day 2 food and nutrient data and their Main.Food.Description of 
@@ -17,10 +29,8 @@
 # ========================================================================================
 # Limit to just the foods reported in your study (formatted dietrecords.txt as the input) 
 # ========================================================================================
-  wwww = read.table("eg_data/NHANES/Food_D12_FC_cc_f.txt", sep="\t", header=T)
-  dim(wwww)
-  head(wwww, 1)
-  
+# Keep only the foods reported in your study. This is already done, but need to run this 
+#  so that the data will be formatted in a compatible way to create food tree.
   FilterDbByDietRecords(food_database_fn = "eg_data/NHANES1516/processed/NHANESDatabase.txt", 
                         food_records_fn  = "eg_data/NHANES/Food_D12_FC_cc_f.txt",   # output of FormatFoods.  
                         output_fn =        "eg_data/NHANES/Food_D12_FC_cc_f_red.txt")
@@ -38,7 +48,7 @@
   head(rrr)
   # Has something ===> put this missing.txt file in addl_foods_fn argument of MakeFoodTree.
   # Empty         ===> put NULL in addl_foods_fn argument of MakeFoodTree.
-  
+
 # Create food tree with the reduced dataset (only reported foods).   
   MakeFoodTree(nodes_fn="data/Food_tree_data/NodeLabelsMCT.txt", # can use this for now. 
                addl_foods_fn = NULL, 
