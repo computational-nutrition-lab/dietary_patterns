@@ -240,32 +240,35 @@
 #  Low_salt, Low_carb, Weight_gain, GF, High_prot,Regular
 # ========================================================================================  
   
-# Take the first 20 individuals from High_prot (n=6), GF (n=4), Low_salt (n=51), weight_gain (n=12), 
-  # Low-carb (n=33).
-  highprot <- subset(metadata_1diet, dietname   == "High_prot")[1:6, "SEQN"]   
-  GF <-      subset(metadata_1diet, dietname    == "GF")[1:4, "SEQN"]   
-  lowsalt <- subset(metadata_1diet, dietname    == "Low_salt")[1:20, "SEQN"]   
-  wtgain <-  subset(metadata_1diet, dietname    == "Weight_gain")[1:12, "SEQN"]   
+# Take the first 20 individuals from High_prot (n=4), GF (n=2), Low_salt (n=20), weight_gain (n=12), 
+  # Low-carb (n=20).
+  highprot <- subset(metadata_1diet, dietname   == "High_prot")[1:4, "SEQN"]   
+  GF <-      subset(metadata_1diet, dietname    == "GF")[1:2, "SEQN"]   
+  lowsalt <- subset(metadata_1diet, dietname    == "Low_salt")[21:40, "SEQN"]   
+  wtgain  <- subset(metadata_1diet, dietname    == "Weight_gain")[1:12, "SEQN"]   
   lowcarb <- subset(metadata_1diet, dietname    == "Low_carb")[1:20, "SEQN"]   
+  lowfat  <- subset(metadata_1diet, dietname    == "Low_fat")[1:20, "SEQN"]   
   
   regulardiet <- subset(metadata, DRQSDIET == 2)[1:20, "SEQN"] # those are not following any specific diet.
   
   head(highprot,2)
   
   # Combine those
-  diffdiet82 <- data.frame( Diet = c(rep('Highprot', length(highprot)), rep('Gluten_free', length(GF)),
-                                     rep('Low_salt', length(lowsalt)), rep('Weight_gain', length(wtgain)),
-                                     rep('Low_carb', length(lowcarb)), rep('Regular', length(regulardiet))),
-                            SEQN = c(highprot, GF, lowsalt, wtgain, lowcarb, regulardiet))
-  diffdiet82
+  diffdiet98 <- data.frame( Diet = c(rep('Highprot', length(highprot)), rep('Gluten_free', length(GF)),
+                                     rep('Low_salt', length(lowsalt)),  rep('Weight_gain', length(wtgain)),
+                                     rep('Low_carb', length(lowcarb)),  rep('Low_fat', length(lowfat)), 
+                                     rep('Regular', length(regulardiet))),
+                            SEQN = c(highprot, GF, lowsalt, wtgain, lowcarb, lowfat, regulardiet))
+  diffdiet98
+  head(metadata_1diet)
   
 # ---------------------------------------------------------------------------------------------------
   # Add diet info while picking up the individuals from totalQC.
-  QCtotal_1diet <- merge(x=diffdiet82, y=QCtotal, by="SEQN", all.x=T)
+  QCtotal_1diet <- merge(x=diffdiet98, y=QCtotal, by="SEQN", all.x=T)
   head(QCtotal_1diet, 2)
   
   # Save it as an input file.
-  write.table(QCtotal_1diet, "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_82diffdiet.txt",
+  write.table(QCtotal_1diet, "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_98diffdiet.txt",
               sep="\t", quote=F)
   
   # Let's see how different those diet groups are .....  
@@ -280,53 +283,95 @@
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_STARCHY_OTHER)) + geom_boxplot() + theme_bw()
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=V_LEGUMES)) + geom_boxplot() + theme_bw()
   ggplot(QCtotal_1diet, aes(x=factor(Diet), y=D_TOTAL)) + geom_boxplot() + theme_bw()
+  ggplot(QCtotal_1diet, aes(x=factor(Diet), y=SODI)) + geom_boxplot() + theme_bw()
+  
+  # Even with the whole data, they aren't super different in terms of salt intake...
+  ggplot(metadata_1diet, aes(x=factor(dietname), y=DR1TSODI)) + geom_boxplot() + theme_bw()
   
   # ---------------------------------------------------------------------------------------------------
   # Define the sample total data with which you are going to do clustering. 
   totals_QCed_sampled <- QCtotal_1diet
   
-  # Follow the code in prep_for_clustering.    
+  # Follow the code in prep_for_clustering. 
+  # Define the input data to be used.
+  input_data <- totals_QCed_sampled
   
   #### Clustering analysis ####  
   
   
-  # Plot PC1 and PC2 and color-code individuals by their diet.
-  # Load the FC results
-  PCA_FC <- read.table("results/PCA_results/NHANES1516_totalsbyhand_FC_n82/NHANES1516_total_d12_FC_mean_QC_2_82diffdiet_input_PCs.txt",
+# Plot PC1 and PC2 and color-code individuals by their diet.
+# ---------------------------------------------------------------------------------------------------
+# Load the FC results
+  PCA_FC <- read.table("results/PCA_results/NHANES1516_totalsbyhand_FC_n98/NHANES1516_total_d12_FC_mean_QC_2_98diffdiet_input_PCs.txt",
                        sep="\t", header=T)
   head(PCA_FC,2)
+# Load the eigenvalues of the PCs too
+  eigenval_FC <- read.table("results/PCA_results/NHANES1516_totalsbyhand_FC_n98/NHANES1516_total_d12_FC_mean_QC_2_98diffdiet_PC_var_explained.txt",
+                      sep="\t", header=T)
+  head(eigenval_FC)
+  # Make percentages by x100
+  eigenval_FC$percentage <- eigenval_FC$var_explained * 100
   
-  # Plot PC1 and PC2 of the PCA results of Foof Categories.  
-  fillcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
-  colcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
+# Plot PC1 and PC2 of the PCA results of Foof Categories.  
+  fillcolor = c("darkred", "orange", "green4", "yellowgreen", "darkblue", "violet", "grey55")
+  colcolor =  c("darkred", "orange", "green4", "yellowgreen", "darkblue", "violet", "grey55")
+  shape_num = c(16,17,15,3,7,8,18)
+  
   FCbiplot <- 
     ggplot(data=PCA_FC, aes(x=PC1, y=PC2, fill=Diet, color=Diet, shape=Diet))+
-      geom_point(size=3) + 
+      geom_point(size=3.5) + 
       scale_fill_manual(values=fillcolor) +
       scale_color_manual(values=colcolor) +
+      scale_shape_manual(values=shape_num) +
+      xlab( paste("PC1 (", paste(round(eigenval_FC[1,3],1)), "%)", sep="") ) +
+      ylab( paste("PC2 (", paste(round(eigenval_FC[2,3],1)), "%)", sep="") ) +
+      theme_bw(base_size = 14) +
+      theme(aspect.ratio = 1) +
       theme(legend.position = "bottom") +
-      theme(aspect.ratio = 1)
+      theme(panel.grid.major = element_blank()) +
+      theme(panel.grid.minor = element_blank()) +
+      theme(axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+      theme(axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0) ) ) 
   FCbiplot
-  ggsave("results/PCA_results/NHANES1516_totalsbyhand_FC_n82/FCbiplot.tif", FCbiplot, device = "tiff", width = 7, height=7, dpi=250)
+  ggsave("results/PCA_results/NHANES1516_totalsbyhand_FC_n98/FCbiplot.tif", FCbiplot, device = "tiff", width = 7, height=7, dpi=250)
   
   
-  # Load the nutrient results
-  PCA_nut <- read.table("results/PCA_results/NHANES1516_totalsbyhand_nut_n82/NHANES1516_total_d12_nut_mean_QC_2_82diffdiet_input_PCs.txt",
+# ---------------------------------------------------------------------------------------------------
+# Load the nutrient results
+  PCA_nut <- read.table("results/PCA_results/NHANES1516_totalsbyhand_nut_n98/NHANES1516_total_d12_nut_mean_QC_2_98diffdiet_input_PCs.txt",
                         sep="\t", header=T)
   head(PCA_nut)
+
+# Load the eigenvalues of the PCs too
+  eigenval_nut <- read.table("results/PCA_results/NHANES1516_totalsbyhand_nut_n98/NHANES1516_total_d12_nut_mean_QC_2_98diffdiet_PC_var_explained.txt",
+                         sep="\t", header=T)
+  head(eigenval_nut)
+  # Make percentages by x100
+  eigenval_nut$percentage <- eigenval_nut$var_explained * 100  
   
-  # Plot PC1 and PC2 of the PCA results of Foof Categories.  
-  fillcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
-  colcolor = c("darkred", "orange", "darkgreen", "darkblue", "violet", "grey45")
+# Plot PC1 and PC2 of the PCA results of Foof Categories.  
+  fillcolor = c("darkred", "orange", "green4", "yellowgreen", "darkblue", "violet", "grey55")
+  colcolor =  c("darkred", "orange", "green4", "yellowgreen", "darkblue", "violet", "grey55")
+  shape_num = c(16,17,15,3,7,8,18)
+  
   nutbiplot <- 
     ggplot(data=PCA_nut, aes(x=PC1, y=PC2, fill=Diet, color=Diet, shape=Diet))+
-      geom_point(size=3) + 
+      geom_point(size=3.5) + 
       scale_fill_manual(values=fillcolor) +
       scale_color_manual(values=colcolor) +
+      scale_shape_manual(values=shape_num) +
       theme(legend.position = "bottom") +
-      theme(aspect.ratio = 1)
+      xlab( paste("PC1 (", paste(round(eigenval_nut[1,3],1)), "%)", sep="") ) +
+      ylab( paste("PC2 (", paste(round(eigenval_nut[2,3],1)), "%)", sep="") ) +
+      theme_bw(base_size = 14) +
+      theme(aspect.ratio = 1) +
+      theme(legend.position = "bottom") +
+      theme(panel.grid.major = element_blank()) +
+      theme(panel.grid.minor = element_blank()) +
+      theme(axis.title.x = element_text(margin = margin(t = 10, r = 0, b = 0, l = 0) ) ) +
+      theme(axis.title.y = element_text(margin = margin(t = 0, r = 10, b = 0, l = 0) ) ) 
   nutbiplot
-  ggsave("results/PCA_results/NHANES1516_totalsbyhand_nut_n82/nutbiplot.tif", nutbiplot, device = "tiff", width = 7, height=7, dpi=250)
+  ggsave("results/PCA_results/NHANES1516_totalsbyhand_nut_n98/nutbiplot.tif", nutbiplot, device = "tiff", width = 7, height=7, dpi=250)
   
   
 # ---------------------------------------------------------------------------------------------------  
