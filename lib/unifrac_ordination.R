@@ -150,7 +150,7 @@
     # extract Axes 1 through the specified axis
     vectors <<- allvectors[, 1:number.of.axes]
     
-    # make rownames as a column for merging.
+    # merge by the rownames.
     meta_usersdf <<- merge(x=meta.data, y=vectors, all.x=T, by="row.names", sort=FALSE)
     
     # Save as a txt file.

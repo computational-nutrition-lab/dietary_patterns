@@ -132,8 +132,13 @@
   onedietfreq_name
 
 # Sort by Freq and show Freq and dietname next to each other.
-  onedietfreq_name[order(onedietfreq_name$Freq, decreasing=T), c(1,2,4,3)]
-  # Weight loss, diabetic, low salt are the top 3.   
+  dietfreq_sorted <- onedietfreq_name[order(onedietfreq_name$Freq, decreasing=T), c(1,2,4,3)]
+  dietfreq_sorted
+  # Weight loss, diabetic, low salt are the top 3.  
+
+# Save the diet freq table as a txt file.
+  write.table(dietfreq_sorted, "eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98_dietfreqtable.txt",
+              sep="\t", row.names=F)
 
 # Add the dietname to metadata.
   metadata_1diet <- merge(x=metadata_a, y=diettable, by="dietcode", all.x=T)
@@ -143,6 +148,7 @@
   # Extract only necessary info.
   metadata_b <- metadata_1diet[, c("SEQN", "dietcode", "dietname")]
   head(metadata_b)
+  
 
 # ========================================================================================
 # Scenario A: the top most followed diets 
@@ -160,23 +166,23 @@
   regulardiet <- subset(metadata, DRQSDIET == 2)[1:20, "SEQN"] # those are not following any specific diet.
   
 # Combine those
-  diffdiet120_short <- data.frame(Weight_loss=weightloss, 
+  diffdiet_short <- data.frame(Weight_loss=weightloss, 
                             Diabetic=diabetic, 
                             Low_salt=lowsalt, 
                             Low_fat=lowfat, 
                             Low_carb=lowcarb, 
                             Regular=regulardiet)
-  diffdiet120_short
+  diffdiet_short
   
 # Create a long table out of this.
   library(reshape2)
-  diffdiet120 <- melt(diffdiet120_short)
-  colnames(diffdiet120) <- c("Diet", "SEQN")
-  head(diffdiet120)
+  diffdiet <- melt(diffdiet_short)
+  colnames(diffdiet) <- c("Diet", "SEQN")
+  head(diffdiet)
   
 # ---------------------------------------------------------------------------------------------------
 # Add diet info while picking up the individuals from totalQC.
-  QCtotal_1diet <- merge(x=diffdiet120, y=QCtotal, by="SEQN", all.x=T)
+  QCtotal_1diet <- merge(x=diffdiet, y=QCtotal, by="SEQN", all.x=T)
   head(QCtotal_1diet, 2)
 
 # Save it as an input file.
@@ -254,7 +260,7 @@
   head(highprot,2)
   
   # Combine those
-  diffdiet98 <- data.frame( Diet = c(rep('Highprot', length(highprot)), rep('Gluten_free', length(GF)),
+  diffdiet98 <- data.frame( Diet = c(rep('High_prot', length(highprot)), rep('Gluten_free', length(GF)),
                                      rep('Low_salt', length(lowsalt)),  rep('Weight_gain', length(wtgain)),
                                      rep('Low_carb', length(lowcarb)),  rep('Low_fat', length(lowfat)), 
                                      rep('Regular', length(regulardiet))),

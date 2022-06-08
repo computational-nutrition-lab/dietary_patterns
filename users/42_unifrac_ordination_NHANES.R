@@ -41,6 +41,7 @@
   library(phyloseq)
   library(ggtree)
   library(ggplot2)
+  library(SASxport)
 
 # Define ggplot2 arguments and themes first.
   theme1 <- theme_bw(base_size = 16) +
@@ -129,7 +130,7 @@
 # Perform Principal Coordinate Analysis (PCoA) with weighted unifrac distance of your food data.
 # This may take a few minutes depending on your data size.
 # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
-  ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=T) 
+  ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=F) 
 
       # If it gives a warning with Lv1 saying that:
       # In matrix(tree$edge[order(tree$edge[, 1]), ][, 2], byrow = TRUE,  :
