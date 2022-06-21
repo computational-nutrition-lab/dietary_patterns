@@ -211,19 +211,22 @@
 # Function to QC rows of 'totals' by Metadata
 # Show which has "yes" in the "Remove" column, and remove them. 
   RemoveRows <- function(data, metadata.file, output.name){
-    toberemoved <<- subset(metadata.file, Remove=="yes")
+    toberemoved <- subset(metadata.file, Remove=="yes")
     
     cat(nrow(toberemoved), "row(s) below are to be removed:", "\n")
     print(toberemoved) 
     
     # Merge the data and metadata.
-    merged <<- merge(x=data, y=metadata.file, by="UserName", all.x=T)
+    merged <- merge(x=data, y=metadata.file, by="UserName", all.x=T)
     
     # Remove the rows that have "yes" in the "Remove" column.
-    selected_data <<- subset(merged, Remove!="yes")
+    selected_data <- subset(merged, Remove!="yes")
+    
+    # Now can omit the "Remove" column.
+    selected_data_2 <- selected_data[, -which(names(selected_data) %in% "Remove")] 
     
     # Save externally.
-    write.table(selected_data, output.name, sep="\t", row.names=F, quote=F)
+    write.table(selected_data_2, output.name, sep="\t", row.names=F, quote=F)
   }
 # ---------------------------------------------------------------------------------------------------------------
 

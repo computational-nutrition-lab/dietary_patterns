@@ -12,10 +12,6 @@
 
 # Caclulate totals by occasion. - extra dataset. 
 
-# ========================================================================================
-# Load data
-# ========================================================================================
-
 # Set your working directory as to the main directory.
   Session --> Set working directory --> Choose directory.
 
@@ -23,93 +19,83 @@
   main.wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  source("lib/specify_dir_and_check_col.R")
+  source("lib/specify_dir_and_check_col.R")  
   source("lib/load_clean_ASA24.R")
-  
-# Ensure your input files have no special characters that mess up loading:
-#  "
-#  '
-#  #
-#  &
 
-# Use dietstudy data -----------------------------------------------------------
-  # Specify the directory where the data is.
-    # SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
-    
-  # Load the items
-    items <- read.table("eg_data/dietstudy/Items_to_use.txt", quote = "", sep = "\t", header = T)
-  
-  # Load the totals
-    totals <- read.table("eg_data/dietstudy/Totals_to_use.txt", sep = "\t", header = T)
+# ========================================================================================
+# Load data
+# ========================================================================================
 
-  # Come back to the main directory
-  # setwd(main.wd)  
+# Specify the directory where the data is.
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ101-105/")  
 
-# Use VVKAJ data ---------------------------------------------------------------
-  # Specify the directory where the data is.
-    SpecifyDataDirectory(directory.name = "eg_data/VVKAJ101-105/")  
+# Load your raw items data.
+  items_raw <- read.csv("VVKAJ_2021-11-09_7963_Items.csv", sep = ",", header=T) 
   
-  # Load your raw items data.
-    items_raw <- read.csv("VVKAJ_2021-11-09_7963_Items.csv", sep = ",", header=T)
-    
-    # Replace commas with space in Food_description column for further analysis.
-      items_raw$Food_Description <- gsub(pattern=', ', replacement='_', x=items_raw$Food_Description)
-      
-    # Save the items with no commas to use in other analyses.
-      write.table(items_raw, "VVKAJ_2021-11-09_7963_Items_no_commas.txt", sep="\t", row.names=F)
-      
-    # Load the items file as items.
-      items <- read.table("VVKAJ_2021-11-09_7963_Items_no_commas.txt", sep="\t", header=T)
- 
-  # Load your totals data if ready to go.
-    totals <- read.csv("VVKAJ_2021-11-09_7963_Totals.csv", sep = ",", header=T)
-    
-  # Come back to the main directory
-    setwd(main.wd)
+# Save it as a .txt file for further processing.
+  write.table(items_raw, "VVKAJ_2021-11-09_7963_Items.txt", sep="\t", row.names=F)
+  
+# Replace special characters with an underscore. Takes only .txt files as input. 
+  format.file(filename = "VVKAJ_2021-11-09_7963_Items.txt",
+              columns =  "Food_Description", 
+              outdir =   "VVKAJ_2021-11-09_7963_Items_f.txt")  # _f stands for "formatted".  
+  
+# Load the formatted Items file.
+  items_f <- read.table("VVKAJ_2021-11-09_7963_Items_f.txt", sep="\t", header=T)
+  
+# All special characters in items_f should have been replaced with an underscore.   
+  head(items_f)
 
 # ========================================================================================
 # <Optional> Use individuals_to_remove.txt to filter out users marked as Remove = yes.  
 # ========================================================================================  
 # Load your metadata that has information about which UserName(s) to remove. 
-  ind_to_rm <- read.delim("eg_data/VVKAJ101-105/individuals_to_remove.txt", header=T)
-  
-# Metadata for this purpose (ind_to_rm) should look like this:
-    #     UserName Remove
-    # 1   VVKAJ101    yes   
-    # 2   VVKAJ102    
-    # 3   VVKAJ103       
-    # 4   VVKAJ104       
-    # 5   VVKAJ105    yes
-    # 6   VVKAJ106       
-    # ... ...       ...
-  
-  # Show which has "yes" in the "Remove" column, and remove them. 
-  subset(ind_to_rm, Remove == "yes")
-      
-  # Data after QC is named as selected_data, and is saved as a text file with the specified name. 
-  RemoveRows(data=totals, metadata.file=ind_to_rm, output.name="eg_data/VVKAJ101-105/selectedtotals.txt")
-  RemoveRows(data=items,  metadata.file=ind_to_rm, output.name="eg_data/VVKAJ101-105/selecteditems.txt")
-  
-  # Load these selected data for further QC.
-  totals <- read.table("eg_data/VVKAJ101-105/selectedtotals.txt", header=T, sep="\t")
-  items <-  read.delim("eg_data/VVKAJ101-105/selecteditems.txt", header=T, sep="\t")
+  ind_to_rm <- read.delim("individuals_to_remove.txt", header=T)
 
+  ind_to_rm
+# Metadata for this purpose (ind_to_rm) has UserName and which one to be removed:
+  #     UserName Remove
+  # 1   VVKAJ101    yes   
+  # 2   VVKAJ102    
+  # 3   VVKAJ103       
+  # 4   VVKAJ104       
+  # 5   VVKAJ105    
+
+# Show which has "yes" in the "Remove" column, and remove them. 
+  subset(ind_to_rm, Remove == "yes")
+  
+# Data after QC is named as selected_data, and is saved as a text file with the specified name. 
+# This assumes the user names are in UserName column, and will print which user(s) will be removed.   
+  RemoveRows(data=items_f,  metadata.file=ind_to_rm, output.name="VVKAJ_2021-11-09_7963_Items_f_s.txt")
+  # RemoveRows(data=totals, metadata.file=ind_to_rm, output.name="eg_data/VVKAJ101-105/selectedtotals.txt")
+  
+# Load the selected data for further processing.
+  # totals <- read.table("selectedtotals.txt", header=T, sep="\t")
+  items_f_s <- read.table("VVKAJ_2021-11-09_7963_Items_f_s.txt", header=T, sep="\t")
+  
 # ========================================================================================
 # <Optional> Merge individuals' metadata to totals or items.   
 # ========================================================================================    
-
-# Use ind_metadata with the participants' gender, age, height, weight, BMI, and Waist.Circumference, etc.
   
-  # Load metadata 2
-  ind_metadata <- read.table("eg_data/dietstudy/dietstudy_metadata.txt", sep="\t", header=T)
-  ind_metadata <- read.table("eg_data/VVKAJ101-105/ind_metadata.txt", sep="\t", header=T)
+# ind_metadata has the participants' gender, age, height, weight, BMI, and Waist.Circumference, etc.
+# if desired, this individual-specific information can be added to items data.
+  
+# Load metadata 2
+  # ind_metadata <- read.table("eg_data/dietstudy/dietstudy_metadata.txt", sep="\t", header=T)
+  ind_metadata <- read.table("ind_metadata.txt", sep="\t", header=T)
+  
+# Look at what the metadata has.
   head(ind_metadata)
   
-  # Add this metadata of each participant in totals or items.
-  # 'NA' will be inserted to UserNames which are not in ind_metadata.
-  totals <- merge(x=totals, y=ind_metadata, by="UserName", all.x=T)
-  items <- merge(x=items, y=ind_metadata, by="UserName", all.x=T)
- 
+# Add this metadata of each participant in totals or items.
+# 'NA' will be inserted to UserNames which are not in ind_metadata.
+  # totals <- merge(x=totals, y=ind_metadata, by="UserName", all.x=T)
+  items_f_s_m <- merge(x=items_f_s, y=ind_metadata, by="UserName", all.x=T)
+  
+# Check that the items data and metadata are merged.
+  head(items_f_s_m)
+  
+
 # ========================================================================================
 # Generate new totals file if any edits were made to the items file. Output is called "New_totals" 
 # ======================================================================================== 
@@ -117,14 +103,14 @@
 # Some columns in the original totals will be lost... 
 
   # Use VVKAJ data. --------------------------------------------------------
-  GenerateTotals(items.data=items, User.Name='UserName', Recall.No='RecallNo')
-  
-  # Use dietstudy data. ----------------------------------------------------
-  GenerateTotals(items.data=items, User.Name='UserName', Recall.No='RecordDayNo')
+  GenerateTotals(items.data=items_f_s_m, User.Name='UserName', Recall.No='RecallNo')
   
   # The number of rows should be {No. of users x No. days}.
   dim(New_Totals)
   head(New_Totals, 2)
+  
+  
+######### JUNE 2022 REVISION GOING ON. RESUME FROM HERE. ########## 
     
 # ========================================================================================
 # Look for outliers in your totals. 
@@ -132,8 +118,8 @@
 # ======================================================================================== 
 
 # Define your totals dataset if necessary.
-  QCtotals <- totals      # imported totals
-  QCtotals <- New_Totals  # my newly generated totals
+  # QCtotals <- totals      # imported totals
+  QCtotals <- New_Totals  # totals newly generated above.
 
 # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
   QCOutliers(input.data = QCtotals, target.colname = "KCAL", min = 600, max = 5700)
@@ -158,8 +144,10 @@
       bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ]
 
 # Save as "Totals_QCed.txt"
-  write.table(QCtotals, "eg_data/VVKAJ101-105/VVKAJ_2021-11-09_7963_Totals_QCed.txt", sep="\t", quote=F, row.names=F)
+  write.table(QCtotals, "VVKAJ_2021-11-09_7963_Totals_QCed.txt", sep="\t", quote=F, row.names=F)
 # ---------------------------------------------------------------------------------------------------------------
 
   
+# Come back to the main directory if necessary.
+  setwd(main.wd)
   
