@@ -16,7 +16,7 @@
 # - columns is the name of the columns that need to be changed
 # - Output directory must include the .txt file name
 
-format.file <- function(filename, columns, outdir)
+format.file <- function(filename, columns, outfn)
   {
   data0 <- read.table(filename, 
                       sep = "\t", 
@@ -45,14 +45,14 @@ format.file <- function(filename, columns, outdir)
     } 
   
   # If want to overwrite the data, write out to file
-  write.table(data0, file=outdir, sep = "\t", quote = FALSE, row.names = FALSE)
+  write.table(data0, file=outfn, sep = "\t", quote = FALSE, row.names = FALSE)
   
   
   # # If do not want to overwrite data...
   # data1 <- data0[,c(foodcodecolname, columns)]
   # 
   # # write out to file
-  # write.table(data1, file=outdir, sep = "\t", quote = FALSE, row.names = FALSE)
+  # write.table(data1, file=outfn, sep = "\t", quote = FALSE, row.names = FALSE)
   
   }
 

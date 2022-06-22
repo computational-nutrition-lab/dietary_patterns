@@ -18,49 +18,57 @@
 # Calculate totals by hand if any correction was made in Items.
 # ========================================================================================  
 
-  GenerateTotals <- function(items.data=Items_raw, User.Name='UserName', 
-                             Recall.No='RecallNo'){
+  GenerateTotals <- function(inputfn, User.Name='UserName', 
+                             Recall.No='RecallNo', outfn){
     
-    # Get the index number of "FoodAmt" in dataframe items.data.
-    FoodAmt_Index_No  <- grep("FoodAmt", colnames(items.data)) 
-    A_DRINKS_Index_No <- grep("A_DRINKS", colnames(items.data)) 
+    # Load the input
+    items_data <- read.table(inputfn, sep="\t", header=T)
+
+    # Get the index number of "FoodAmt" and "A_DRINKS" in dataframe items_data.
+    FoodAmt_Index_No  <- grep("FoodAmt", colnames(items_data)) 
+    A_DRINKS_Index_No <- grep("A_DRINKS", colnames(items_data)) 
     
     # Subset the necessary columns.
-    Items_raw3 <<- items.data[, c(User.Name, 
-                                  Recall.No,
-                                  names(items.data)[FoodAmt_Index_No:A_DRINKS_Index_No])]
+    Items3 <- items_data[, c(User.Name, 
+                              Recall.No,
+                              names(items_data)[FoodAmt_Index_No:A_DRINKS_Index_No])]
     
     # Change column names to be recognized by the loop below. 
-    colnames(Items_raw3)[1:2] <<- c('UserName', 'RecallNo') 
+    colnames(Items3)[1:2] <- c('UserName', 'RecallNo') 
     
     # Define variables to calculate Totals for.
-    myvar <<- names(Items_raw3[, -c(1,2)])
+    myvar <- names(Items3[, -c(1,2)])
     myvar
+    
     # Create an empty list to store results.
     results <- list()
   
     # Calculate totals of each variable for each combination of User x Date x Occasion. 
     for(i in 1:length(myvar)){
       if(i==1){
-        subsetted <- Items_raw3[, c('UserName','RecallNo', myvar[i])]
+        subsetted <- Items3[, c('UserName','RecallNo', myvar[i])]
         restable <- aggregate(subsetted[, 3] ~ subsetted[, 1] + subsetted[, 2], 
                               data=subsetted, FUN = sum)
         colnames(restable) <- c('UserName', 'RecallNo', paste(myvar[i]))
         restable$User_Day <- paste(restable$UserName, restable$RecallNo, sep = "_")
         results[[i]] <- restable
-        New_Totals <<- restable
+        New_Totals <- restable
       }else if(i>1){
-        subsetted <- Items_raw3[, c('UserName','RecallNo', myvar[i])]
+        subsetted <- Items3[, c('UserName','RecallNo', myvar[i])]
         restable <- aggregate(subsetted[, 3] ~ subsetted[, 1] + subsetted[, 2], 
                               data=subsetted, FUN = sum)
         colnames(restable) <- c('UserName', 'RecallNo', paste(myvar[i]))
         restable$User_Day <- paste(restable$UserName, restable$RecallNo, sep = "_")
         restable_sub <- restable[, c(4, 3)]  # take only User_Day and means.
         results[[i]] <- restable_sub 
-        New_Totals <<- merge(New_Totals, results[[i]], by="User_Day", all=T) 
+        New_Totals <- merge(New_Totals, results[[i]], by="User_Day", all=T) 
         # all=T takes care of missing data ... inserts NA for combinations not found
       }
     }
+    
+    # Save New_Totals as a txt file specified in outfn.
+    write.table(New_Totals, file = outfn, sep = "\t", quote = FALSE, row.names = FALSE)
+    
   }
 # ---------------------------------------------------------------------------------------------------------------
 
@@ -70,7 +78,7 @@
 
 # Flag outliers in the target column and min max values, and pop out a prompt asking whether to delete 
   # the outliers or not.
-  # Whether the outliers are removed or not, the output will be a df called 'QCtotal'.
+  # Whether the outliers are removed or not, the output will be a df called 'QCtotals'.
   QCOutliers <- function(input.data, target.colname, min, max){
     temp <- input.data
     
@@ -84,20 +92,20 @@
     cat("There are", nrow(Outlier_rows), "observations with <", min, "or >", max, ". \n", sep = " ") 
     
     if(nrow(Outlier_rows) == 0){ 
-      QCtotal <<- temp
-      cat("There are no outlier rows, but the input data was renamed as QCtotal.\n",
-          nrow(QCtotal), "rows remained.\n")}
+      QCtotals <<- temp
+      cat("There are no outlier rows, but the input data was renamed as QCtotals.\n",
+          nrow(QCtotals), "rows remained.\n")}
     else{
       answer <- askYesNo("Remove?")
       if(answer==T){
-        # Save rows that are within the range of min-max as QCtotal.
-        QCtotal <<- temp[ temp[, nth_column] >= min & temp[, nth_column] <= max , ]
-        cat("Outlier rows were removed; the cleaned data is saved as an object called \"QCtotal\".\n",
-            nrow(QCtotal), "rows remained.\n")
+        # Save rows that are within the range of min-max as QCtotals.
+        QCtotals <<- temp[ temp[, nth_column] >= min & temp[, nth_column] <= max , ]
+        cat("Outlier rows were removed; the cleaned data is saved as an object called \"QCtotals\".\n",
+            nrow(QCtotals), "rows remained.\n")
       }else{
-        QCtotal <<- temp
-        cat("Outlier rows were not removed, but the input data was renamed as QCtotal.\n",
-            nrow(QCtotal), "rows remained.\n")}
+        QCtotals <<- temp
+        cat("Outlier rows were not removed, but the input data was renamed as QCtotals.\n",
+            nrow(QCtotals), "rows remained.\n")}
     }
   }
   

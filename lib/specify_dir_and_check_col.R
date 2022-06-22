@@ -35,14 +35,15 @@
 # Specify the name of the folder containing the data, ------------------------------------ 
 # and make it as a current directory.
   SpecifyDataDirectory <- function(directory.name){
-      data.folder <<- paste(main.wd, directory.name,  sep = .Platform$file.sep )  
+      data.folder <<- paste(main_wd, directory.name,  sep = .Platform$file.sep )  
       # '<<-' makes objects usable outside function
       setwd(data.folder)
       print("The data directory has been set as")
       return(data.folder)
   }
 
-
+  
+# Not needed...?
 # =========================================================================================
 # Load the data files and check the column names if check_col = TRUE.
 # resp file -------------------------------------------------------------------------------
