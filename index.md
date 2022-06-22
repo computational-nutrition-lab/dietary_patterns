@@ -86,7 +86,9 @@ Text can be **bold**, _italic_, or ~~strikethrough~~.
 
 ![Octocat](https://github.githubassets.com/images/icons/emoji/octocat.png)
 
-![Alt text](/Screenshots_tutorial/head(items_f).PNG)
+![Old Snipping tool](/Screenshots_tutorial/head(items_f).PNG)
+
+![New snipping tool](/Screenshots_tutorial/head(items_f)_newer.PNG)
 
 ### Large image
 
