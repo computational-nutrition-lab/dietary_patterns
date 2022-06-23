@@ -15,9 +15,13 @@
   main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  # source("lib/specify_dir_and_check_col.R")  
+  source("lib/specify_dir_and_check_col.R")  
+  source("lib/data_overview.R")  
   # source("lib/load_clean_ASA24.R")
   # source("lib/format.file.R")
+
+# Call color palette.
+  distinct100colors <- readRDS("lib/distinct100colors.rda")
 
 # You can come back to the main directory by:
   setwd(main_wd)
@@ -34,73 +38,128 @@
   head(items_f_s_m)
 
 # ---------------------------------------------------------------------------------------------------------------
-# Summary statistics
+# Summary statistics of one variable
 
-# for each column (variable), calculate summary statistics. If not numeric, indicate so.
-  # create a table to save results.
-  summarybox <- data.frame(Variables=names(items_f_s_m), Min=NA, FirstQu=NA, Median=NA, Mean=NA, ThirdQu=NA, Max=NA)
-  
-  input <- items_f_s_m
-  
-  for(i in 1:ncol(input)){
-    
-    ith_col <- input[, i]
-    
-    # if numeric, calculate summary stats.
-    if(is.numeric(ith_col)){
-      summarybox[i, 2] <- min(ith_col)
-      summarybox[i, 3] <- quantile(ith_col, 0.25)
-      summarybox[i, 4] <- median(ith_col)
-      summarybox[i, 5] <- mean(ith_col)
-      summarybox[i, 6] <- quantile(ith_col, 0.75)
-      summarybox[i, 7] <- max(ith_col)
-    
-    }else{
-      
-    # if not numeric, say not numeric.
-      summarybox[i, 2:7] <- "not_numeric"
-    }  
-  }
-  summarybox
+# View min, quantiles, mean, etc. for a variable in your dataset. 
+  summary(items_f_s_m$KCAL)
 
-# Save the summary information.
-  write.table(summarybox, "VVKAJ_2021-11-09_7963_Items_f_s_m_summ.txt", sep="\t", row.names=F, quote=F)
+# ---------------------------------------------------------------------------------------------------------------
+# Summary statistics of all the variables
+# Calculate minimum, 1st quantile, median, mean, 3rd quantile, max, and standard deviation
+# for each variable in the input dataframe and save as a .txt file. 
+  SummaryStats(inputdf = items_f_s_m, 
+               outfn = "VVKAJ_2021-11-09_7963_Items_f_s_m_summ.txt")
   
 # ---------------------------------------------------------------------------------------------------------------
 # Boxplot
-  
-  ######### JUNE 2022 REVISION GOING ON. RESUME FROM HERE. ########## 
-  
-  
-  
-  
-  
-# ========================================================================================
-# Load (QC-ed) ASA24 totals data
-# ========================================================================================
+# Generate a boxplot to view data distribution.
 
+# Load ggplot2 package.
+  library(ggplot2)
+  
+# Define ggpplot theme - white background, no inner grid.
+  theme_set(theme_bw(base_size = 14))
+  no_grid <- theme(panel.grid.major = element_blank(), 
+                   panel.grid.minor = element_blank())
+  
+# Boxplot of KCAL by users.
+  ggplot(items_f_s_m, aes(x=UserName, y=KCAL)) +
+    geom_boxplot() + no_grid
+
+# Boxplot of KCAL by gender.
+  ggplot(items_f_s_m, aes(x=Gender, y=KCAL)) +
+    geom_boxplot() + no_grid
+
+# ---------------------------------------------------------------------------------------------------------------
+# Scatterplot
+  
+# Scaterplot of two variables. 
+  ggplot(items_f_s_m, aes(x=TFAT, y=KCAL)) +
+    geom_point() + no_grid
+
+# Test if the two variables are correlated.
+# The output should show p-value and R correlation coefficient
+  cor.test(x=items_f_s_m$TFAT, y=items_f_s_m$KCAL)
+
+# ===============================================================================================================
+# Load and analyze (QC-ed) ASA24 totals data
+# ===============================================================================================================
+  
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ101-105/")  
+  
+# Load your QC-ed totals data to be analyzed.
+  tot_m_QCed <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed.txt", sep="\t", header=T)
+  
+# Note that each row is a total dietary intake of each user on each day. 
+  head(tot_m_QCed)
 
-# Load your totals data to be analyzed.
-  totals <- read.table(QCtotals, "VVKAJ_2021-11-09_7963_Tot_m_QCed.txt", sep="\t", header=T)
-
-
- 
 # ---------------------------------------------------------------------------------------------------------------
-# Header 2 -- explain the purpose of this subsection. 
-# Operations....
-  myfunction(arg1 = mydata)  # comment in lower case
-
-  head(mydata_analysis)
+# Summary statistics of one variable
+  SummaryStats(inputdf = tot_m_QCed, 
+               outfn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_summ.txt")
+  
+# View min, quantiles, mean, etc. for a variable in your dataset. 
+  summary(tot_m_QCed$KCAL)
   
 # ---------------------------------------------------------------------------------------------------------------
+# Boxplot
+# Generate a boxplot to view data distribution.
+  
+# Load ggplot2 package if you have not done so.
+  library(ggplot2)
+  
+# Define ggpplot theme - white background, no inner grid.
+  theme_set(theme_bw(base_size = 14))
+  no_grid <- theme(panel.grid.major = element_blank(), 
+                   panel.grid.minor = element_blank())
 
 # ---------------------------------------------------------------------------------------------------------------
-# A function or a chunk of code to do one operation. 
-  MyFunctionToRun <- function(arg.one = my_object_1, arg.two = my_object_2){
-    #dothis <<- basefunction()  # comment in lower case
-  }
-
+# Lineplot 
+  
+# Count the number of days with valid record for each user.
+  res = by(tot_m_QCed, list(tot_m_QCed$UserName), function(x){
+    c(users = unique(x$UserName),
+    recorded_days = nrow(x))
+  })
+  user_days = as.data.frame(do.call(rbind, res))
+  user_days
+  
+# Generate a vector of the users with all 3 days of data.
+  full_users <- subset(user_days, recorded_days == 3)[, "users"]
+  
+# Generate a T or F vector for each row of tot_m_QCed 
+  full_users_TF <- tot_m_QCed$UserName %in% full_users
+  
+# Take only the users whose names are in full_users
+  tot_m_QCed_full_users <- tot_m_QCed[full_users_TF, ]  # pick up only rows with 'T'.
+  
+# Lineplot with full_users. 
+  ggplot(tot_m_QCed_full_users, aes(x=as.factor(RecallNo), y=KCAL, group=UserName)) +
+    geom_path(linetype="dashed", aes(color=UserName)) +
+    geom_point(aes(color=UserName)) + 
+    xlab("Day") + # Re-annotate the X-axis label. 
+    no_grid
+  
 # ---------------------------------------------------------------------------------------------------------------
+# Boxplot of KCAL by users. This is a variation of the days, and note that
+# some users may have less number of days due to QC. 
+  ggplot(tot_m_QCed, aes(x=UserName, y=KCAL)) +
+    geom_boxplot() + no_grid
+  
+# Boxplot of KCAL by gender.
+  ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
+    geom_boxplot() + no_grid
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Scatterplot
+  
+# Scaterplot of two variables. 
+  ggplot(tot_m_QCed, aes(x=TFAT, y=KCAL)) +
+    geom_point() + no_grid
+  
+# Test if the two variables are correlated.
+# The output should show p-value and R correlation coefficient
+  cor.test(x=tot_m_QCed$TFAT, y=tot_m_QCed$KCAL)
+  
   
