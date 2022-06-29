@@ -73,13 +73,13 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot
   
-# Scaterplot of two variables. 
+# Scaterplot of two numeric variables: TFAT and KCAL. 
   ggplot(items_f_s_m, aes(x=TFAT, y=KCAL)) +
     geom_point() + no_grid
 
 # Test if the two variables are correlated.
 # The output should show p-value and R correlation coefficient
-  cor.test(x=items_f_s_m$TFAT, y=items_f_s_m$KCAL)
+  cor.test(x=items_f_s_m$TFAT, y=items_f_s_m$KCAL, method="pearson")
 
 # ===============================================================================================================
 # Load and analyze (QC-ed) ASA24 totals data
@@ -136,7 +136,7 @@
   
 # Lineplot with full_users. 
   ggplot(tot_m_QCed_full_users, aes(x=as.factor(RecallNo), y=KCAL, group=UserName)) +
-    geom_path(linetype="dashed", aes(color=UserName)) +
+    geom_line(linetype="dashed", aes(color=UserName)) +
     geom_point(aes(color=UserName)) + 
     xlab("Day") + # Re-annotate the X-axis label. 
     no_grid
