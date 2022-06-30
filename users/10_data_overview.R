@@ -117,30 +117,34 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Lineplot 
   
-# Count the number of days with valid record for each user.
-  res = by(tot_m_QCed, list(tot_m_QCed$UserName), function(x){
-    c(users = unique(x$UserName),
-    recorded_days = nrow(x))
-  })
-  user_days = as.data.frame(do.call(rbind, res))
-  user_days
+# Prepare your totals dataset for line plot - insert NA to missing combinations of UserName and RecallNo (day), 
+# and separate rows into NA's and no NAs. 
+  PrepLinePlot(inputdf= tot_m_QCed, day="RecallNo", username="UserName", 
+               all.fn=           "VVKAJ_2021-11-09_7963_Tot_m_QCed_wNA.txt",
+               full.days.only.fn="VVKAJ_2021-11-09_7963_Tot_m_QCed_fullonly.txt",
+               partial.days.only.fn="VVKAJ_2021-11-09_7963_Tot_m_QCed_partialonly.txt")
   
-# Generate a vector of the users with all 3 days of data.
-  full_users <- subset(user_days, recorded_days == 3)[, "users"]
+# Load the files.
+  tot_m_QCed_w_NA <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed_wNA.txt", sep="\t", header=T)
+  tot_m_QCed_fullonly <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed_fullonly.txt", sep="\t", header=T)
+  tot_m_QCed_partialonly <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed_partialonly.txt", sep="\t", header=T)
+
+# Make RecallNo as a factor.
+  tot_m_QCed$RecallNo <- as.factor(tot_m_QCed$RecallNo)
+  tot_m_QCed_w_NA$RecallNo <- as.factor(tot_m_QCed_w_NA$RecallNo)
+  tot_m_QCed_fullonly$RecallNo <- as.factor(tot_m_QCed_fullonly$RecallNo)
+  tot_m_QCed_partialonly$RecallNo <- as.factor(tot_m_QCed_partialonly$RecallNo)
   
-# Generate a T or F vector for each row of tot_m_QCed 
-  full_users_TF <- tot_m_QCed$UserName %in% full_users
   
-# Take only the users whose names are in full_users
-  tot_m_QCed_full_users <- tot_m_QCed[full_users_TF, ]  # pick up only rows with 'T'.
+# Plot points and lines separately.  Specify your "y" twice.
+  library(ggplot2)
+  ggplot() +
+    geom_point(tot_m_QCed,         mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName)) +
+    geom_line(tot_m_QCed_fullonly, mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName), 
+              linetype="dashed") + no_grid
   
-# Lineplot with full_users. 
-  ggplot(tot_m_QCed_full_users, aes(x=as.factor(RecallNo), y=KCAL, group=UserName)) +
-    geom_line(linetype="dashed", aes(color=UserName)) +
-    geom_point(aes(color=UserName)) + 
-    xlab("Day") + # Re-annotate the X-axis label. 
-    no_grid
   
+
 # ---------------------------------------------------------------------------------------------------------------
 # Boxplot of KCAL by users. This is a variation of the days, and note that
 # some users may have less number of days due to QC. 
