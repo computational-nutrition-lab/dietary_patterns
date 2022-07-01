@@ -38,12 +38,13 @@
   head(items_f_s_m)
 
 # ---------------------------------------------------------------------------------------------------------------
+# Summary statistics
+  
 # Summary statistics of one variable
 
 # View min, quantiles, mean, etc. for a variable in your dataset. 
   summary(items_f_s_m$KCAL)
 
-# ---------------------------------------------------------------------------------------------------------------
 # Summary statistics of all the variables
 # Calculate minimum, 1st quantile, median, mean, 3rd quantile, max, and standard deviation
 # for each variable in the input dataframe and save as a .txt file. 
@@ -61,26 +62,29 @@
   theme_set(theme_bw(base_size = 14))
   no_grid <- theme(panel.grid.major = element_blank(), 
                    panel.grid.minor = element_blank())
+  space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
+                      axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
   
 # Boxplot of KCAL by users.
   ggplot(items_f_s_m, aes(x=UserName, y=KCAL)) +
-    geom_boxplot() + no_grid
+    geom_boxplot() + no_grid + space_axes
 
 # Boxplot of KCAL by gender.
   ggplot(items_f_s_m, aes(x=Gender, y=KCAL)) +
-    geom_boxplot() + no_grid
+    geom_boxplot() + no_grid + space_axes
 
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot
   
 # Scaterplot of two numeric variables: TFAT and KCAL. 
   ggplot(items_f_s_m, aes(x=TFAT, y=KCAL)) +
-    geom_point() + no_grid
+    geom_point() + no_grid + space_axes
 
 # Test if the two variables are correlated.
 # The output should show p-value and R correlation coefficient
   cor.test(x=items_f_s_m$TFAT, y=items_f_s_m$KCAL, method="pearson")
 
+  
 # ===============================================================================================================
 # Load and analyze (QC-ed) ASA24 totals data
 # ===============================================================================================================
@@ -95,6 +99,8 @@
   head(tot_m_QCed)
 
 # ---------------------------------------------------------------------------------------------------------------
+# Summary statistics
+  
 # Summary statistics of one variable
   SummaryStats(inputdf = tot_m_QCed, 
                outfn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_summ.txt")
@@ -103,16 +109,39 @@
   summary(tot_m_QCed$KCAL)
   
 # ---------------------------------------------------------------------------------------------------------------
-# Boxplot
-# Generate a boxplot to view data distribution.
-  
-# Load ggplot2 package if you have not done so.
+# Load ggplot2 package and define theme if you have not done so.
   library(ggplot2)
   
 # Define ggpplot theme - white background, no inner grid.
   theme_set(theme_bw(base_size = 14))
   no_grid <- theme(panel.grid.major = element_blank(), 
                    panel.grid.minor = element_blank())
+  space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
+                      axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Boxplot
+# Generate a boxplot to view data distribution.
+
+# Boxplot of KCAL by users. This is a variation of the days, and note that
+# some users may have less number of days due to the QC process or missing data. 
+  ggplot(tot_m_QCed, aes(x=UserName, y=KCAL)) +
+    geom_boxplot() + no_grid + space_axes
+  
+# Boxplot of KCAL by gender.
+  ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
+    geom_boxplot() + no_grid + space_axes
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Scatterplot
+  
+# Scaterplot of two variables. 
+  ggplot(tot_m_QCed, aes(x=TFAT, y=KCAL)) +
+    geom_point() + no_grid + space_axes
+  
+# Test if the two variables are correlated.
+# The output should show p-value and R correlation coefficient
+  cor.test(x=tot_m_QCed$TFAT, y=tot_m_QCed$KCAL, method="pearson")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Lineplot 
@@ -129,7 +158,7 @@
   tot_m_QCed_fullonly <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed_fullonly.txt", sep="\t", header=T)
   tot_m_QCed_partialonly <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed_partialonly.txt", sep="\t", header=T)
 
-# Make RecallNo as a factor.
+# Make RecallNo (day) as a factor.
   tot_m_QCed$RecallNo <- as.factor(tot_m_QCed$RecallNo)
   tot_m_QCed_w_NA$RecallNo <- as.factor(tot_m_QCed_w_NA$RecallNo)
   tot_m_QCed_fullonly$RecallNo <- as.factor(tot_m_QCed_fullonly$RecallNo)
@@ -137,33 +166,10 @@
   
   
 # Plot points and lines separately.  Specify your "y" twice.
-  library(ggplot2)
   ggplot() +
     geom_point(tot_m_QCed,         mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName)) +
     geom_line(tot_m_QCed_fullonly, mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName), 
               linetype="dashed") + no_grid
-  
-  
 
-# ---------------------------------------------------------------------------------------------------------------
-# Boxplot of KCAL by users. This is a variation of the days, and note that
-# some users may have less number of days due to QC. 
-  ggplot(tot_m_QCed, aes(x=UserName, y=KCAL)) +
-    geom_boxplot() + no_grid
-  
-# Boxplot of KCAL by gender.
-  ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
-    geom_boxplot() + no_grid
-  
-# ---------------------------------------------------------------------------------------------------------------
-# Scatterplot
-  
-# Scaterplot of two variables. 
-  ggplot(tot_m_QCed, aes(x=TFAT, y=KCAL)) +
-    geom_point() + no_grid
-  
-# Test if the two variables are correlated.
-# The output should show p-value and R correlation coefficient
-  cor.test(x=tot_m_QCed$TFAT, y=tot_m_QCed$KCAL)
-  
+
   

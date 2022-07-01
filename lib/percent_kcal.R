@@ -10,15 +10,252 @@
 # ========================================================================================
 # Calculation for plotting 
 # ========================================================================================
+
+# Function to calculate the mean and SD of CARB, PROT, and TFAT.
+  CPTgramsPerUser <- function(inputfn, user.name='UserName', 
+                              recall.no='RecallNo', outfn){
+    
+    # Get index numbers for username, recallno, "CARB","PROT","TFAT", "KCAL"
+    indexno_username <- which(names(inputfn)== user.name)
+    indexno_recallno <- which(names(inputfn)== recall.no)
+    indexno_carb <-     which(names(inputfn)== "CARB")
+    indexno_prot <-     which(names(inputfn)== "PROT")
+    indexno_tfat <-     which(names(inputfn)== "TFAT")
+    
+    # Take only the relevant columns from inputfn.
+    totalssub <- inputfn[, c(indexno_username, 
+                             indexno_recallno, 
+                             indexno_carb,
+                             indexno_prot,
+                             indexno_tfat)]
+    
+    # Change the column names for the following process
+    colnames(totalssub)[1:2] <- c("UserName", "RecallNo")
+    
+    # Calc grams of macronutrients.
+    CARBmean <- aggregate(totalssub$CARB, by = list(totalssub$UserName), FUN = mean)
+    colnames(CARBmean) <- c("UserName", "CARB_mean")
+    CARBsd <- aggregate(totalssub$CARB, by = list(totalssub$UserName), FUN = sd)
+    colnames(CARBsd) <- c("UserName", "CARB_sd")
+    CARBlength <- aggregate(totalssub$CARB, by = list(totalssub$UserName), FUN = length)
+    colnames(CARBlength) <- c("UserName", "CARB_n")
+    C_length_mean <-   merge(x=CARBlength, y=CARBmean, all.x=T)
+    C_length_mean_sd <- merge(x=C_length_mean, y=CARBsd, all.x=T)
+    C_length_mean_sd$macronutrient <- "CARB"
+    
+    PROTmean <- aggregate(totalssub$PROT, by = list(totalssub$UserName), FUN = mean)
+    colnames(PROTmean) <- c("UserName", "PROT_mean")
+    PROTsd <-   aggregate(totalssub$PROT, by = list(totalssub$UserName), FUN = sd)
+    colnames(PROTsd) <- c("UserName", "PROT_sd")
+    PROTlength <- aggregate(totalssub$PROT, by = list(totalssub$UserName), FUN = length)
+    colnames(PROTlength) <- c("UserName", "PROT_n")
+    P_length_mean <-   merge(x=PROTlength, y=PROTmean, all.x=T)
+    P_length_mean_sd <- merge(x=P_length_mean, y=PROTsd, all.x=T)
+    P_length_mean_sd$macronutrient <- "PROT"
+    
+    TFATmean <- aggregate(totalssub$TFAT, by = list(totalssub$UserName), FUN = mean)
+    colnames(TFATmean) <- c("UserName", "TFAT_mean")
+    TFATsd <- aggregate(totalssub$TFAT, by = list(totalssub$UserName), FUN = sd)
+    colnames(TFATsd) <- c("UserName", "TFAT_sd")
+    TFATlength <- aggregate(totalssub$TFAT, by = list(totalssub$UserName), FUN = length)
+    colnames(TFATlength) <- c("UserName", "TFAT_n")
+    T_length_mean <-    merge(x=TFATlength, y=TFATmean, all.x=T)
+    T_length_mean_sd <- merge(x=T_length_mean, y=TFATsd, all.x=T)
+    T_length_mean_sd$macronutrient <- "TFAT"
+    T_length_mean_sd
+    
+    # Change column names for rbind
+    colnames(C_length_mean_sd)[2:4] <- c("n", "mean", "sd")
+    colnames(P_length_mean_sd)[2:4] <- c("n", "mean", "sd")
+    colnames(T_length_mean_sd)[2:4] <- c("n", "mean", "sd")
+    
+    rbound <- rbind(C_length_mean_sd, P_length_mean_sd, T_length_mean_sd)
+    CPT_g_fn <- rbound[, c(1,5,2,3,4)] # bring macronutrient to 2nd
+    
+    # Save CPT_g_fn. (fn stands for "function")
+    write.table(x=CPT_g_fn, file=outfn, sep="\t", row.names=F, quote=F)
+  }
+
+# ---------------------------------------------------------------------------------------------------------------
+
+# Function to calculate the mean % of energy intake (kcal) and SD of CARB, PROT, and TFAT.
+  CPTpctKcalPerUser <- function(inputfn, user.name='UserName', 
+                                recall.no='RecallNo', outfn){
+    
+    # Get index numbers for username, recallno, "CARB","PROT","TFAT", "KCAL"
+    indexno_username <- which(names(inputfn)== user.name)
+    indexno_recallno <- which(names(inputfn)== recall.no)
+    indexno_carb <-     which(names(inputfn)== "CARB")
+    indexno_prot <-     which(names(inputfn)== "PROT")
+    indexno_tfat <-     which(names(inputfn)== "TFAT")
+    indexno_kcal <-     which(names(inputfn)== "KCAL")
+    
+    # Take only the relevant columns from inputfn.
+    totalssub2 <- inputfn[, c(indexno_username, 
+                              indexno_recallno, 
+                              indexno_carb,
+                              indexno_prot,
+                              indexno_tfat,
+                              indexno_kcal)]
+    
+    # Change the column names for the following process
+    colnames(totalssub2)[1:2] <- c("UserName", "RecallNo")
+    
+    # % KCAL
+    # calculate calories
+    totalssub2$CARB_kcal <- totalssub2$CARB * 4
+    totalssub2$PROT_kcal <- totalssub2$PROT * 4
+    totalssub2$TFAT_kcal <- totalssub2$TFAT * 9
+    
+    # calculate kcal of each macronutrient per engergy (%)
+    totalssub2$CARB_kcal_pct <- totalssub2$CARB_kcal / totalssub2$KCAL * 100
+    totalssub2$PROT_kcal_pct <- totalssub2$PROT_kcal / totalssub2$KCAL * 100
+    totalssub2$TFAT_kcal_pct <- totalssub2$TFAT_kcal / totalssub2$KCAL * 100
+    
+    CARB_kcal_pctmean <- aggregate(totalssub2$CARB_kcal_pct, by = list(totalssub2$UserName), FUN = mean)
+    colnames(CARB_kcal_pctmean) <- c("UserName", "CARB_kcal_pct_mean")
+    CARB_kcal_pctsd <- aggregate(totalssub2$CARB_kcal_pct, by = list(totalssub2$UserName), FUN = sd)
+    colnames(CARB_kcal_pctsd) <- c("UserName", "CARB_kcal_pct_sd")
+    CARB_kcal_pctlength <- aggregate(totalssub2$CARB_kcal_pct, by = list(totalssub2$UserName), FUN = length)
+    colnames(CARB_kcal_pctlength) <- c("UserName", "CARB_kcal_pct_n")
+    C_length_mean <-   merge(x=CARB_kcal_pctlength, y=CARB_kcal_pctmean, all.x=T)
+    C_length_mean_sd <- merge(x=C_length_mean, y=CARB_kcal_pctsd, all.x=T)
+    C_length_mean_sd$macronutrient <- "CARB_kcal_pct"
+    
+    PROT_kcal_pctmean <- aggregate(totalssub2$PROT_kcal_pct, by = list(totalssub2$UserName), FUN = mean)
+    colnames(PROT_kcal_pctmean) <- c("UserName", "PROT_kcal_pct_mean")
+    PROT_kcal_pctsd <-   aggregate(totalssub2$PROT_kcal_pct, by = list(totalssub2$UserName), FUN = sd)
+    colnames(PROT_kcal_pctsd) <- c("UserName", "PROT_kcal_pct_sd")
+    PROT_kcal_pctlength <- aggregate(totalssub2$PROT_kcal_pct, by = list(totalssub2$UserName), FUN = length)
+    colnames(PROT_kcal_pctlength) <- c("UserName", "PROT_kcal_pct_n")
+    P_length_mean <-   merge(x=PROT_kcal_pctlength, y=PROT_kcal_pctmean, all.x=T)
+    P_length_mean_sd <- merge(x=P_length_mean, y=PROT_kcal_pctsd, all.x=T)
+    P_length_mean_sd$macronutrient <- "PROT_kcal_pct"
+    
+    TFAT_kcal_pctmean <- aggregate(totalssub2$TFAT_kcal_pct, by = list(totalssub2$UserName), FUN = mean)
+    colnames(TFAT_kcal_pctmean) <- c("UserName", "TFAT_kcal_pct_mean")
+    TFAT_kcal_pctsd <- aggregate(totalssub2$TFAT_kcal_pct, by = list(totalssub2$UserName), FUN = sd)
+    colnames(TFAT_kcal_pctsd) <- c("UserName", "TFAT_kcal_pct_sd")
+    TFAT_kcal_pctlength <- aggregate(totalssub2$TFAT_kcal_pct, by = list(totalssub2$UserName), FUN = length)
+    colnames(TFAT_kcal_pctlength) <- c("UserName", "TFAT_kcal_pct_n")
+    T_length_mean <-    merge(x=TFAT_kcal_pctlength, y=TFAT_kcal_pctmean, all.x=T)
+    T_length_mean_sd <- merge(x=T_length_mean, y=TFAT_kcal_pctsd, all.x=T)
+    T_length_mean_sd$macronutrient <- "TFAT_kcal_pct"
+    
+    # Change column names for rbind 
+    colnames(C_length_mean_sd)[2:4] <- c("n", "mean", "sd")
+    colnames(P_length_mean_sd)[2:4] <- c("n", "mean", "sd")
+    colnames(T_length_mean_sd)[2:4] <- c("n", "mean", "sd")
+    
+    rbound <- rbind(C_length_mean_sd, P_length_mean_sd, T_length_mean_sd)
+    CPT_kcal_fn <- rbound[, c(1,5,2,3,4)] # bring macronutrient to 2nd
+    
+    # Save CPT_kcal_fn. (fn stands for "function")
+    write.table(x=CPT_kcal_fn, file=outfn, sep="\t", row.names=F, quote=F)
+    
+  }
+  
+# --------------------------------------------------------------------------------------------------------------
+  
+  
+
+# ========================================================================================
+# Calculation for stacked barchart 
+# ========================================================================================
+
+# --------------------------------------------------------------------------------------------------------------
+# Function to calculate sd_base and sd_stacked for stacked barchart. 
+# This assumes all users (individuals) have CARB, PROT, and TFAT values.
+
+  CalcStackedSD <- function(input.df, out.fn){
+    
+    for(i in 1:length(individuals)){
+      
+      if(i == 1){
+        ith_user <- subset(input.df, UserName == individuals[i])
+        
+        # CARBmeanval <- subset(ith_user, macronutrient=="CARB_kcal_pct")[, "mean"]
+        PROTmeanval <- subset(ith_user, macronutrient=="PROT_kcal_pct")[, "mean"]
+        TFATmeanval <- subset(ith_user, macronutrient=="TFAT_kcal_pct")[, "mean"]
+        CARBsdval <- subset(ith_user, macronutrient=="CARB_kcal_pct")[, "sd"]
+        PROTsdval <- subset(ith_user, macronutrient=="PROT_kcal_pct")[, "sd"]
+        TFATsdval <- subset(ith_user, macronutrient=="TFAT_kcal_pct")[, "sd"]
+        
+        # sd values for stacked barchart. 
+        ith_user$sd_base <- c(TFATmeanval+PROTmeanval,  # carb, on top of the stacked barchart.
+                              TFATmeanval,              # prot, in the middle.
+                              0)                        # tfat, on the bottom.
+        ith_user$sd_stacked <-  c(CARBsdval+PROTmeanval+TFATmeanval,    # carb, on top of the stacked barchart.
+                                  PROTsdval+TFATmeanval,                # prot, in the middle.
+                                  TFATsdval)                            # tfat, on the bottom.
+        
+        # for i=1, make the first result dataframe. 
+        CPT_kcal_forstacked[c(i,i+1,i+2), ] <- ith_user
+        
+        print(CPT_kcal_forstacked)
+        
+      }else{
+        
+        ith_user <- subset(input.df, UserName == individuals[i])
+        
+        # CARBmeanval <- subset(ith_user, macronutrient=="CARB_kcal_pct")[, "mean"]
+        PROTmeanval <- subset(ith_user, macronutrient=="PROT_kcal_pct")[, "mean"]
+        TFATmeanval <- subset(ith_user, macronutrient=="TFAT_kcal_pct")[, "mean"]
+        CARBsdval <- subset(ith_user, macronutrient=="CARB_kcal_pct")[, "sd"]
+        PROTsdval <- subset(ith_user, macronutrient=="PROT_kcal_pct")[, "sd"]
+        TFATsdval <- subset(ith_user, macronutrient=="TFAT_kcal_pct")[, "sd"]
+        
+        # sd values for stacked barchart. 
+        ith_user$sd_base <- c(TFATmeanval+PROTmeanval,  # carb, on top of the stacked barchart.
+                              TFATmeanval,              # prot, in the middle.
+                              0)                        # tfat, on the bottom.
+        ith_user$sd_stacked <-  c(CARBsdval+PROTmeanval+TFATmeanval,    # carb, on top of the stacked barchart.
+                                  PROTsdval+TFATmeanval,                # prot, in the middle.
+                                  TFATsdval)                            # tfat, on the bottom.
+        
+        # need another value k in order to specify the correct row.
+        k = i-2
+        # for i = 2,3,4,..., combine rows with the previously made CPT_kcal_forstacked. 
+        CPT_kcal_forstacked[c(i+i+k, i+i+k+1, i+i+k+2), ] <- ith_user
+        print(CPT_kcal_forstacked)
+        
+      }
+    }
+    # Save the resultant file as .txt file.
+    write.table(x=CPT_kcal_forstacked, file = out.fn, sep="\t", row.names=F, quote=F)
+    
+  }
+
+# ---------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# OLD BELOW #########################################
+
 # ---------------------------------------------------------------------------------------------------------------
 # Calculate the mean kcal from carb/protein/fat per participant, no other factors.
 # Since this is an average of all the food items they reported, SD doesn't really make sense. 
 # (because SD will be the variability of kcal among the food items one person reported.)
+  
   CalcKcal_user <- function(){
-    # Get means (g) for each user and save as a separate dataframe. 
-    PROTsum <- aggregate(totals$PROT, by = list(totals$UserName), FUN = sum)
-    TFATsum <- aggregate(totals$TFAT, by = list(totals$UserName), FUN = sum)
-    CARBsum <- aggregate(totals$CARB, by = list(totals$UserName), FUN = sum)
+    # Get total (g) for each user and save as a separate dataframe. 
+    PROTsum <<- aggregate(totals$PROT, by = list(totals$UserName), FUN = sum)
+    TFATsum <<- aggregate(totals$TFAT, by = list(totals$UserName), FUN = sum)
+    CARBsum <<- aggregate(totals$CARB, by = list(totals$UserName), FUN = sum)
     colnames(PROTsum) <- c("UserName", "PROT_sum_g")  
     colnames(TFATsum) <- c("UserName", "TFAT_sum_g")  
     colnames(CARBsum) <- c("UserName", "CARB_sum_g")  
@@ -32,10 +269,10 @@
     temp1 <- merge(PROTsum, TFATsum, all = T)
     macronutr.sum <- merge(temp1, CARBsum, all = T)
     
-    # Add a column of mean total calories per item/user. 
+    # Add a column of summed total calories per item/user. 
     macronutr.sum$total_kcal <- macronutr.sum$PROT_sum_kcal +  
-      macronutr.sum$TFAT_sum_kcal +
-      macronutr.sum$CARB_sum_kcal 
+                                macronutr.sum$TFAT_sum_kcal +
+                                macronutr.sum$CARB_sum_kcal 
     
     # Add a column of percentage of kcal/macronutrient
     macronutr.sum$PROT_pk <- macronutr.sum$PROT_sum_kcal / macronutr.sum$total_kcal *100
@@ -43,9 +280,9 @@
     macronutr.sum$CARB_pk <- macronutr.sum$CARB_sum_kcal / macronutr.sum$total_kcal *100
     
     # Modify the dataframe structure for plotting.
-    mean.p <- macronutr.sum[, c("UserName",  "PROT_pk")]
-    mean.t <- macronutr.sum[, c("UserName",  "TFAT_pk")]
-    mean.c <- macronutr.sum[, c("UserName",  "CARB_pk")]
+    mean.p <<- macronutr.sum[, c("UserName",  "PROT_pk")]
+    mean.t <<- macronutr.sum[, c("UserName",  "TFAT_pk")]
+    mean.c <<- macronutr.sum[, c("UserName",  "CARB_pk")]
     
     # Add a column of macronutrients
     mean.p$macronutrient <- "PROT"
@@ -56,8 +293,8 @@
     colnames(mean.p)[2] <- colnames(mean.t)[2] <- colnames(mean.c)[2] <- "value"
     
     # Bind the 3 datasets
-    bound <- rbind(mean.p, mean.t, mean.c)
-    macronutr.mean.l <- bound[, c(1,3,2)] # sort columns
+    bound <<- rbind(mean.p, mean.t, mean.c)
+    macronutr.mean.l <<- bound[, c(1,3,2)] # sort columns
     
     # Check the dimention of the macronutr.mean.l (for programmers)
     # dim(macronutr.mean.l)  # l means a long table.
@@ -68,6 +305,9 @@
 # Plot stacked barcharts 
 # ========================================================================================
 
+  PROTmeans <- mean()
+  
+  
 # ---------------------------------------------------------------------------------------------------------------
 # Plot the mean kcal from carbs, protein, and fat by participant (normalized)
   NormalizedPercentKcal <- function(){
