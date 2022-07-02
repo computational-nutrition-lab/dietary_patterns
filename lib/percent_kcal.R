@@ -156,8 +156,6 @@
   }
   
 # --------------------------------------------------------------------------------------------------------------
-  
-  
 
 # ========================================================================================
 # Calculation for stacked barchart 
@@ -192,8 +190,6 @@
         # for i=1, make the first result dataframe. 
         CPT_kcal_forstacked[c(i,i+1,i+2), ] <- ith_user
         
-        print(CPT_kcal_forstacked)
-        
       }else{
         
         ith_user <- subset(input.df, UserName == individuals[i])
@@ -215,9 +211,9 @@
         
         # need another value k in order to specify the correct row.
         k = i-2
+        
         # for i = 2,3,4,..., combine rows with the previously made CPT_kcal_forstacked. 
         CPT_kcal_forstacked[c(i+i+k, i+i+k+1, i+i+k+2), ] <- ith_user
-        print(CPT_kcal_forstacked)
         
       }
     }
@@ -305,9 +301,6 @@
 # Plot stacked barcharts 
 # ========================================================================================
 
-  PROTmeans <- mean()
-  
-  
 # ---------------------------------------------------------------------------------------------------------------
 # Plot the mean kcal from carbs, protein, and fat by participant (normalized)
   NormalizedPercentKcal <- function(){

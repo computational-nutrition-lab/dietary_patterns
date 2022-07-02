@@ -52,18 +52,23 @@
                outfn = "VVKAJ_2021-11-09_7963_Items_f_s_m_summ.txt")
   
 # ---------------------------------------------------------------------------------------------------------------
-# Boxplot
-# Generate a boxplot to view data distribution.
-
-# Load ggplot2 package.
+  # Define ggplot1 themes
   library(ggplot2)
   
-# Define ggpplot theme - white background, no inner grid.
+  # Theme black and white, with the base font size 14: change if necessary.
   theme_set(theme_bw(base_size = 14))
+  
+  # No gridlines inside charts
   no_grid <- theme(panel.grid.major = element_blank(), 
                    panel.grid.minor = element_blank())
+  
+  # Insert some space between axes and axes labels. 
   space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
                       axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Boxplot
+# Generate a boxplot to view data distribution.
   
 # Boxplot of KCAL by users.
   ggplot(items_f_s_m, aes(x=UserName, y=KCAL)) +
