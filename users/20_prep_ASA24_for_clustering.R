@@ -28,7 +28,7 @@
   # Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
-  main.wd <- file.path(getwd())
+  main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
   source("lib/specify_dir_and_check_col.R")
@@ -36,60 +36,66 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Specify the directory where the data is.
-  SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
+  # SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ101-105/")
 
 # ASA24 data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Load the totals data:
-  totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
+  # totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
+  totals <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed.txt", sep = "\t", header = T)
 
 # Load the items.txt
-  items <- read.table("Items_to_use.txt", quote = "", sep = "\t", header = T)
+# items <- read.table("VVKAJ_2021-11-09_7963_Items_f_s_m.txt", quote = "", sep = "\t", header = T)
 
 # Come back to the main directory
-  setwd(main.wd)
+  setwd(main_wd)
+  
+# Define your input dataset (may not be necessary, but keeping this because I'm not
+  # sure how totals_selected are made. I think it's the same as totals_QC, though.)
+  totals_selected <- totals
 # ---------------------------------------------------------------------------------------------------------------
  
 ######## CHOOSE EITHER 1 OR 2 OF THE FOLLOWING: 1: WITHOUT AVEAGING; 2: WITH AVERAGING. #########
   
 # ---------------------------------------------------------------------------------------------------------------
-# 1. If using each dataponit as is WITHOUT AVERAGING, 
+# 1. If using each datapoint as is WITHOUT AVERAGING by users, 
 
 # Subset nutrients or food items data.
 # The columns specified as start.col, end.col, and all columns in between will be selected.
-# Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD", 64 variablees in total.
+# Nutrients analysis --> start.col = "PROT",  end.col = "B12_ADD", 64 variablees in total.
   SubsetColumns(data = totals_selected, start.col = "PROT",    end.col = "B12_ADD")  
 # Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS", 37 varialbes in total.
   SubsetColumns(data = totals_selected, start.col = "F_TOTAL", end.col = "A_DRINKS")  
 
-# pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
+# Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
   KeepNonZeroVarColumns(data = subsetted)
   # "subsetted_non0var" is the dataframe to be used in the subsequent
   # collapse by correlation procedure.
-  colnames(subsetted_non0var)
 # ---------------------------------------------------------------------------------------------------------------
   
 ######### OR #########
   
 # ---------------------------------------------------------------------------------------------------------------
-# 2. Collapse variables by correlation: take only one variables if they are highly correlated.
+# 2. If taking average of each user across all days first,
 # Specify the data to be used, category to group by, and the range of columns (variables) 
-# to calculate the means of each variables
+# to calculate the means of each variable.
 # Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD"
-  AverageBy(data = totals_selected, by = "UserName", start.col = "PROT", end.col = "B12_ADD")
+  AverageBy(data= totals_selected, by= "UserName", start.col= "PROT", end.col= "B12_ADD")
 # Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
-  AverageBy(data = totals_selected, by = "UserName", start.col = "F_TOTAL", end.col = "A_DRINKS")
+  AverageBy(data= totals_selected, by= "UserName", start.col= "F_TOTAL", end.col= "A_DRINKS")
 
-# Results are saved in this dataframe.  Probably too large to see as is.
-  meansbycategorydf
+# Save the averaged results.
+  write.table(x=meansbycategorydf, "VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_ave_clus.txt", sep="\t", row.names=F, quote=F)
+  write.table(x=meansbycategorydf, "VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_ave_clus.txt", sep="\t", row.names=F, quote=F)
 
 # The column names should be the same as start.col-end.col. 
   colnames(meansbycategorydf)
 
-# The row names should be each category entry to calculate means for.
+# The row names should be the users to calculate means for.
   rownames(meansbycategorydf)
 
-# pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
+# Pick up only the columns with non-zero variance, in order to run PCA and cluster analysis etc.
   # The removed columns will be shown if any.
   KeepNonZeroVarColumns(data = meansbycategorydf)
   
@@ -108,21 +114,45 @@
 
 # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
-# Check to see the name of the original and filtered variables. 
+# Check the name of the original and filtered variables. 
   # Among the variables in the same group, the one with the highest variance is kept 
   #  (according to the explanation above.)
   # filtered
-  head(selected_variables, 1)     
-  dim(selected_variables)     
-  
+  head(selected_variables, 1)
+  dim( selected_variables)
+
   # original
   head(subsetted_non0var, 1)
-  dim(subsetted_non0var)
+  dim( subsetted_non0var)
+
 # ---------------------------------------------------------------------------------------------------------------
+# Save the selected_variables as a .txt file. This will be the input for clustering analyses.
+
+# Make sure you give a correct name to the correct result, depending on whether nutrients or
+# foods were used, and whether data were processed as is or averages were taken. 
+  
+  # 1. If using each datapoint as is WITHOUT AVERAGING by users -- 1 row per user per each day.
+  write.table(x=selected_variables, file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_asis.txt", sep="\t", row.names=F, quote=F)
+  write.table(x=selected_variables, file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_asis.txt", sep="\t", row.names=F, quote=F)
+  
+  # 2. If taking average of each user across all days first,
+  write.table(x=selected_variables, file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_ave.txt", sep="\t", row.names=F, quote=F)
+  write.table(x=selected_variables, file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_ave.txt", sep="\t", row.names=F, quote=F)
 
 # ---------------------------------------------------------------------------------------------------------------
 # Save the correlation matrix for record in the results folder.
-# cc is the correlation matrix produced when variables are collapsed by correlation. 
-  SaveCorrMatrix(x=cc, name = "corr_matrix")
+# cc is the correlation matrix produced when variables are collapsed by correlation by using 
+# the CollapseByCorrelation function.
+  
+# Make sure you give a correct name to the correct result, depending on whether nutrients or
+  # foods were used, and whether data were processed as is or averages were taken. 
+
+  # 1. If using each datapoint as is WITHOUT AVERAGING by users -- 1 row per user per each day.
+  SaveCorrMatrix(x=cc, out.fn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_asis_corr_matrix.txt")
+  SaveCorrMatrix(x=cc, out.fn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_asis_corr_matrix.txt")
+  
+  # 2. If taking average of each user across all days first,
+  SaveCorrMatrix(x=cc, out.fn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_ave_corr_matrix.txt")
+  SaveCorrMatrix(x=cc, out.fn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_ave_corr_matrix.txt")
 # ---------------------------------------------------------------------------------------------------------------
 

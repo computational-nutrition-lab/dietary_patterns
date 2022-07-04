@@ -13,7 +13,7 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a scree plot.
 # If there are 10 or less PCs in total, plot all, and else plot the first 10 PCs. 
-  LineScreePlot <- function(pca.data = pca_input, pca.result = scaled_pca){
+  LineScreePlot <- function(pca.data = pca_input, pca.result = scaled_pca, out.dir, out.prefix){
 
     # Extract the importance of the PCs
     pca_summary <- summary(pca.result)
@@ -33,7 +33,7 @@
     }      
     # Create a scree plot.
     require(ggplot2)
-    ggplot(myPCs, aes(x = PC, y = var_explained*100)) + 
+    screep <- ggplot(myPCs, aes(x = PC, y = var_explained*100)) + 
       geom_line() + 
       geom_point() +
       scale_x_continuous(breaks = 1:nrow(myPCs)) +
@@ -45,7 +45,9 @@
       theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
       theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
       theme(aspect.ratio = 0.9)
+    
   }
+
 # ---------------------------------------------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -226,6 +228,7 @@
     # Create a dataframe that has the PCs and their importance (var explained by each PC)
     var_explained_df <<- data.frame(PC = seq(1:length(var_explained_values)),
                                    var_explained = var_explained_values)
+    
     write.table(var_explained_df, out.fn, sep = "\t", row.names = F, quote = F)
   }   
 # ---------------------------------------------------------------------------------------------------------------
@@ -251,7 +254,7 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Function to obtain PC values and save as a txt file
-  SaveInputAndPCs <- function(input, pca.results, out.fn){
+  SaveInputAndPCs <- function(input, pca.results, out.dir, out.prefix){
     
     # Define your food input file from which you derived the input for the PCA. 
     pca_input <- read.table(input, sep="\t", header=T)
@@ -272,11 +275,128 @@
       Input_PCs <<-  cbind(pca_input, PCs)
       
       # Save as a txt file.
-      write.table(Input_PCs, out.fn, sep="\t", row.names = F, quote = F)
+      write.table(Input_PCs, 
+                  paste(out.dir, paste(out.prefix, '_PCs.txt'), sep= .Platform$file.sep),
+                  sep="\t", row.names = F, quote = F)
+      
     }
   }
   
 # ---------------------------------------------------------------------------------------------------------------
+  
+# PerformPCA function to create and save PCA plots and outputs all at once.
+  PerformPCA <- function(pca.data=pca_input, pca.result=scaled_pca, out.dir, out.prefix){
+
+  # Create a scree plot.
+    screep <<- LineScreePlot(pca.data = pca_input, pca.result = scaled_pca)
+    # Save your plot 
+    ggsave( paste(out.dir, paste(out.prefix, "_scree.pdf"),   sep= .Platform$file.sep), 
+            screep, device="pdf", width=5, height=5, units="in") 
+
+  # Create a biplot.
+    # A biplot with the individuals as black dots and variables labelled.
+    biplotdots <<- BiplotDots(pca.result = scaled_pca, pca.data = pca_input, alpha = 0.5)
+    # Save your plot
+    ggsave( paste(out.dir, paste(out.prefix, "_biplotdots.pdf"), sep= .Platform$file.sep),
+            biplotdots, device="pdf", width=5, height=5, units="in")
+    
+  # Create a biplot with the individuals labeled.
+    biplotlabeled <- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label=T)
+    ggsave( paste(out.dir, paste(out.prefix, "_biplotlabeled.pdf"), sep= .Platform$file.sep),
+            biplotlabeled, device="pdf", width=5, height=5, units="in")
+    
+  # Create a biplot with the individuals labeled without the variables' arrows.
+    biplotlabeledwoarrows <<- BiplotLabeledwoArrows(pca.result=scaled_pca, pca.data=pca_input, individuals.label=T)
+    ggsave( paste(out.dir, paste(out.prefix, "_biplotlabeledwoarrows.pdf"), sep= .Platform$file.sep),
+           biplotlabeledwoarrows, device="pdf", width=5, height=5, units="in")
+
+  # Plot the directions of the variables.
+    directions <<- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label=F)
+    ggsave( paste(out.dir, paste(out.prefix, "_directions.pdf"), sep= .Platform$file.sep),
+            directions, device="pdf", width=5, height=5, units="in")
+
+  # Plot the contribution of the variables to a given PC: PC1 here.
+    loadings_plot_PC1 <<- LoadingsPlot(pca.result=scaled_pca,  whichPC="PC1",
+                 positive.color="green2", negative.color="grey70", sort.variables = T)
+    ggsave( paste(out.dir, paste(out.prefix, "_loadings_PC1.pdf"), sep= .Platform$file.sep),
+            loadings_plot_PC1, device="pdf", width=8, height=4.8, units="in")
+
+  # Plot the contribution of the variables to a given PC: PC2 here.
+    loadings_plot_PC2 <<- LoadingsPlot(pca.result=scaled_pca,  whichPC="PC2",
+                                      positive.color="green2", negative.color="grey70", sort.variables = T)
+    ggsave( paste(out.dir, paste(out.prefix, "_loadings_PC2.pdf"), sep= .Platform$file.sep),
+            loadings_plot_PC2, device="pdf", width=8, height=4.8, units="in")
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # Save the variance explained by each PC as a .txt file.
+      # Extract the importance of the PCs
+      pca_summary <- summary(pca.result)
+
+      # # Extract the Proportion of Variance
+      var_explained_values <- pca_summary[["importance"]][2, ]
+
+      # Create a dataframe that has the PCs and their importance (var explained by each PC)
+      var_explained_df <- data.frame(PC = seq(1:length(var_explained_values)),
+                                      var_explained = var_explained_values)
+
+      write.table(var_explained_df, 
+                  paste(out.dir, paste(out.prefix, '_PC_var_explained.txt'), sep= .Platform$file.sep),
+                  sep = "\t", row.names=F, quote=F)
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # Calculate loadings of each PC to the variables and save it as a txt file. 
+
+      p <- pca.result[["rotation"]]
+      p <- as.data.frame(scaled_pca[["rotation"]])
+      
+      # make a variable column. 
+      variables <- rownames(p)
+      p$Var <- variables
+      
+      # Sort the columns so that the rownames (variable names) come first
+      sortedp <- p[, c(length(colnames(p)), 1:length(colnames(p))-1)]
+      
+      write.table(sortedp, 
+                  paste(out.dir, paste(out.prefix, '_PC_loadings.txt'), sep= .Platform$file.sep),
+                  sep = "\t", row.names=F, quote=F)
+      
+   # ---------------------------------------------------------------------------------------------------------------
+   # # Probably better to run this function separately because it may be confusing as it uses the totals or averaged
+   #    # data as 'input', not the one processed for clustering (because the processed ones do not have all the variables;
+   #    # some variables are filtered out.)  
+   # 
+   #    # Obtain PC values and save as a txt file together with input file (before processing for clustering.) 
+   # 
+   #      # Define your food input file from which you derived the input for the PCA. 
+   #      pca_input <- read.table(input, sep="\t", header=T)
+   #      # This has food codes and food names.
+   #      
+   #      # extract the PCs
+   #      PCs <- as.data.frame(pca.result[["x"]]) 
+   #      
+   #      # These should have the same number of rows, so their difference should be zero.  
+   #      diff <- nrow(pca_input) - nrow(PCs)
+   #      
+   #      # Gives an error message if the input and pca.result have a different number of rows.
+   #      if(diff != 0){
+   #        
+   #        cat("Error: The input and the PCA results should have the same number of samples.")
+   #      
+   #      }else{
+   #        
+   #      # Add columns
+   #      Input_PCs <- cbind(pca_input, PCs)
+   #        
+   #      # Save as a txt file.
+   #      write.table(Input_PCs, 
+   #                  paste(out.dir, paste(out.prefix, '_input&PC.txt'), sep= .Platform$file.sep),
+   #                  sep="\t", row.names = F, quote = F)
+   #      }
+
+  }
+
+  
+  
   
   
  
