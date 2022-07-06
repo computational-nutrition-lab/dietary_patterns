@@ -39,11 +39,11 @@
 # Load example totals data =============================================================== 
 # Specify the directory where the data is.
   # SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
-  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ101-105/")
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
   
 # Load the totals data.
   # totals <- read.table("Totals_to_use.txt",  sep = "\t", header = T)
-  totals <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed.txt",  sep = "\t", header = T)
+  totals <- read.table("VVKAJ_Tot_m_QCed.txt",  sep = "\t", header = T)
  
 # # Come back to the main directory
 #   setwd(main_wd)
@@ -51,16 +51,16 @@
 # --------------------------------------------------------------------------------------------------------------
 # Calculate the mean and SD of CARB, PROT, and TFAT.
  CPTgramsPerUser(inputfn= totals, user.name = "UserName", recall.no = "RecallNo",
-                 outfn='VVKAJ_2021-11-09_7963_Tot_m_QCed_CPT_g.txt')
+                 outfn='VVKAJ_Tot_m_QCed_CPT_g.txt')
 # Not used in the visualization below, but you may want to take a look at it.
 
  
 # Calculate the mean % of energy intake (kcal) and SD of CARB, PROT, and TFAT.
  CPTpctKcalPerUser(inputfn=totals, user.name='UserName', recall.no='RecallNo', 
-                   outfn="VVKAJ_2021-11-09_7963_Tot_m_QCed_CPT_kcal.txt")
+                   outfn="VVKAJ_Tot_m_QCed_CPT_kcal.txt")
  
 # Load the %kcal 
- CPT_kcal <- read.table("VVKAJ_2021-11-09_7963_Tot_m_QCed_CPT_kcal.txt", sep="\t", header=T)
+ CPT_kcal <- read.table("VVKAJ_Tot_m_QCed_CPT_kcal.txt", sep="\t", header=T)
  CPT_kcal
 
 # --------------------------------------------------------------------------------------------------------------
@@ -76,6 +76,9 @@
 # Insert some space between axes and axes labels. 
   space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
                       axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
+
+# Rotate the X axis labels 45 degrees for visibility.   
+  rotate_X_labels <- theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1) )
  
 # --------------------------------------------------------------------------------------------------------------
 # Plot a barchart without SD. 
@@ -123,17 +126,20 @@
   
 # Load the saved file that has SD for stacked barchart.
   CPT_kcal_forstacked_read <- read.table("CPT_kcal_forstacked.txt", sep="\t", header=T)
-  CPT_kcal_forstacked_read
+  CPT_kcal_forstacked_read_1 <- CPT_kcal_forstacked_read[1:15, ] 
+  CPT_kcal_forstacked_read_2 <- CPT_kcal_forstacked_read[16:30, ]
+  CPT_kcal_forstacked_read_3 <- rbind(CPT_kcal_forstacked_read_2, CPT_kcal_forstacked_read_1) 
   
 # Stacked barchart with SD as error bars.
-  ggplot(CPT_kcal_forstacked_read, aes(x = UserName, y = mean, fill=macronutrient, colour=macronutrient)) + 
+  ggplot(CPT_kcal_forstacked_read_3, aes(x = UserName, y = mean, fill=macronutrient, colour=macronutrient)) + 
     geom_bar(stat = "identity", position = "stack", colour = "black", width = 0.7)  +
     geom_errorbar(aes(ymin= mean+sd_base, ymax= mean+sd_stacked), width = 0.15, color="grey10") + 
-    scale_fill_manual(values = distinct100colors,
-                      labels=c( "Carbohydrates", "Protein", "Total fat")) +
+    # scale_fill_manual(values = distinct100colors,
+    # labels=c( "Carbohydrates", "Protein", "Total fat")) +
     scale_y_continuous(limits=c(0,110), breaks= seq(from=20,to=100,by=20)) +
     labs(x= element_blank(), y= "Percentages of total kcal intake", fill = "Macronutrients") +
     no_grid + space_axes +
     theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1)) 
- 
+
+#### The error bar of CARB of VVKAJ107 is not shown! WHY??????    
  

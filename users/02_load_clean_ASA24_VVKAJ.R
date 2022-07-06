@@ -32,26 +32,27 @@
 
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ101-105/")  
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
 
 # Load your raw items data.
-  items_raw <- read.csv("VVKAJ_2021-11-09_7963_Items.csv", sep = ",", header=T) 
+  items_raw <- read.csv("VVKAJ_Items.csv", sep = ",", header=T) 
   
 # Save it as a .txt file for further processing.
-  write.table(items_raw, "VVKAJ_2021-11-09_7963_Items.txt", sep="\t", row.names=F)
+  write.table(items_raw, "VVKAJ_Items.txt", sep="\t", row.names=F)
   
 # Special characters such as "'", ",", "%" may interfere correct data loading; thus,
 # we replace them with an underscore "_".  Takes only .txt files as input. 
 # Specify column(s) to be processed in the "columns" argument.
-  format.file(filename = "VVKAJ_2021-11-09_7963_Items.txt",
+  format.file(filename = "VVKAJ_Items.txt",
               columns  = "Food_Description", 
-              outfn    = "VVKAJ_2021-11-09_7963_Items_f.txt")  # _f stands for "formatted".  
+              outfn    = "VVKAJ_Items_f.txt")  # _f stands for "formatted".  
   
 # Load the formatted Items file.
-  items_f <- read.table("VVKAJ_2021-11-09_7963_Items_f.txt", sep="\t", header=T)
+  items_f <- read.table("VVKAJ_Items_f.txt", sep="\t", header=T)
   
 # All special characters in items_f should have been replaced with an underscore.   
   head(items_f)
-  
+
 # Ensure your items file has the expected dimensions (number of rows x number of columns,
 # shown as number of obs. and number of variables) in the environment window of R Studio.
   
@@ -65,11 +66,11 @@
   ind_to_rm
   # Metadata for this purpose (ind_to_rm) has UserName and which one to be removed:
   #     UserName Remove
-  # 1   VVKAJ101    yes   
+  # 1   VVKAJ101       
   # 2   VVKAJ102    
-  # 3   VVKAJ103       
-  # 4   VVKAJ104       
-  # 5   VVKAJ105    
+  # ... ...        
+  # ... ...        
+  # 11  VVKAJ111   yes 
 
 # Show which has "yes" in the "Remove" column, and remove them. 
   subset(ind_to_rm, Remove == "yes")
@@ -77,10 +78,10 @@
 # Remove the specified individuals.  
 # The output will be saved as a text file with the specified name. 
 # This assumes the usernames are in UserName column, and will print which user(s) will be removed.   
-  RemoveRows(data=items_f,  metadata.file=ind_to_rm, output.name="VVKAJ_2021-11-09_7963_Items_f_s.txt")
+  RemoveRows(data=items_f,  metadata.file=ind_to_rm, output.name="VVKAJ_Items_f_s.txt")
   
 # Load the output for further processing.
-  items_f_s <- read.table("VVKAJ_2021-11-09_7963_Items_f_s.txt", header=T, sep="\t")
+  items_f_s <- read.table("VVKAJ_Items_f_s.txt", header=T, sep="\t")
   
 # Show unique usernames in items_f_s and confirm "VVKAJ101" has been removed.
   unique(items_f_s$UserName)  
@@ -106,7 +107,7 @@
   head(items_f_s_m)
   
 # Save the merged dataframe as a .txt file.
-  write.table(items_f_s_m, "VVKAJ_2021-11-09_7963_Items_f_s_m.txt", sep="\t", row.names=F, quote=F)
+  write.table(items_f_s_m, "VVKAJ_Items_f_s_m.txt", sep="\t", row.names=F, quote=F)
 
 # ========================================================================================
 # Generate new totals file if any edits were made to the items file. 
@@ -114,13 +115,13 @@
 
 # Use one of the input files saved above as an input for calculating totals for.
 # Specify which columns have usernames and Recall.No., which is the number of recorded days. 
-  GenerateTotals(inputfn = "VVKAJ_2021-11-09_7963_Items_f_s_m.txt", 
+  GenerateTotals(inputfn = "VVKAJ_Items_f_s_m.txt", 
                  User.Name = 'UserName', 
                  Recall.No = 'RecallNo',
-                 outfn = "VVKAJ_2021-11-09_7963_Tot.txt")
+                 outfn = "VVKAJ_Tot.txt")
 
 # Load the total file generated above.
-  new_totals <- read.table("VVKAJ_2021-11-09_7963_Tot.txt", header=T, sep="\t")
+  new_totals <- read.table("VVKAJ_Tot.txt", header=T, sep="\t")
 
 # The number of rows should be {No. of users x No. days}.
 # In this case, 4 users x 3 days = 12 rows (observations).
@@ -146,9 +147,7 @@
 # dietary data of the same participant, VVKAJ102.
   
 # Save the merged dataframe as a .txt file.
-  write.table(new_totals_m, "VVKAJ_2021-11-09_7963_Tot_m.txt", sep="\t", row.names=F, quote=F)
-  
-
+  write.table(new_totals_m, "VVKAJ_Tot_m.txt", sep="\t", row.names=F, quote=F)
 
 
 # ========================================================================================
@@ -158,7 +157,7 @@
 # Note that input object (QCtotals) will be overwritten after outlier removal.
   
 # Load your totals if necessary - to be used as input for QC.
-  new_totals <- read.table("VVKAJ_2021-11-09_7963_Tot_m.txt", sep="\t", header=T)
+  new_totals <- read.table("VVKAJ_Tot_m.txt", sep="\t", header=T)
     
 # Define your totals dataset to be used as input.
   QCtotals <- new_totals  
@@ -192,10 +191,9 @@
       BCAR_outliers[order(BCAR_outliers$BCAR, decreasing = T), c('UserName', 'KCAL', 'BCAR')] 
 
 # Save as "Totals_QCed.txt"
-  write.table(QCtotals, "VVKAJ_2021-11-09_7963_Tot_m_QCed.txt", sep="\t", quote=F, row.names=F)
-# ---------------------------------------------------------------------------------------------------------------
-
+  write.table(QCtotals, "VVKAJ_Tot_m_QCed.txt", sep="\t", quote=F, row.names=F)
   
-# Come back to the main directory if necessary.
-  setwd(main.wd)
+# ---------------------------------------------------------------------------------------------------------------
+# Come back to the main directory before you start running another script.
+  setwd(main_wd)
   

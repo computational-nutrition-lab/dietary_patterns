@@ -154,5 +154,8 @@
   # 2. If taking average of each user across all days first,
   SaveCorrMatrix(x=cc, out.fn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_ave_corr_matrix.txt")
   SaveCorrMatrix(x=cc, out.fn = "VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_ave_corr_matrix.txt")
-# ---------------------------------------------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------------------------------------------
+# Come back to the main directory before you start running another script.
+  setwd(main_wd)
+  
