@@ -45,9 +45,6 @@
   # totals <- read.table("Totals_to_use.txt",  sep = "\t", header = T)
   totals <- read.table("VVKAJ_Tot_m_QCed.txt",  sep = "\t", header = T)
  
-# # Come back to the main directory
-#   setwd(main_wd)
-
 # --------------------------------------------------------------------------------------------------------------
 # Calculate the mean and SD of CARB, PROT, and TFAT.
  CPTgramsPerUser(inputfn= totals, user.name = "UserName", recall.no = "RecallNo",
@@ -59,7 +56,7 @@
  CPTpctKcalPerUser(inputfn=totals, user.name='UserName', recall.no='RecallNo', 
                    outfn="VVKAJ_Tot_m_QCed_CPT_kcal.txt")
  
-# Load the %kcal 
+# Load the %kcal values 
  CPT_kcal <- read.table("VVKAJ_Tot_m_QCed_CPT_kcal.txt", sep="\t", header=T)
  CPT_kcal
 
@@ -89,7 +86,6 @@
                       labels=c( "Carbohydrates", "Protein", "Total fat")) +
     labs(x= element_blank(), y= "Percentages of total kcal intake", fill = "Macronutrients") +
     # Specify the y axis breaks.
-    scale_y_continuous(limits=c(0,110), breaks= seq(from=20,to=100,by=20)) +
     no_grid + space_axes +
     # Specify the font size and angle of xlabel.  
     theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1)) 
@@ -109,7 +105,6 @@
  
 # --------------------------------------------------------------------------------------------------------------
 # Using CPT_kcal, create a stacked barchart.  
-  CPT_kcal_forstacked_read
   
 # Create a vector that contains all the users (individuals). 
   individuals <- unique(CPT_kcal$UserName)
@@ -131,15 +126,19 @@
   CPT_kcal_forstacked_read_3 <- rbind(CPT_kcal_forstacked_read_2, CPT_kcal_forstacked_read_1) 
   
 # Stacked barchart with SD as error bars.
-  ggplot(CPT_kcal_forstacked_read_3, aes(x = UserName, y = mean, fill=macronutrient, colour=macronutrient)) + 
+  ggplot(CPT_kcal_forstacked_read, aes(x = UserName, y = mean, fill=macronutrient, colour=macronutrient)) + 
     geom_bar(stat = "identity", position = "stack", colour = "black", width = 0.7)  +
     geom_errorbar(aes(ymin= mean+sd_base, ymax= mean+sd_stacked), width = 0.15, color="grey10") + 
-    # scale_fill_manual(values = distinct100colors,
-    # labels=c( "Carbohydrates", "Protein", "Total fat")) +
-    scale_y_continuous(limits=c(0,110), breaks= seq(from=20,to=100,by=20)) +
+    scale_fill_manual(values = distinct100colors,
+    labels=c( "Carbohydrates", "Protein", "Total fat")) +
     labs(x= element_blank(), y= "Percentages of total kcal intake", fill = "Macronutrients") +
     no_grid + space_axes +
     theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1)) 
+  
+# Change the Y axis scale if necessary. Note that if error bars of Carbohydrates disappear after 
+# changing the limits of Y axis, that may be because the error bars are higher than the max Y.
+# Ensure you have enough max value for the Y axis.  
 
-#### The error bar of CARB of VVKAJ107 is not shown! WHY??????    
- 
+# Come back to the main directory
+  setwd(main_wd)
+  

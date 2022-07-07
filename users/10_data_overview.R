@@ -127,7 +127,6 @@
                    panel.grid.minor = element_blank())
   space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
                       axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
-  
   rotate_X_labels <- theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1) )
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -176,7 +175,7 @@
   tot_m_QCed_partialonly$RecallNo <- as.factor(tot_m_QCed_partialonly$RecallNo)
 
 # Plot points and lines separately.  Specify your "y" twice.
-# The geom_line function only connects individuals with all days of data.
+# The geom_line function only connects the data of individuals with all days of data.
   ggplot() +
     geom_point(tot_m_QCed,          mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName)) +
     geom_line( tot_m_QCed_fullonly, mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName), 

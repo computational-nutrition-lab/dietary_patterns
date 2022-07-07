@@ -30,23 +30,28 @@
   setwd("~/GitHub/dietary_patterns")
 
 # Name your main directory for future use. 
-  main.wd <- file.path(getwd())
+  main_wd <- file.path(getwd())
+  
+# Come back to the main directory
+  setwd(main_wd) 
 
 # Import source code to run the analyses to follow.
   # source("lib/specify_dir_and_check_col.R")
   # source("lib/prep_data_for_clustering.R")
-  source("../../lib/PCA.R")
+  source("lib/PCA.R")
 
 # Define ggplot themes to use in creating plots.
   library(ggplot2)
   ggplot2::theme_set(theme_bw(base_size = 14))
 
-# ========================================================================================
-# Load your data and perform PCA.
-# ========================================================================================
-
+# Specify the directory where the data is.
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
+  
+# ===============================================================================================================
 # Nutrient data as is, processed for clustering analyses.
-  Tot_m_QCed_Nut_asis <- read.table(file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_asis.txt", sep="\t", header=T)
+# ===============================================================================================================
+
+  Tot_m_QCed_Nut_asis <- read.table(file="VVKAJ_Tot_m_QCed_Nut_asis.txt", sep="\t", header=T)
     
 # Name your input data.
   pca_input <- Tot_m_QCed_Nut_asis
@@ -67,15 +72,17 @@
   PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir, out.prefix= res_prefix )
   
 # Combine the input (totals before processing) with all the variables and the PC results. 
-  SaveInputAndPCs(input="VVKAJ_2021-11-09_7963_Tot_m_QCed.txt", pca.results = scaled_pca, 
+  SaveInputAndPCs(input="VVKAJ_Tot_m_QCed.txt", pca.results = scaled_pca, 
                   out.dir= res_dir, out.prefix= res_prefix)
 
 # Note that even though the input file has both nutrients (Nut) and food categories (Cat) data,  
 # PCA was done with only either Nut or Cat, not both.
-
-# ---------------------------------------------------------------------------------------------------------------  
+  
+# ===============================================================================================================
 # Nutrient data averaged and processed for clustering analyses.
-  Tot_m_QCed_Nut_ave <- read.table(file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_ave.txt", sep="\t", header=T)
+# ===============================================================================================================
+  
+  Tot_m_QCed_Nut_ave <- read.table(file="VVKAJ_Tot_m_QCed_Nut_ave.txt", sep="\t", header=T)
   
 # Name your input data.
   pca_input <- Tot_m_QCed_Nut_ave
@@ -96,17 +103,16 @@
 # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
   PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir, out.prefix= res_prefix)
   
-# Combine the input (totals before processing) with all the variables and the PC results. 
-  SaveInputAndPCs(input="VVKAJ_2021-11-09_7963_Tot_m_QCed_Nut_ave_clus.txt", pca.results = scaled_pca, 
+# Combine the input (totals before processing) with all the variables and the PC results.
+# In the case of aveaged totals data / user, the input file used here is xxx_ave_allvar.txt, which 
+# has all the variables before filtering out by correlation or zero variance.
+  SaveInputAndPCs(input="VVKAJ_Tot_m_QCed_Nut_ave_allvar.txt", pca.results = scaled_pca, 
                   out.dir= res_dir, out.prefix= res_prefix)
-  # Warning messages:
-  # 1: Removed 6 row(s) containing missing values (geom_path). 
-  # 2: Removed 6 rows containing missing values (geom_point). 
-  ### WHY?????????????????
-  
-# ---------------------------------------------------------------------------------------------------------------  
+
+# ===============================================================================================================
 # Food Category data as is, processed for clustering analyses.
-  Tot_m_QCed_Cat_asis <- read.table(file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_asis.txt", sep="\t", header=T)
+# ===============================================================================================================
+  Tot_m_QCed_Cat_asis <- read.table(file="VVKAJ_Tot_m_QCed_Cat_asis.txt", sep="\t", header=T)
   
   # Name your input data.
   pca_input <- Tot_m_QCed_Cat_asis
@@ -127,15 +133,16 @@
   PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir, out.prefix= res_prefix )
   
   # Combine the input (totals before processing) with all the variables and the PC results. 
-  SaveInputAndPCs(input="VVKAJ_2021-11-09_7963_Tot_m_QCed.txt", pca.results = scaled_pca, 
+  SaveInputAndPCs(input="VVKAJ_Tot_m_QCed.txt", pca.results = scaled_pca, 
                   out.dir= res_dir, out.prefix= res_prefix)
   
   # Note that even though the input file has both Nutrients (Nut) and food categories (Cat) data,  
   # PCA was done with only either Nut or Cat, not both.
   
-# ---------------------------------------------------------------------------------------------------------------  
+# ===============================================================================================================
 # Food category data averaged and processed for clustering analyses.
-  Tot_m_QCed_Cat_ave <- read.table(file="VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_ave.txt", sep="\t", header=T)
+# ===============================================================================================================
+  Tot_m_QCed_Cat_ave <- read.table(file="VVKAJ_Tot_m_QCed_Cat_ave_subset.txt", sep="\t", header=T)
   
   # Name your input data.
   pca_input <- Tot_m_QCed_Cat_ave
@@ -156,26 +163,20 @@
   # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
   PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir, out.prefix= res_prefix)
   
-  # Warning messages:
-  # 1: Removed 6 row(s) containing missing values (geom_path). 
-  # 2: Removed 6 rows containing missing values (geom_point). 
-  ### WHY?????????????????
-  
   # Combine the input (totals before processing) with all the variables and the PC results. 
-  SaveInputAndPCs(input="VVKAJ_2021-11-09_7963_Tot_m_QCed_Cat_ave_clus.txt", pca.results = scaled_pca, 
+  # In the case of aveaged totals data / user, the input file used here is xxx_ave_allvar.txt, which 
+  # has all the variables before filtering out by correlation or zero variance.
+  SaveInputAndPCs(input="VVKAJ_Tot_m_QCed_Cat_ave_allvar.txt", pca.results = scaled_pca, 
                   out.dir= res_dir, out.prefix= res_prefix)  
-  
-  # But this one doesn't include the users names.. need to fix that. 
-  
- 
-  #
-  
-  
-  
-   
-# ========================================================================================
+
+# ===============================================================================================================
+# Come back to the main directory
+  setwd(main_wd) 
+
+
+# ===============================================================================================================
 # Code to create and make adjustments to each plot/file, if desired.
-# ========================================================================================
+# ===============================================================================================================
 
 # You can specify different directory and prefix to avoid overwriting files 
 # produced by the PerformPCA function. 
