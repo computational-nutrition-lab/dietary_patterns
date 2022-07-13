@@ -46,6 +46,8 @@
 # ========================================================================================
 # Load source scripts
 # ========================================================================================
+  source("lib/specify_dir_and_check_col.R")
+  
   source("lib/Food_tree_scripts/newick.tree.r")
   source("lib/Food_tree_scripts/check.db.r")
   source("lib/Food_tree_scripts/format.foods.r")
@@ -75,6 +77,8 @@
 
 
 # ---------------------------------------------------------------------------------------------------------------
+# Generate a food tree with the whole ASA24 database. 
+  
 # Come back to the main directory for now.
   setwd(main_wd)   
   
@@ -84,49 +88,65 @@
                food_database_fn="data/Food_tree_data/ASA24Database.txt", 
                addl_foods_fn= c("data/Food_tree_data/Soylent_codes_formatted.txt"), 
                num.levels = 4,  # How many levels of foods to be classified
-               output_taxonomy_fn = "results/Food_tree_ASA24/mct_Lv4.taxonomy.txt",  # Name your output taxonomy file
-               output_tree_fn=      "results/Food_tree_ASA24/mct_Lv4.tree.nwk"       # Name your output tree
+               output_taxonomy_fn = "results/Food_tree_ASA24/ASA24_Lv4.taxonomy.txt",  # Name your output taxonomy file
+               output_tree_fn=      "results/Food_tree_ASA24/ASA24_Lv4.tree.nwk"       # Name your output tree
                )
 
 # ---------------------------------------------------------------------------------------------------------------
+# Generate a food tree with your own items dataset. 
+  
 # Specify the directory where the data is again.
-  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/Foodtree")
   
 # Limit to just the foods reported in your study (formatted dietrecords.txt as the input)
-  FilterDbByDietRecords(food_database_fn = "../../data/Food_tree_data/ASA24Database.txt", 
-                        food_records_fn  = "Foodtree/VVKAJ_Items_f_s_m_ff.txt",   # output of FormatFoods above.
-                        output_fn        = "Foodtree/VVKAJ_Items_f_s_m_ff_database.txt")
+  FilterDbByDietRecords(food_database_fn = "../../../data/Food_tree_data/ASA24Database.txt", 
+                        food_records_fn  = "VVKAJ_Items_f_s_m_ff.txt",   # output of FormatFoods above.
+                        output_fn        = "VVKAJ_Items_f_s_m_ff_database.txt")
   
 # make a food tree with the reduced data.
-  MakeFoodTree(nodes_fn=         "../../data/Food_tree_data/NodeLabelsMCT.txt", 
-               food_database_fn= "Foodtree/VVKAJ_Items_f_s_m_ff_database.txt",    # output for FilterDbByDietRecords above.
+  MakeFoodTree(nodes_fn=         "../../../data/Food_tree_data/NodeLabelsMCT.txt", 
+               food_database_fn= "VVKAJ_Items_f_s_m_ff_database.txt",    # output for FilterDbByDietRecords above.
                addl_foods_fn   = NULL, 
-               num.levels      = 2,
-               output_taxonomy_fn = "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.tax.txt",
-               output_tree_fn=      "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.tree.nwk" 
+               num.levels      = 3,
+               output_taxonomy_fn = "VVKAJ_Items_f_s_m_ff_reduced_3Lv.tax.txt",
+               output_tree_fn=      "VVKAJ_Items_f_s_m_ff_reduced_3Lv.tree.nwk" 
                )
   
+# ---------------------------------------------------------------------------------------------------------------
+# Generate standard, grams of fiber, and dehydrated grams per kcal OTU tables to be used later.
 # Make the standard food otu table with data in gram weights of food.
-  MakeFoodOtu(food_records_fn=  "Foodtree/VVKAJ_Items_f_s_m_ff.txt", 
+  MakeFoodOtu(food_records_fn=  "VVKAJ_Items_f_s_m_ff.txt", 
               food_record_id =  "UserName",                       # Specify the ID of your participants
-              food_taxonomy_fn= "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.tax.txt",  # Specify your taxonomy file produced by MakeFoodTree.
-              output_fn =       "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.food.otu.txt")  # Name your output otu file.
+              food_taxonomy_fn= "VVKAJ_Items_f_s_m_ff_reduced_3Lv.tax.txt",  # Specify your taxonomy file produced by MakeFoodTree.
+              output_fn =       "VVKAJ_Items_f_s_m_ff_reduced_3Lv.food.otu.txt")  # Name your output otu file.
   
 # Make a food otu table with data in grams of fiber per food
-  MakeFiberOtu(food_records_fn=  "Foodtree/VVKAJ_Items_f_s_m_ff.txt", 
+  MakeFiberOtu(food_records_fn=  "VVKAJ_Items_f_s_m_ff.txt", 
                food_record_id=   "UserName", 
-               food_taxonomy_fn= "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.tax.txt", 
-               output_fn=        "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.fiber.otu.txt")
+               food_taxonomy_fn= "VVKAJ_Items_f_s_m_ff_reduced_3Lv.tax.txt", 
+               output_fn=        "VVKAJ_Items_f_s_m_ff_reduced_3Lv.fiber.otu.txt")
   
-# Make a food otu table as dehydrated grams per kcal
-  MakeDhydrtOtu(food_records_fn=  "Foodtree/VVKAJ_Items_f_s_m_ff.txt", 
+# Make a food otu table as dehydrated grams per kcal.
+  MakeDhydrtOtu(food_records_fn=  "VVKAJ_Items_f_s_m_ff.txt", 
                 food_record_id =  "UserName", 
-                food_taxonomy_fn= "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.tax.txt", 
-                output_fn =       "Foodtree/VVKAJ_Items_f_s_m_ff_reduced_2Lv.dhydrt.otu.txt")
+                food_taxonomy_fn= "VVKAJ_Items_f_s_m_ff_reduced_3Lv.tax.txt", 
+                output_fn =       "VVKAJ_Items_f_s_m_ff_reduced_3Lv.dhydrt.otu.txt")
   
 # ---------------------------------------------------------------------------------------------------------------
 
+
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    
 ########## BELOW IS OLD, MCT VERSEION OF IT. ############
   
   # ========================================================================================

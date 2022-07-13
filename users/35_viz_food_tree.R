@@ -4,13 +4,12 @@
 # Created on 03/15/2022 by Rie Sadohara
 # ========================================================================================
 
-# ========================================================================================
-# 
-# ========================================================================================
-# 
 # ---------------------------------------------------------------------------------------------------------------
 # use this working directory until this script is complete. 
   setwd("~/GitHub/dietary_patterns")
+
+# Load the functions necessary to set directories.
+  source("lib/specify_dir_and_check_col.R")
 
   # Folder structure 
   # 
@@ -31,47 +30,49 @@
   Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
-  main.wd <- file.path(getwd())
+  main_wd <- file.path(getwd())
 
   
 # ========================================================================================
-# Load source scripts
+# Load source scripts for visualizing food trees.
 # ========================================================================================
   source("lib/viz_food_tree.r")
   
 # ---------------------------------------------------------------------------------------------------------------
 # Load your ggtree object. 
-  tree <- read.tree("results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
-  tree <- read.tree("results/Food_tree_ASA24/mct_Lv2.tree.nwk")
-  tree <- read.tree("results/Food_tree_ASA24/mct.reduced_1Lv.tree.nwk")
-  
-  # VVKAJ
-  tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_2Lv.tree.nwk")
-  tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_1Lv.tree.nwk")
+    tree <- read.tree("results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
+    tree <- read.tree("results/Food_tree_ASA24/mct_Lv2.tree.nwk")
+    tree <- read.tree("results/Food_tree_ASA24/mct.reduced_1Lv.tree.nwk")
+    
+    # VVKAJ
+    tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_2Lv.tree.nwk")
+    tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_1Lv.tree.nwk")
+    
+  # VVKAJ_NEW!!
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/Foodtree")
+  tree <- read.tree("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.nwk")
   tree
   
-  # NHANES
-  tree <- read.tree("results/Food_tree_NHANES/NHANES1516.reduced_Lv1.tree.nwk")
+    # NHANES
+    tree <- read.tree("results/Food_tree_NHANES/NHANES1516.reduced_Lv1.tree.nwk")
 
-# Use ggtree to plot the tree. It is critical to have 'ladderize=F' argument to preserve your L1 order.
-  mytreeplot <- ggtree(tree, ladderize=F, layout = 'radial') + 
-    geom_tiplab()
-  mytreeplot
-  
-# Without the tip labels.
-  mytreeplot <- ggtree(tree, ladderize = F, layout = 'radial') 
-  mytreeplot
-  
-# Show the node numbers only. 
-  mytreeplot <- ggtree(tree, ladderize = F, layout = 'radial') +
-                       geom_text(aes(label=node), hjust= -0.1) 
-  mytreeplot
-  
-# Save a tree as a tiff file if you'd like. 
-  ggsave("VVKAJ_tree.tif", mytreeplot, width=10, height=10, device='tiff', dpi=150)
+# Not quite useful with so many samples...
+# # Use ggtree to plot the tree. It is critical to have 'ladderize=FALSE' argument to preserve your L1 order.
+#   mytreeplot <- ggtree(tree, ladderize=FALSE, layout = 'radial') + 
+#     geom_tiplab()
+#   mytreeplot
+#   
+# # Without the tip labels.
+#   mytreeplot <- ggtree(tree, ladderize = F, layout = 'radial') 
+#   mytreeplot
+#   
+# # Show the node numbers only. 
+#   mytreeplot <- ggtree(tree, ladderize = F, layout = 'radial') +
+#                        geom_text(aes(label=node), hjust= -0.1) 
+#   mytreeplot
 
 # ---------------------------------------------------------------------------------------------------------------
-# Prepare node labels of L1 for plotting. It assumes that there are 9 L1 levels.
+# Prepare node labels of L1 for plotting. It assumes that the tree file has 9 L1 levels.
   PrepFoodTreePlots(input.tree=tree)
   
 # Create a color-coded and annotated food tree with 9 L1 levels.
@@ -79,12 +80,14 @@
   # It is OK to see some warning messages about Coordinate system and scale for 'y' already being present.
   VizFoodTree(input.tree=tree, layout="radial")
   
-# Look at the color-coded and annotated food tree, saved as tree_an_hi_o_rt.
-  tree_an_hi_o_rt
+# Look at the color-coded and annotated food tree, saved as annotated_tree.
+  annotated_tree
   
-# Save the tree as a tiff file if you'd like. 
-  ggsave("NHANES1516.reduced_Lv.1.tif", tree_an_hi_o_rt, width=10, height=10, device='tiff', dpi=150)
+# Save the tree as a PDF file. 
+  ggsave("VVKAJ_Items_f_s_m_ff_reduced_2Lv.tree.pdf", annotated_tree, device="pdf", width=6, height=6, units="in", dpi=300)
   
+# Or a tiff file.
+  ggsave("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.tif", annotated_tree, device='tiff', width=6, height=6, dpi=300)
 
   
   
