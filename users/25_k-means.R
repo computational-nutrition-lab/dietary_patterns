@@ -54,40 +54,52 @@
 
 # Scale the variables and define it as an input for k-means analysis.
   kmeans_input <- scale(selected_variables) # correlated variables removed.
-  # kmeans_input <- subsetted_non0var  # before removing correlated variables.
 
 # Set your ggplot2 theme.
   require(ggplot2)
   theme_set(theme_bw(base_size = 14))
+  
+# Set seed for consistent results.
+  set.seed(123)
 
+# The functions below assume that the input file is named "kmeans_input".
+  
 # ---------------------------------------------------------------------------------------------------------------
 # Use the elbow method to find the ideal K. K cannot be larger than the number of datapoints (rows) in input. 
   ElbowMethod(k.values = 1:15)
 
 # ---------------------------------------------------------------------------------------------------------------
-# Use the Silhouette method to find the ideal K.  Uses cluster package.
-  SilhouetteMethod(k.values = 2:9)
-
-# or use the factoextra package to use the Silhouette method.
+# Use the Silhouette method to find the ideal K. This uses the cluster and factoextra package.
   factoextra::fviz_nbclust(kmeans_input, kmeans, method="silhouette")
-  # This plots 'average Silhouette width' instead of 'average Silhouette'.
+
+# Or if the factoextra package does not work for some reason, there is a way to only use the 
+# cluster package. 
+  SilhouetteMethod(k.values = 2:9)
+  # This plots 'average Silhouette' instead of 'average Silhouette width'.
   
 # ---------------------------------------------------------------------------------------------------------------
-# Use the Gap statistic method to find the ideal K. 
-  set.seed(123)
+# Use the Gap statistic method to find the ideal K. The highest K is the optimum K.
   GapMethod(k.values = 1:9)
   
 # Or use the factoextra package to use the Gap statistic method. 
-  set.seed(123)
   FactoextraGapMethod(k.values = 1:9)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with one specified k. 
-  One_K(myK = 5)
+  One_K(myK = 4)
+  
+  # Save the plot as a PDF file. 
+  ######## RESUME FROM HERE ########
+  
+  
+  
+  
+  
 
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with multiple (2-4) Ks, and plot them in one window. 
-  MultipleK(myKs = c(3,4,5,6))
+  multipleKplots <- MultipleK(myKs = c(3,4,5))
+  multipleKplots
   
 # ---------------------------------------------------------------------------------------------------------------
 # For individuals, I think...

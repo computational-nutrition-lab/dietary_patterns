@@ -155,17 +155,70 @@
     
   }
   
-# --------------------------------------------------------------------------------------------------------------
+# ========================================================================================
+# Prepare ggplot2 themes  
+# ========================================================================================
+  
+  # Require ggplot2
+  require(ggplot2)  
+  
+  # Define ggplot themes
+  
+  # No gridlines inside charts
+  no_grid <- theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  
+  # Insert some space between axes and axes labels. 
+  space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
+                      axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
+  
+  # Rotate the X axis labels 45 degrees for visibility.   
+  rotate_X_labels <- theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1) )
 
 # ========================================================================================
-# Calculation for stacked barchart 
+# Plot a stacked barchart without SD  
+# ========================================================================================
+  
+  StackedwoSD <- function(data){
+    ggplot(data, aes(x = UserName, y = mean, fill = macronutrient)) + 
+      geom_bar(position = "stack", stat = "identity", colour = "black", width = 0.7) +
+      # change colors and labels of legend. Ensure the factor order is correct. 
+      scale_fill_manual(values = distinct100colors, 
+                        labels=c( "Carbohydrates", "Protein", "Total fat")) +
+      labs(x= element_blank(), y= "Percentages of total kcal intake", fill = "Macronutrients") +
+      # Specify the font size and angle of the x axis label.  
+      theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1)) + no_grid
+  }
+  
+# ========================================================================================
+# Plot individual bars for each macronutrients (3 bars in total) with SD  
+# ========================================================================================
+  DodgedBarchart  <- function(data){
+    ggplot(data, aes(x = factor(UserName), y = mean, fill = macronutrient, colour = macronutrient)) + 
+      geom_bar(stat = "identity", position = "dodge", color="black")  +
+      geom_errorbar(aes(ymin= mean, ymax= mean + sd), position = position_dodge(0.9), width = 0.25,
+                    color="black") +
+      scale_fill_manual(values = distinct100colors,
+                        labels=c( "Carbohydrates", "Protein", "Total fat")) +
+      labs(x= element_blank(), y= "Percentages of total kcal intake", fill = "Macronutrients") +
+      no_grid + space_axes +
+      theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1)) 
+  }
+  
+
+# ========================================================================================
+# Calculation for stacked barchart with SD 
 # ========================================================================================
 
-# --------------------------------------------------------------------------------------------------------------
 # Function to calculate sd_base and sd_stacked for stacked barchart. 
 # This assumes all users (individuals) have CARB, PROT, and TFAT values.
 
   CalcStackedSD <- function(input.df, out.fn){
+
+    # Generate a dataframe to save sd data.
+    CPT_kcal_forstacked <<- data.frame(matrix(NA, nrow=length(individuals)*3, ncol=7)) 
+    
+    # Specify its column names.
+    colnames(CPT_kcal_forstacked) <- c("UserName", "macronutrient", "n", "mean", "sd", "sd_base", "sd_stacked")
     
     for(i in 1:length(individuals)){
       
@@ -223,6 +276,20 @@
   }
 
 # ---------------------------------------------------------------------------------------------------------------
+# Plot a stacked barchart with SDs. 
+  
+  StackedWithSD <- function(data){
+    ggplot(data, aes(x = UserName, y = mean, fill=macronutrient, colour=macronutrient)) + 
+      geom_bar(stat = "identity", position = "stack", colour = "black", width = 0.7)  +
+      geom_errorbar(aes(ymin= mean+sd_base, ymax= mean+sd_stacked), width = 0.15, color="grey10") + 
+      scale_fill_manual(values = distinct100colors,
+                        labels=c( "Carbohydrates", "Protein", "Total fat")) +
+      labs(x= element_blank(), y= "Percentages of total kcal intake", fill = "Macronutrients") +
+      no_grid + space_axes +
+      theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1)) 
+  }
+  
+# --------------------------------------------------------------------------------------------------------------
 
 
 
@@ -238,9 +305,7 @@
 
 
 
-
-
-# OLD BELOW #########################################
+####################################### OLD BELOW #########################################
 
 # ---------------------------------------------------------------------------------------------------------------
 # Calculate the mean kcal from carb/protein/fat per participant, no other factors.

@@ -42,7 +42,7 @@
 
 # Define ggplot themes to use in creating plots.
   library(ggplot2)
-  ggplot2::theme_set(theme_bw(base_size = 14))
+  theme_set(theme_bw(base_size = 14))
 
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
@@ -51,6 +51,7 @@
 # Nutrient data as is, processed for clustering analyses.
 # ===============================================================================================================
 
+# Load Nut_asis data.
   Tot_m_QCed_Nut_asis <- read.table(file="VVKAJ_Tot_m_QCed_Nut_asis.txt", sep="\t", header=T)
     
 # Name your input data.
@@ -82,6 +83,7 @@
 # Nutrient data averaged and processed for clustering analyses.
 # ===============================================================================================================
   
+# Load Nut_ave data.
   Tot_m_QCed_Nut_ave <- read.table(file="VVKAJ_Tot_m_QCed_Nut_ave.txt", sep="\t", header=T)
   
 # Name your input data.
@@ -112,6 +114,8 @@
 # ===============================================================================================================
 # Food Category data as is, processed for clustering analyses.
 # ===============================================================================================================
+  
+# Load Cat_asis data.
   Tot_m_QCed_Cat_asis <- read.table(file="VVKAJ_Tot_m_QCed_Cat_asis.txt", sep="\t", header=T)
   
   # Name your input data.
@@ -142,6 +146,8 @@
 # ===============================================================================================================
 # Food category data averaged and processed for clustering analyses.
 # ===============================================================================================================
+  
+# Load Cat_ave data.
   Tot_m_QCed_Cat_ave <- read.table(file="VVKAJ_Tot_m_QCed_Cat_ave_subset.txt", sep="\t", header=T)
   
   # Name your input data.
