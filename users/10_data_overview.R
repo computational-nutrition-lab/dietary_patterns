@@ -53,7 +53,7 @@
 # *** NOTE that these are individual items, not by user or day. 
   
 # ---------------------------------------------------------------------------------------------------------------
-  # Define ggplot1 themes
+  # Define ggplot2 themes
   library(ggplot2)
   
   # Theme black and white, with the base font size 14: change if necessary.
@@ -102,7 +102,7 @@
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
   
 # Load your QC-ed totals data to be analyzed.
-  tot_m_QCed <- read.table("VVKAJ_Tot_m_QCed.txt", sep="\t", header=T)
+  tot_m_QCed <- read.table("VVKAJ_Tot_m_QCed_n45.txt", sep="\t", header=T)
   
 # Note that each row is a total dietary intake of each user on each day. 
   head(tot_m_QCed)
@@ -141,6 +141,13 @@
 # Boxplot of KCAL by gender.
   ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
     geom_boxplot() + no_grid + space_axes 
+
+# Boxplot of KCAL by gender, with each datapoint.  Note that geom_boxplot must have outlier.shape = NA 
+# when plotted with geom_jitter. Otherwise, outlier points will be duplicated and will be misleading. 
+  ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
+    geom_boxplot(outlier.shape = NA) + no_grid + space_axes +
+    geom_jitter(width=0.3)
+  
   
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot

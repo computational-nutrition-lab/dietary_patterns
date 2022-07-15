@@ -1,0 +1,11 @@
+These are original VVKAJ101-116 data downloaded from ASA24.
+
+Edit the RecallNo of VVKAJ111 
+from
+2 3 3 
+to
+1 2 3
+
+so that they will be summarized correctly.
+
+Edited files are named as VVKAJ_Totals etc.

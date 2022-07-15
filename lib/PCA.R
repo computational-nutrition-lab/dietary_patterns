@@ -276,7 +276,7 @@
       
       # Save as a txt file.
       write.table(Input_PCs, 
-                  paste(out.dir, paste(out.prefix, '_PCs.txt'), sep= .Platform$file.sep),
+                  paste(out.dir, paste(out.prefix, '_PCs.txt', sep=""), sep= .Platform$file.sep),
                   sep="\t", row.names = F, quote = F)
       
     }
@@ -290,41 +290,41 @@
   # Create a scree plot.
     screep <<- LineScreePlot(pca.data = pca_input, pca.result = scaled_pca)
     # Save your plot 
-    ggsave( paste(out.dir, paste(out.prefix, "_scree.pdf"),   sep= .Platform$file.sep), 
+    ggsave( paste(out.dir, paste(out.prefix, "_scree.pdf", sep=""),   sep= .Platform$file.sep), 
             screep, device="pdf", width=5, height=5, units="in") 
 
   # Create a biplot.
     # A biplot with the individuals as black dots and variables labelled.
     biplotdots <<- BiplotDots(pca.result = scaled_pca, pca.data = pca_input, alpha = 0.5)
     # Save your plot
-    ggsave( paste(out.dir, paste(out.prefix, "_biplotdots.pdf"), sep= .Platform$file.sep),
+    ggsave( paste(out.dir, paste(out.prefix, "_biplotdots.pdf", sep=""), sep= .Platform$file.sep),
             biplotdots, device="pdf", width=5, height=5, units="in")
     
   # Create a biplot with the individuals labeled.
     biplotlabeled <- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label=T)
-    ggsave( paste(out.dir, paste(out.prefix, "_biplotlabeled.pdf"), sep= .Platform$file.sep),
+    ggsave( paste(out.dir, paste(out.prefix, "_biplotlabeled.pdf", sep=""), sep= .Platform$file.sep),
             biplotlabeled, device="pdf", width=5, height=5, units="in")
     
   # Create a biplot with the individuals labeled without the variables' arrows.
     biplotlabeledwoarrows <<- BiplotLabeledwoArrows(pca.result=scaled_pca, pca.data=pca_input, individuals.label=T)
-    ggsave( paste(out.dir, paste(out.prefix, "_biplotlabeledwoarrows.pdf"), sep= .Platform$file.sep),
+    ggsave( paste(out.dir, paste(out.prefix, "_biplotlabeledwoarrows.pdf", sep=""), sep= .Platform$file.sep),
            biplotlabeledwoarrows, device="pdf", width=5, height=5, units="in")
 
   # Plot the directions of the variables.
     directions <<- BiplotLabeled(pca.result=scaled_pca, pca.data=pca_input, individuals.label=F)
-    ggsave( paste(out.dir, paste(out.prefix, "_directions.pdf"), sep= .Platform$file.sep),
+    ggsave( paste(out.dir, paste(out.prefix, "_directions.pdf", sep=""), sep= .Platform$file.sep),
             directions, device="pdf", width=5, height=5, units="in")
 
   # Plot the contribution of the variables to a given PC: PC1 here.
     loadings_plot_PC1 <<- LoadingsPlot(pca.result=scaled_pca,  whichPC="PC1",
                  positive.color="green2", negative.color="grey70", sort.variables = T)
-    ggsave( paste(out.dir, paste(out.prefix, "_loadings_PC1.pdf"), sep= .Platform$file.sep),
+    ggsave( paste(out.dir, paste(out.prefix, "_loadings_PC1.pdf", sep=""), sep= .Platform$file.sep),
             loadings_plot_PC1, device="pdf", width=8, height=4.8, units="in")
 
   # Plot the contribution of the variables to a given PC: PC2 here.
     loadings_plot_PC2 <<- LoadingsPlot(pca.result=scaled_pca,  whichPC="PC2",
                                       positive.color="green2", negative.color="grey70", sort.variables = T)
-    ggsave( paste(out.dir, paste(out.prefix, "_loadings_PC2.pdf"), sep= .Platform$file.sep),
+    ggsave( paste(out.dir, paste(out.prefix, "_loadings_PC2.pdf", sep=""), sep= .Platform$file.sep),
             loadings_plot_PC2, device="pdf", width=8, height=4.8, units="in")
 
   # ---------------------------------------------------------------------------------------------------------------
@@ -340,7 +340,7 @@
                                       var_explained = var_explained_values)
 
       write.table(var_explained_df, 
-                  paste(out.dir, paste(out.prefix, '_PC_var_explained.txt'), sep= .Platform$file.sep),
+                  paste(out.dir, paste(out.prefix, '_PC_var_explained.txt', sep=""), sep= .Platform$file.sep),
                   sep = "\t", row.names=F, quote=F)
 
   # ---------------------------------------------------------------------------------------------------------------
@@ -357,7 +357,7 @@
       sortedp <- p[, c(length(colnames(p)), 1:length(colnames(p))-1)]
       
       write.table(sortedp, 
-                  paste(out.dir, paste(out.prefix, '_PC_loadings.txt'), sep= .Platform$file.sep),
+                  paste(out.dir, paste(out.prefix, '_PC_loadings.txt', sep=""), sep= .Platform$file.sep),
                   sep = "\t", row.names=F, quote=F)
       
    # ---------------------------------------------------------------------------------------------------------------

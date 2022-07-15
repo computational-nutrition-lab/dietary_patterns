@@ -40,7 +40,7 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Specify the directory where the data is.
   # SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
-  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
+  SpecifyDataDirectory(directory.name= "eg_data/VVKAJ/")
 
 # ASA24 data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Load the totals data:

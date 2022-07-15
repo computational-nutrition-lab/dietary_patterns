@@ -31,7 +31,6 @@
 # ========================================================================================
 
 # Specify the directory where the data is.
-  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ101-105/")  
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
 
 # Load your raw items data.
@@ -70,7 +69,7 @@
   # 2   VVKAJ102    
   # ... ...        
   # ... ...        
-  # 11  VVKAJ111   yes 
+  # 16  VVKAJ116   yes 
 
 # Show which has "yes" in the "Remove" column, and remove them. 
   subset(ind_to_rm, Remove == "yes")
@@ -78,7 +77,7 @@
 # Remove the specified individuals.  
 # The output will be saved as a text file with the specified name. 
 # This assumes the usernames are in UserName column, and will print which user(s) will be removed.   
-  RemoveRows(data=items_f,  metadata.file=ind_to_rm, output.name="VVKAJ_Items_f_s.txt")
+  RemoveRows(data=items_f,  metadata.file= ind_to_rm, output.name= "VVKAJ_Items_f_s.txt")
   
 # Load the output for further processing.
   items_f_s <- read.table("VVKAJ_Items_f_s.txt", header=T, sep="\t")
@@ -109,6 +108,7 @@
 # Save the merged dataframe as a .txt file.
   write.table(items_f_s_m, "VVKAJ_Items_f_s_m.txt", sep="\t", row.names=F, quote=F)
 
+  
 # ========================================================================================
 # Generate new totals file if any edits were made to the items file. 
 # ======================================================================================== 
@@ -125,11 +125,11 @@
 
 # The number of rows should be {No. of users x No. days}.
 # In this case, 4 users x 3 days = 12 rows (observations).
-  nrow(new_totals)
+  nrow(new_totals) 
 
 # View the new_total
   head(new_totals)
-  
+
 # ========================================================================================
 # <Optional> Add the participants' metadata back to totals.
 # ========================================================================================
@@ -191,7 +191,7 @@
       BCAR_outliers[order(BCAR_outliers$BCAR, decreasing = T), c('UserName', 'KCAL', 'BCAR')] 
 
 # Save as "Totals_QCed.txt"
-  write.table(QCtotals, "VVKAJ_Tot_m_QCed.txt", sep="\t", quote=F, row.names=F)
+  write.table(QCtotals, "VVKAJ_Tot_m_QCed_n45.txt", sep="\t", quote=F, row.names=F)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Come back to the main directory before you start running another script.
