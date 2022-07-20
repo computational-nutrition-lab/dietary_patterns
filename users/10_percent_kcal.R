@@ -46,12 +46,12 @@
 # --------------------------------------------------------------------------------------------------------------
 # Calculate the mean and SD of CARB, PROT, and TFAT.
   CPTgramsPerUser(inputfn= totals, user.name = "UserName", recall.no = "RecallNo",
-                 outfn='VVKAJ_Tot_m_QCed_CPT_g.txt')
+                  outfn="VVKAJ_Tot_m_QCed_CPT_g.txt")
 # Not used in the visualization below, but you may want to take a look at it.
 
  
 # Calculate the mean % of energy intake (kcal) and SD of CARB, PROT, and TFAT.
-  CPTpctKcalPerUser(inputfn=totals, user.name='UserName', recall.no='RecallNo', 
+  CPTpctKcalPerUser(inputfn=totals, user.name = "UserName", recall.no = "RecallNo", 
                    outfn="VVKAJ_Tot_m_QCed_CPT_kcal.txt")
  
 # Load the %kcal values 
@@ -101,7 +101,7 @@
 # changing the limits of Y axis, that may be because the error bars are higher than the max Y.
 # Ensure you have enough max value for the Y axis.
   
-# You can also change the breakpoints in the Y axis.
+# You can also change the breakpoints of the Y axis.
   stacked_with_SD + scale_y_continuous(breaks = c(0, 20, 40, 60, 80, 100))
   
 

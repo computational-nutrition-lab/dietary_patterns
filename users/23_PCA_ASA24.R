@@ -84,7 +84,7 @@
 # ===============================================================================================================
   
 # Load Nut_ave data.
-  Tot_m_QCed_Nut_ave <- read.table(file="VVKAJ_Tot_m_QCed_Nut_ave.txt", sep="\t", header=T)
+  Tot_m_QCed_Nut_ave <- read.table(file="VVKAJ_Tot_m_QCed_Nut_ave_subset.txt", sep="\t", header=T)
   
 # Name your input data.
   pca_input <- Tot_m_QCed_Nut_ave

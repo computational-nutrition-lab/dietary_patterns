@@ -177,7 +177,7 @@
                                               ellipse = T, ellipse.alpha = 0.1,
                                               ggtheme = theme_bw(base_size = 10),
                                               repel = F, labelsize = 10,
-                                              main = plot_title)
+                                              main = plot_title )
       }
     
     # Install the gridExtra package if needed.

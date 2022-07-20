@@ -70,35 +70,42 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Use the Silhouette method to find the ideal K. This uses the cluster and factoextra package.
-  factoextra::fviz_nbclust(kmeans_input, kmeans, method="silhouette")
+  silhouettechart <- factoextra::fviz_nbclust(kmeans_input, kmeans, method="silhouette")
+  silhouettechart
+  
 
 # Or if the factoextra package does not work for some reason, there is a way to only use the 
 # cluster package. 
   SilhouetteMethod(k.values = 2:9)
-  # This plots 'average Silhouette' instead of 'average Silhouette width'.
   
 # ---------------------------------------------------------------------------------------------------------------
 # Use the Gap statistic method to find the ideal K. The highest K is the optimum K.
-  GapMethod(k.values = 1:9)
+  GapMethod(k.values = 1:15)
   
 # Or use the factoextra package to use the Gap statistic method. 
-  FactoextraGapMethod(k.values = 1:9)
+  FactoextraGapMethod(k.values = 1:15)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with one specified k. 
-  One_K(myK = 4)
+  oneKplot <- One_K(myK = 5)
+  oneKplot
   
-  # Save the plot as a PDF file. 
+# Define the folder to save the chart.
+  SpecifyDataDirectory(directory.name= "eg_data/VVKAJ/Nut_asis_PCA")
+
+# Save the plot as a PDF file.
+  ggsave("VKAJ_Tot_m_QCed_Nut_asis_K5.pdf", oneKplot, 
+         device="pdf", width=4, height=4, units="in")  
+  
+
+  
+  
   ######## RESUME FROM HERE ########
-  
-  
-  
-  
   
 
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with multiple (2-4) Ks, and plot them in one window. 
-  multipleKplots <- MultipleK(myKs = c(3,4,5))
+  multipleKplots <- MultipleK(myKs = c(3,4,5,6))
   multipleKplots
   
 # ---------------------------------------------------------------------------------------------------------------

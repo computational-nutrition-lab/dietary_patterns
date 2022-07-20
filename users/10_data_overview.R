@@ -1,5 +1,5 @@
 # ========================================================================================
-# Take a overview of ASA24 items and totals data.
+# Take an overview of ASA24 items and totals data.
 # Version 1
 # Created on 06/22/2022 by Rie Sadohara
 # ========================================================================================
@@ -34,6 +34,7 @@
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ")  
 
 # Load your items data to be analyzed.
+# "_f_s_m" stands for: "food names formatted", "selected individuals", and "metadata merged".  
   items_f_s_m <- read.table("VVKAJ_Items_f_s_m.txt", sep="\t", header=T)
   head(items_f_s_m)
 
@@ -171,8 +172,8 @@
                partial.days.only.fn="VVKAJ_Tot_m_QCed_partialonly.txt")
   
 # Load the files.
-  tot_m_QCed_w_NA <- read.table("VVKAJ_Tot_m_QCed_wNA.txt", sep="\t", header=T)
-  tot_m_QCed_fullonly <- read.table("VVKAJ_Tot_m_QCed_fullonly.txt", sep="\t", header=T)
+  tot_m_QCed_w_NA <-        read.table("VVKAJ_Tot_m_QCed_wNA.txt", sep="\t", header=T)
+  tot_m_QCed_fullonly <-    read.table("VVKAJ_Tot_m_QCed_fullonly.txt", sep="\t", header=T)
   tot_m_QCed_partialonly <- read.table("VVKAJ_Tot_m_QCed_partialonly.txt", sep="\t", header=T)
 
 # Make RecallNo (day) as a factor.
@@ -181,13 +182,14 @@
   tot_m_QCed_fullonly$RecallNo <-    as.factor(tot_m_QCed_fullonly$RecallNo)
   tot_m_QCed_partialonly$RecallNo <- as.factor(tot_m_QCed_partialonly$RecallNo)
 
-# Plot points and lines separately.  Specify your "y" twice.
+# Plot points and lines separately.  Specify your "x" and "y" twice.
 # The geom_line function only connects the data of individuals with all days of data.
   ggplot() +
     geom_point(tot_m_QCed,          mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName)) +
     geom_line( tot_m_QCed_fullonly, mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName), 
               linetype="dashed") + no_grid +
     scale_color_manual(values = distinct100colors) 
+
 
 # ---------------------------------------------------------------------------------------------------------------
 # Come back to the main directory before you start running another script.

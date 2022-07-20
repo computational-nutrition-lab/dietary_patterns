@@ -25,7 +25,7 @@
 #
 
 # Set your working directory as to the main directory.
-  # Session --> Set working directory --> Choose directory.
+  Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
@@ -120,7 +120,7 @@
   
   # Pick up only the columns with non-zero variance, in order to run PCA and cluster analysis etc.
   # The removed columns will be shown if any.
-  # [,-1] is to exclude the UserName columns that is not numeric and not used for variance calculation. 
+  # [,-1] is to exclude the UserName column that is not numeric and not used for variance calculation. 
   KeepNonZeroVarColumns(data = meansbycategorydf[, -1])
   
   # "subsetted_non0var" is the dataframe to be used in the subsequent collapse by correlation procedure.
@@ -261,12 +261,6 @@
 # ===============================================================================================================
 # Come back to the main directory
   setwd(main_wd) 
-  
-  
-  
-  
-  
-  
   
   #
   

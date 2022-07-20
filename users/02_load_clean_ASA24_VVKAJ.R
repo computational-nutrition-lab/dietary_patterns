@@ -124,7 +124,7 @@
   new_totals <- read.table("VVKAJ_Tot.txt", header=T, sep="\t")
 
 # The number of rows should be {No. of users x No. days}.
-# In this case, 4 users x 3 days = 12 rows (observations).
+# In this case, 15 users x 3 days = 45 rows (observations).
   nrow(new_totals) 
 
 # View the new_total
@@ -138,7 +138,7 @@
   ind_metadata <- read.table("ind_metadata.txt", sep="\t", header=T)
 
 # Add this metadata of each participant to totals.
-# 'NA' will be inserted to UserNames which are not in ind_metadata.
+# 'NA' will be inserted to UserNames which are not in ind_metadata. --> Checked. Really works.
   new_totals_m <- merge(x=new_totals, y=ind_metadata, by="UserName", all.x=T)
   
 # Check that the items data and metadata are merged.
@@ -191,7 +191,7 @@
       BCAR_outliers[order(BCAR_outliers$BCAR, decreasing = T), c('UserName', 'KCAL', 'BCAR')] 
 
 # Save as "Totals_QCed.txt"
-  write.table(QCtotals, "VVKAJ_Tot_m_QCed_n45.txt", sep="\t", quote=F, row.names=F)
+  write.table(QCtotals, "VVKAJ_Tot_m_QCed.txt", sep="\t", quote=F, row.names=F)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Come back to the main directory before you start running another script.
