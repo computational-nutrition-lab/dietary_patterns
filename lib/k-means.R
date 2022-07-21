@@ -6,7 +6,6 @@
 # Created on 01.06.2022 by Rie Sadohara
 # ========================================================================================
 
-
 # ========================================================================================
 # Find the ideal k
 #  Modified code from https://uc-r.github.io/kmeans_clustering
@@ -136,6 +135,57 @@
   }
 # ---------------------------------------------------------------------------------------------------------------
   
+# ========================================================================================
+# Run 3 methods to find the best K and save the output in specified folder. 
+# The 3 methods are: elbow, silhouette, and gap methods. 
+# ========================================================================================
+  
+  ChooseK <- function(out.dir= res_dir, out.prefix= res_prefix){
+    
+    # Set your ggplot2 theme.
+    require(ggplot2)
+    theme_set(theme_bw(base_size = 14))
+    
+    # Set seed for consistent results.
+    set.seed(123)
+    
+    # Detemine max K to try. If there are 15 or more observations, go with 15;
+    # if there are less than 15 observations, go with the number of observations. 
+    if(nrow(kmeans_input)<15){
+      maxK = nrow(kmeans_input)
+    }else{
+      maxK = 15
+    }
+    
+    # ---------------------------------------------------------------------------------------------------------------
+    # Use the elbow method to find the ideal K. K cannot be larger than the number of datapoints (rows) in input. 
+    elbowmethod <- ElbowMethod(k.values = 1 : (maxK-1) )
+    
+    # Save the elbowmethod graphic (K vs total within-clusters sum of squares) as a PDF.
+    ggsave( paste(out.dir, paste(out.prefix, "_elbowmethod.pdf", sep=""), sep= .Platform$file.sep),
+            elbowmethod, device="pdf", width=5, height=5, units="in")
+
+    # ---------------------------------------------------------------------------------------------------------------
+    # Use the Silhouette method to find the ideal K. This uses the cluster and factoextra package.
+    require(factoextra)
+    
+    silhouettechart <- factoextra::fviz_nbclust(kmeans_input, kmeans, k.max= maxK-1, method="silhouette")
+
+    # Save the silhouette method graphic as a PDF.
+    ggsave( paste(out.dir, paste(out.prefix, "_silhouettemethod.pdf", sep=""), sep= .Platform$file.sep),
+            silhouettechart, device="pdf", width=5, height=5, units="in")
+
+    # ---------------------------------------------------------------------------------------------------------------
+    # Use the factoextra package to use the Gap statistic method.
+    gapchart <- FactoextraGapMethod(k.values = 1: (maxK-1) )
+
+    # Save the silhouette method graphic as a PDF.
+    ggsave( paste(out.dir, paste(out.prefix, "_gapmethod.pdf", sep=""), sep= .Platform$file.sep),
+            gapchart, device="pdf", width=5, height=5, units="in")
+   
+  }
+  
+  
   
 # ========================================================================================
 # The optimum k should have been identified by now.
@@ -144,23 +194,29 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Perform k-means analysis with one specified number and plot it.
-  One_K <- function(myK){
+  OneK <- function(myK, out.dir, out.fn){
     # k-means analysis
     km_results_one <- kmeans(x=kmeans_input, centers = myK, nstart = 25)
     # Define your plot title
     plot_title_one <- paste("K=", myK, sep = "")
-    factoextra::fviz_cluster(km_results_one, 
+    oneKplot <- factoextra::fviz_cluster(km_results_one, 
                              data = kmeans_input, 
-                             ellipse = T, ellipse.alpha = 0.1,  
+                             ellipse = T, ellipse.alpha = 0.1,
+                             show.clust.cent = F,
                              ggtheme = theme_bw(base_size = 10),
                              repel = F, labelsize = 10,
-                             main = plot_title_one)
-}
+                             main = plot_title_one) + theme(aspect.ratio = 1)
+    
+    # Save the plot as a PDF file.
+    ggsave(paste(out.dir, paste(out.fn, ".pdf", sep=""), sep= .Platform$file.sep), 
+           oneKplot, device="pdf", width=4, height=4.05, units="in")  
+    
+  }
 # ---------------------------------------------------------------------------------------------------------------
   
 # ---------------------------------------------------------------------------------------------------------------
 # Loop through multiple Ks
-  MultipleK <- function(myKs){
+  MultipleK <- function(myKs, out.dir, out.fn){
     
     plots <- list()
     km_results_mult <- list()
@@ -169,33 +225,42 @@
       for(i in 1:length(myKs)){
         # k-means analysis
         km_results_mult[[i]] <- kmeans(x=kmeans_input, centers = myKs[i], nstart = 25)
+        
         # Define title for each K
         plot_title <- paste("K=", myKs[i], sep = "")
+        
         # Plot
         plots[[i]] = factoextra::fviz_cluster(km_results_mult[[i]],
                                               data = kmeans_input,
                                               ellipse = T, ellipse.alpha = 0.1,
+                                              show.clust.cent = F,
                                               ggtheme = theme_bw(base_size = 10),
                                               repel = F, labelsize = 10,
-                                              main = plot_title )
+                                              main = plot_title ) + theme(aspect.ratio = 1)
       }
     
     # Install the gridExtra package if needed.
     if(!require("gridExtra"))install.packages("gridExtra")
     
+    # Arrange the plots in the same panel.
     if(length(myKs)==2){
-      gridExtra::grid.arrange(plots[[1]], plots[[2]], nrow = round(length(myKs)/2))
+      panel <- gridExtra::grid.arrange(plots[[1]], plots[[2]], nrow = round(length(myKs)/2))
     }
     else if(length(myKs)==3){
-      gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], nrow = round(length(myKs)/2))
+      panel <- gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], nrow = round(length(myKs)/2))
     }
     else if(length(myKs)==4){
-      gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], nrow = round(length(myKs)/2))
+      panel <- gridExtra::grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], nrow = round(length(myKs)/2))
     }
     else{
-      cat("Only 2-4 plots can be created at one time.", "\n",
-          "Please enter 2-4 K values and run again.")
+      return(paste("Only 2-4 plots can be created at one time.", "\n",
+          "Please enter 2-4 K values and run again."))
     }
+    
+    # Save the plot as a PDF file.
+    ggsave(paste(out.dir, paste(out.fn, ".pdf", sep=""), sep= .Platform$file.sep), 
+           panel, device="pdf", width=8, height=8.1, units="in")  
+    
   }
 # ---------------------------------------------------------------------------------------------------------------
 

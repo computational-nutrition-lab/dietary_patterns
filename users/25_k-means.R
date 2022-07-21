@@ -26,7 +26,7 @@
 #
 
 # Set your working directory as to the main directory.
-  Session --> Set working directory --> Choose directory.
+  Session --> Set working direHctory --> Choose directory.
 
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
@@ -35,7 +35,7 @@
   setwd(main_wd) 
 
 # Import source code to run the analyses to follow.
-  # source("lib/load_and_check.R") # nonexistent
+  source("lib/specify_dir_and_check_col.R")
   source("lib/k-means.R")
 
 # ---------------------------------------------------------------------------------------------------------------

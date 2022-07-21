@@ -34,7 +34,7 @@
 
   
 # ---------------------------------------------------------------------------------------------------------------
-# Generate a biplot with the users colored by their diets.  
+# Generate a biplot with the users colored by their diets.
   ggplot(pcares, aes(x=PC1, y=PC2, color=Diet, fill=Diet)) + 
     geom_point(size=3) +
     no_grid + space_axes +
