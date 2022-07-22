@@ -34,22 +34,35 @@
 
   
 # ========================================================================================
-# Load source scripts for visualizing food trees.
+# Load the "ggtree" package and source script for visualizing food trees.
 # ========================================================================================
+  
+# If BiocManager has not installed yet, do so.
+  if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+  
+# Then, use BiocManage to install the "ggree" package.
+  BiocManager::install("ggtree")
+
+# Load the source script as well.
   source("lib/viz_food_tree.r")
   
 # ---------------------------------------------------------------------------------------------------------------
 # Load your ggtree object. 
-    tree <- read.tree("results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
-    tree <- read.tree("results/Food_tree_ASA24/mct_Lv2.tree.nwk")
-    tree <- read.tree("results/Food_tree_ASA24/mct.reduced_1Lv.tree.nwk")
-    
-    # VVKAJ
-    tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_2Lv.tree.nwk")
-    tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_1Lv.tree.nwk")
-    
-  # VVKAJ_NEW!!
+  #   tree <- read.tree("results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
+  #   tree <- read.tree("results/Food_tree_ASA24/mct_Lv2.tree.nwk")
+  #   tree <- read.tree("results/Food_tree_ASA24/mct.reduced_1Lv.tree.nwk")
+  #   
+  #   # VVKAJ
+  #   tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_2Lv.tree.nwk")
+  #   tree <- read.tree("results/Food_tree_ASA24/VVKAJ.reduced_1Lv.tree.nwk")
+  #   
+  # # VVKAJ_NEW!!
+  
+# Go to the "Foodtree" directory where the tree files are saved. 
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/Foodtree")
+  
+# Load the generated food tree. This will load the .nwk file and save it as a tree object called "tree".
   tree <- read.tree("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.nwk")
   tree
   
@@ -84,10 +97,10 @@
   annotated_tree
   
 # Save the tree as a PDF file. 
-  ggsave("VVKAJ_Items_f_s_m_ff_reduced_2Lv.tree.pdf", annotated_tree, device="pdf", width=6, height=6, units="in", dpi=300)
+  ggsave("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.pdf", annotated_tree, device="pdf", width=6, height=6, units="in", dpi=300)
   
-# Or a tiff file.
-  ggsave("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.tif", annotated_tree, device='tiff', width=6, height=6, dpi=300)
+# Or a png file.
+  ggsave("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.png", annotated_tree, device='png', width=6, height=6, dpi=300)
 
   
   

@@ -171,5 +171,10 @@
   
 # Try multiple Ks and print the biplots in one panel.
   MultipleK(myKs = c(2,3,4), out.dir = res_dir_cat_ave, out.fn = "VVKAJ_Cat_ave_K2-4")
+
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Come back to the main directory
+  setwd(main_wd) 
   
   

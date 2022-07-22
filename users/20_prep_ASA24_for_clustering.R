@@ -6,6 +6,11 @@
 # Created on 01.13.2022 by Rie Sadohara
 # ===============================================================================================================
 
+# Here, we will prepare ASA24 totals data for PCA and clustering analyses.  
+# We will need to calculate average dietary data per person across all days (if desired), 
+# remove variables that have zero variance, and collapse variables by correlation
+# (i.e. remove redundancy of variables that are highly correlated).
+
 # ===============================================================================================================
 # Import data and prepare them for analyses
 # ===============================================================================================================
@@ -39,7 +44,6 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Specify the directory where the data is.
-  # SpecifyDataDirectory(directory.name = "eg_data/dietstudy/")
   SpecifyDataDirectory(directory.name= "eg_data/VVKAJ/")
 
 # ASA24 data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -50,19 +54,14 @@
 # Load the items.txt
 # items <- read.table("VVKAJ_Items_f_s_m.txt", quote = "", sep = "\t", header = T)
 
-# Define your input dataset (may not be necessary, but keeping this because I'm not
-  # sure how totals_selected are made. I think it's the same as totals_QC, though.)
-  totals_selected <- totals
-  
-
 # ===============================================================================================================
 # NUTRIENTS: Use data as is. 
 # ===============================================================================================================
 
 # Subset nutrients data.
   # The columns specified as start.col, end.col, and all columns in between will be selected.
-  # Nutrients analysis --> start.col = "PROT",  end.col = "B12_ADD", 64 variables in total.
-  SubsetColumns(data = totals_selected, start.col = "PROT", end.col = "B12_ADD")  
+  # For nutrients, specify start.col = "PROT",  and end.col = "B12_ADD"; 64 variables in total.
+  SubsetColumns(data = totals, start.col = "PROT", end.col = "B12_ADD")  
   
   # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
   # The removed columns will be shown if any.
@@ -77,7 +76,7 @@
   # Filter out highly correlated variables from the original dataset.  
   selected_variables <- subsetted_non0var[, cbc_res$reps]
   
-  # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+  # ***NOTE: "selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
   # Check the name of the original and filtered variables. 
   # Among the variables in the same group, the one with the highest variance is kept 
@@ -106,7 +105,7 @@
 # ===============================================================================================================
 # Specify the data to be used, category to group by, and the range of columns (variables) 
 # to calculate the means of each variable.
-  # Nutrients analysis  --> start.col = "PROT",    end.col = "B12_ADD"
+  # For nutrients, specify start.col = "PROT",  and end.col = "B12_ADD"; 64 variables in total.
   AverageBy(data= totals_selected, by= "UserName", start.col= "PROT", end.col= "B12_ADD")
   
   # Save the averaged results.
@@ -133,7 +132,7 @@
   # Filter out highly correlated variables from the original dataset.  
   selected_variables <- subsetted_non0var[, cbc_res$reps]
   
-  # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+  # ***NOTE: "selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
   # Check the name of the original and filtered variables. 
   # Among the variables in the same group, the one with the highest variance is kept 
@@ -152,7 +151,7 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # Save the correlation matrix for record in the results folder.
-# cc is the correlation matrix produced when variables are collapsed by correlation by using 
+# "cc" is the correlation matrix produced when variables are collapsed by correlation by using 
 # the CollapseByCorrelation function.
   SaveCorrMatrix(x=cc, out.fn = "VVKAJ_Tot_m_QCed_Nut_ave_corr_matrix.txt")
   
@@ -162,7 +161,7 @@
 # ===============================================================================================================
 # Subset food items data.
   # The columns specified as start.col, end.col, and all columns in between will be selected.
-  # Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS", 37 varialbes in total.
+  # For food category items, specify start.col = "F_TOTAL", end.col = "A_DRINKS"; 37 variables in total.
   SubsetColumns(data = totals_selected, start.col = "F_TOTAL", end.col = "A_DRINKS")  
   
   # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
@@ -178,7 +177,7 @@
   # Filter out highly correlated variables from the original dataset.  
   selected_variables <- subsetted_non0var[, cbc_res$reps]
   
-  # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+  # ***NOTE: "selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
   # Check the name of the original and filtered variables. 
   # Among the variables in the same group, the one with the highest variance is kept 
@@ -207,7 +206,7 @@
 # ===============================================================================================================
 # Specify the data to be used, category to group by, and the range of columns (variables) 
 # to calculate the means of each variable.
-  # Food items analysis --> start.col = "F_TOTAL", end.col = "A_DRINKS"
+  # For food category items, specify start.col = "F_TOTAL", end.col = "A_DRINKS"; 37 variables in total.
   AverageBy(data= totals_selected, by= "UserName", start.col= "F_TOTAL", end.col= "A_DRINKS")
   
   # Save the averaged results.
@@ -234,7 +233,7 @@
   # Filter out highly correlated variables from the original dataset.  
   selected_variables <- subsetted_non0var[, cbc_res$reps]
   
-  # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+  # ***NOTE: "selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
   # Check the name of the original and filtered variables. 
   # Among the variables in the same group, the one with the highest variance is kept 
@@ -335,7 +334,7 @@
 # Filter out highly correlated variables from the original dataset.  
   selected_variables <- subsetted_non0var[, cbc_res$reps]
 
-# ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+# ***NOTE: "selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
 # Check the name of the original and filtered variables. 
   # Among the variables in the same group, the one with the highest variance is kept 
