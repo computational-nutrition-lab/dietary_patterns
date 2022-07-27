@@ -108,6 +108,9 @@
 # Prep metadata.
 
   PrepMeta <- function(data=meta){
+    
+    # make UserName as rownames of meta.
+    # rownames(data) <- data[, "UserName"]
 
     #subset metadata to the correct samples
     meta2 <<- data[colnames(food), ]
@@ -150,11 +153,14 @@
     # extract Axes 1 through the specified axis
     vectors <<- allvectors[, 1:number.of.axes]
     
+    # make UserName as rownames of meta. (to use UserName in rownames for merging)
+    # rownames(meta.data) <- meta.data[, "UserName"]
+    
     # merge by the rownames.
-    meta_usersdf <<- merge(x=meta.data, y=vectors, all.x=T, by="row.names", sort=FALSE)
+    meta_usersdf <<- merge(x=meta.data, y=vectors, all.y=T, by="row.names", sort=FALSE)
     
     # Save as a txt file.
-    write.table(x = meta_usersdf, file = output.fn, sep="\t", row.names = F)
+    write.table(x = meta_usersdf, file= output.fn, sep="\t", row.names= F)
   }
   
  
