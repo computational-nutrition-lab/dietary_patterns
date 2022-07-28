@@ -72,6 +72,7 @@
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
   
+# Create a folder called "Foodtree" in the current working directory ("VVKAJ").
 # Format your items data, and save the formatted items file to the "Foodtree" folder.
   FormatFoods(input_fn="VVKAJ_Items_f_s_m.txt", output_fn="Foodtree/VVKAJ_Items_f_s_m_ff.txt", dedupe=F)
 
@@ -103,10 +104,10 @@
                         food_records_fn  = "VVKAJ_Items_f_s_m_ff.txt",   # output of FormatFoods above.
                         output_fn        = "VVKAJ_Items_f_s_m_ff_database.txt")
   
-# make a food tree with the reduced data.
+# Make a food tree with the reduced data.
   MakeFoodTree(nodes_fn=         "../../../data/Food_tree_data/NodeLabelsMCT.txt", 
                food_database_fn= "VVKAJ_Items_f_s_m_ff_database.txt",    # output for FilterDbByDietRecords above.
-               addl_foods_fn   = NULL, 
+               addl_foods_fn   = NULL,
                num.levels      = 4,
                output_taxonomy_fn = "VVKAJ_Items_f_s_m_ff_reduced_4Lv.tax.txt",
                output_tree_fn=      "VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.nwk" 
@@ -115,20 +116,23 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Generate standard, grams of fiber, and dehydrated grams per kcal OTU tables to be used later.
 # Make the standard food otu table with data in gram weights of food.
+# It is OK to see see a warning message: 
+# In write.table(dhydrt.otu, output_fn, sep = "\t", quote = F, append = TRUE) :
+#   appending column names to file
   MakeFoodOtu(food_records_fn=  "VVKAJ_Items_f_s_m_ff.txt", 
-              food_record_id =  "UserName",                       # Specify the ID of your participants
+              food_record_id =  "SampleID",               # Specify SampleID (User x Day)
               food_taxonomy_fn= "VVKAJ_Items_f_s_m_ff_reduced_4Lv.tax.txt",  # Specify your taxonomy file produced by MakeFoodTree.
               output_fn =       "VVKAJ_Items_f_s_m_ff_reduced_4Lv.food.otu.txt")  # Name your output otu file.
   
 # Make a food otu table with data in grams of fiber per food
   MakeFiberOtu(food_records_fn=  "VVKAJ_Items_f_s_m_ff.txt", 
-               food_record_id=   "UserName", 
+               food_record_id=   "SampleID", 
                food_taxonomy_fn= "VVKAJ_Items_f_s_m_ff_reduced_4Lv.tax.txt", 
                output_fn=        "VVKAJ_Items_f_s_m_ff_reduced_4Lv.fiber.otu.txt")
   
 # Make a food otu table as dehydrated grams per kcal.
   MakeDhydrtOtu(food_records_fn=  "VVKAJ_Items_f_s_m_ff.txt", 
-                food_record_id =  "UserName", 
+                food_record_id =  "SampleID", 
                 food_taxonomy_fn= "VVKAJ_Items_f_s_m_ff_reduced_4Lv.tax.txt", 
                 output_fn =       "VVKAJ_Items_f_s_m_ff_reduced_4Lv.dhydrt.otu.txt")
   

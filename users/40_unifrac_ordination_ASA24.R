@@ -33,16 +33,21 @@
   main_wd <- file.path(getwd())
 
 # ---------------------------------------------------------------------------------------------------------------
-# Install phyloseq package.
-  BiocManager::install("phyloseq")
+# If you have not downloaded and installed the phyloseq package yet, 
+# you can do so by first installing BiocManager (if you have not done so):
+  # if (!require("BiocManager", quietly = TRUE))
+  #   install.packages("BiocManager")
+  
+# Then download and install the phyloseq package.  
+  # BiocManager::install("phyloseq")
 
 # load the necessary packages.
   library(phyloseq)
   library(ggtree)
   library(ggplot2)
 
-# Load ggplot formatting themes
-  source("~/GitHub/dietary_patterns/lib/ggplot2themes.R")
+  # Load ggplot formatting themes
+  source("lib/ggplot2themes.R")
   
   # # Define ggplot2 arguments and themes first.
   #   theme1 <- theme_bw(base_size = 16) +
@@ -52,7 +57,7 @@
   #     theme(aspect.ratio = 1)
   
 # Load the distinct 100 colors for use.   
-  distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
+  distinct100colors <- readRDS("lib/distinct100colors.rda")
   
 # Load the necessary scripts.
   source("lib/unifrac_ordination.R")
@@ -62,32 +67,35 @@
   
 # Food
   # Load food OTU table - this is our food OTU data
-  food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
+  # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
   # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
   food <- read.delim("eg_data/VVKAJ/Foodtree/VVKAJ_Items_f_s_m_ff_reduced_4Lv.food.otu.txt", row.names = 1)
+  
+  # "food" is a matrix of Food descriptions (rows) x SampleID (columns).
   head(food)
+  
   # Format the food file and create a otu_table called OTU.
   PrepFood(data= food)
   
 # Taxonomy (tax)
-  tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.taxonomy.txt")
+  # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.taxonomy.txt")
   # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
   tax <- read.delim("eg_data/VVKAJ/Foodtree/VVKAJ_Items_f_s_m_ff_reduced_4Lv.tax.txt")
+  
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data= tax)
   
 # Sample
-  meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv",
-                    row.names = 1, check.names = F)
-  meta <- read.table( "eg_data/VVKAJ/ind_metadata.txt", sep="\t", header=T)
-  head(meta)
+  # meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv",
+  #                   row.names = 1, check.names = F)
+  # meta <- read.table( "eg_data/VVKAJ/ind_metadata.txt", sep="\t", header=T)
+  meta <- read.table( "eg_data/VVKAJ/ind_metadata_UserxDay.txt", sep="\t", header=T)
   
   # Format the metadata file and save it as 'SAMPLES'. 
   PrepMeta(data= meta)
-  SAMPLES
 
 # Food tree
-  foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
+  # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
   # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
   foodtree <- read_tree("eg_data/VVKAJ/Foodtree/VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.nwk")
   # It is OK to see a message saying that
@@ -108,7 +116,7 @@
   # Show the sample names. 
   sample_names(phyfoods)  
   # Show metadata. 
-  head(sample_data(phyfoods), n=2)
+  head(sample_data(phyfoods), n=3)
   # Show only the columns of metadata. 
   sample_variables(phyfoods)
 
@@ -123,14 +131,14 @@
 # Perform Principal Coordinate Analysis (PCoA) with weighted unifrac distance of your food data.
 # This may take a few minutes depending on your data size.
 # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
-  ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=T) 
+  ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=TRUE) 
 
       # If it gives a warning with Lv1 saying that:
       # In matrix(tree$edge[order(tree$edge[, 1]), ][, 2], byrow = TRUE,  :
       #             data length [1461] is not a sub-multiple or multiple of the number of rows [731]
       # A solution shared in GitHub discussion forum is to transform all multichotomies into dichotomies with 
       # branches with length zero: need the age package. 
-      # (https://github.com/joey711/phyloseq/issues/936, see commnet by PandengWang on Dec 26, 2019) 
+      # (https://github.com/joey711/phyloseq/issues/936, see comment by PandengWang on Dec 26, 2019) 
       new_tre <- ape::multi2di(foodtree)
       # Prep it again for making a unifrac object.
       PrepTree(data=new_tre)
@@ -143,8 +151,8 @@
   eigen_percent <- ordinated$values$Relative_eig
 
 # Save the percent variance explained as a txt file.
-  Eigen(eigen.input = eigen_percent, output.fn="results/eigen_percent_mct.txt")
-  Eigen(eigen.input = eigen_percent, output.fn="eg_data/VVKAJ/Unifrac/ordinated_weighted_eigen_percent.txt")
+  # Eigen(eigen.input = eigen_percent, output.fn="results/ordinated_weighted_eigen_percent_mct_4Lv.txt")
+  Eigen(eigen.input = eigen_percent, output.fn="eg_data/VVKAJ/Unifrac/4Lv_ordinated_weighted_eigen_percent.txt")
     
 
 # ========================================================================================
@@ -154,14 +162,17 @@
 # Merge the first n axes to the metadata and save it as a txt file. 
 # The merged dataframe, 'meta_usersdf', will be used for plotting.
   MergeAxesAndMetadata(ord.object=ordinated, number.of.axes=10, meta.data= meta, 
-                       output.fn= "results/ordinated_weighted_meta_users_MCT.txt")
-                       # output.fn= "eg_data/VVKAJ/Unifrac/ordinated_Weighted_meta_users.txt")
+                       # output.fn= "results/ordinated_weighted_axes_meta_MCT.txt")
+                       output.fn= "eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_meta_users.txt")
 
 # Read in the metadata and users' Axis values. 
-  meta_usersdf_loaded <- read.table("results/ordinated_weighted_meta_users_MCT.txt", header=T)
-  meta_usersdf_loaded <- read.table("eg_data/VVKAJ/Unifrac/ordinated_Weighted_meta_users.txt", header=T)
- 
-# Plot Axis 1 and Axis 2 to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata
+# meta_usersdf_loaded <- read.table("results/ordinated_weighted_axes_meta_MCT.txt", header=T)
+  meta_usersdf_loaded <- read.table("eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_meta_users.txt", header=T)
+
+# Take a look at meta_usersdf_loaded. 
+  head(meta_usersdf_loaded,3)
+
+# Plot Axis 1 and Axis 2 to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata.
   p1 <- ggplot(meta_usersdf, aes(x=Axis.1, y=Axis.2, color=UserName)) +
           geom_point(aes(color=UserName)) + 
           scale_color_manual(values = distinct100colors) + # OR use viridis theme.
@@ -171,19 +182,28 @@
           no_grid + space_axes + theme(aspect.ratio = 1)
   p1
   
+# Save p1 as a PDF. 
+  ggsave("eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_Axis12.pdf", device="pdf",
+         height=6, width=6, unit="in", dpi=300)
+
+# Or a png.
+  ggsave("eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_Axis12.png", device="png",
+         height=6, width=6, unit="in", dpi=300)
+  
+    
 # Add ellipses at a desired confidence level. 
   p1 + stat_ellipse(level=0.95) 
   
 # Add lines to connect samples in order of the variable on the x axis.
-  p1 + geom_line(aes(color = UserName))  
+#  p1 + geom_line(aes(color = UserName))  
   
 # Add lines to connect samples in the order in which they appear in the data.
   p1 + geom_path(aes(color = UserName))  
   
 # make a polygon by UserName
+# Could be messy with overlapping clusters and/or too many samples
   p1 + geom_polygon(aes(fill = UserName)) + geom_point(aes(color=UserName), size=3) + 
     scale_fill_manual(values=distinct100colors)  
-  # Could be messy with overlapping clusters and/or too many samples
     
 # Specify colors for specific user(s) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -224,11 +244,13 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Generate and save an unweighted unifrac distance matrix for use outside R.  type="samples" only. 
-  UnweightedUnifracDis(input.phyloseq.obj = phyfoods, output.fn = "eg_data/VVKAJ/Unifrac/weighted_uni_dis.txt")        
+  UnweightedUnifracDis(input.phyloseq.obj = phyfoods, 
+                       output.fn = "eg_data/VVKAJ/Unifrac/4Lv_UNweighted_uni_dis.txt")        
     
   
 # Generate and save an weighted unifrac distance matrix for use outside R.  type="samples" only. 
-  WeightedUnifracDis(input.phyloseq.obj = phyfoods, output.fn = "results/WEIGHTED_uni_dis.txt")        
+  WeightedUnifracDis(input.phyloseq.obj = phyfoods, 
+                     output.fn = "eg_data/VVKAJ/Unifrac/4Lv_WEIGHTED_uni_dis.txt")        
   
 
   
@@ -240,7 +262,7 @@
 # Perform Principal Coordinate Analysis (PCoA) with UNweighted unifrac distance of your food data.
   # This may take a few minutes depending on your data size.
   # e.g. takes ~ 1 min to process a 7.9-MB phyloseq object . 
-  ordinated = phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=FALSE)  
+  ordinated_2 = phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=FALSE)  
   
   # Use the same code above for creating plots.
   

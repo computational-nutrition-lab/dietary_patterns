@@ -106,7 +106,7 @@
 # Specify the data to be used, category to group by, and the range of columns (variables) 
 # to calculate the means of each variable.
   # For nutrients, specify start.col = "PROT",  and end.col = "B12_ADD"; 64 variables in total.
-  AverageBy(data= totals_selected, by= "UserName", start.col= "PROT", end.col= "B12_ADD")
+  AverageBy(data= totals, by= "UserName", start.col= "PROT", end.col= "B12_ADD")
   
   # Save the averaged results.
   write.table(x=meansbycategorydf, "VVKAJ_Tot_m_QCed_Nut_ave_allvar.txt", sep="\t", row.names=F, quote=F)
@@ -162,7 +162,7 @@
 # Subset food items data.
   # The columns specified as start.col, end.col, and all columns in between will be selected.
   # For food category items, specify start.col = "F_TOTAL", end.col = "A_DRINKS"; 37 variables in total.
-  SubsetColumns(data = totals_selected, start.col = "F_TOTAL", end.col = "A_DRINKS")  
+  SubsetColumns(data = totals, start.col = "F_TOTAL", end.col = "A_DRINKS")  
   
   # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
   # The removed columns will be shown if any.
@@ -207,7 +207,7 @@
 # Specify the data to be used, category to group by, and the range of columns (variables) 
 # to calculate the means of each variable.
   # For food category items, specify start.col = "F_TOTAL", end.col = "A_DRINKS"; 37 variables in total.
-  AverageBy(data= totals_selected, by= "UserName", start.col= "F_TOTAL", end.col= "A_DRINKS")
+  AverageBy(data= totals, by= "UserName", start.col= "F_TOTAL", end.col= "A_DRINKS")
   
   # Save the averaged results.
   write.table(x=meansbycategorydf, "VVKAJ_Tot_m_QCed_Cat_ave_allvar.txt", sep="\t", row.names=F, quote=F)

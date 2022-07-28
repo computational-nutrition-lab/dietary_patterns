@@ -64,13 +64,14 @@
   scaled_pca <- prcomp(x=pca_input, scale = TRUE)   
   
 # Specify the directory (folder) to save the results.
-  res_dir_nut_asis = "Nut_asis_PCA" 
+  res_dir_nut_asis = "PCA_Nut_asis" 
 
 # Specify the prefix of filenames to be saved. 
   res_prefix_nut_asis = "VVKAJ_Nut_asis"
   
 # Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir_nut_asis, out.prefix= res_prefix_nut_asis )
+  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+             out.dir= res_dir_nut_asis, out.prefix= res_prefix_nut_asis )
   
 # Combine the input (totals before processing) with all the variables and the PC results. 
   SaveInputAndPCs(input="VVKAJ_Tot_m_QCed.txt", pca.results = scaled_pca, 
@@ -103,10 +104,11 @@
   
 # Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
 # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir_nut_ave, out.prefix= res_prefix_nut_ave)
+  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+             out.dir= res_dir_nut_ave, out.prefix= res_prefix_nut_ave)
   
 # Combine the input (totals before processing) with all the variables and the PC results.
-# In the case of aveaged totals data / user, the input file used here is xxx_ave_allvar.txt, which 
+# In the case of averaged totals data / user, the input file used here is xxx_ave_allvar.txt, which 
 # has all the variables before filtering out by correlation or zero variance.
   SaveInputAndPCs(input="VVKAJ_Tot_m_QCed_Nut_ave_allvar.txt", pca.results = scaled_pca, 
                   out.dir= res_dir_nut_ave, out.prefix= res_prefix_nut_ave)
@@ -134,7 +136,8 @@
   res_prefix_cat_asis = "VVKAJ_Cat_asis"
   
   # Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir_cat_asis, out.prefix= res_prefix_cat_asis )
+  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+             out.dir= res_dir_cat_asis, out.prefix= res_prefix_cat_asis )
   
   # Combine the input (totals before processing) with all the variables and the PC results. 
   SaveInputAndPCs(input="VVKAJ_Tot_m_QCed.txt", pca.results = scaled_pca, 
@@ -167,12 +170,13 @@
   
   # Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
   # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir_cat_ave, out.prefix= res_prefix_cat_ave)
+  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+             out.dir= res_dir_cat_ave, out.prefix= res_prefix_cat_ave)
   
   # Combine the input (totals before processing) with all the variables and the PC results. 
   # In the case of aveaged totals data / user, the input file used here is xxx_ave_allvar.txt, which 
   # has all the variables before filtering out by correlation or zero variance.
-  SaveInputAndPCs(input="VVKAJ_Tot_m_QCed_Cat_ave_allvar.txt", pca.results = scaled_pca, 
+  SaveInputAndPCs(input="VVKAJ_Tot_m_QCed_Cat_ave_allvar.txt", pca.results= scaled_pca, 
                   out.dir= res_dir_cat_ave, out.prefix= res_prefix_cat_ave)  
 
 # ===============================================================================================================

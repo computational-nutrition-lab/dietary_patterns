@@ -47,7 +47,7 @@
   summary(items_f_s_m$KCAL)
 
 # Summary statistics of all the variables
-# Calculate minimum, 1st quantile, median, mean, 3rd quantile, max, and standard deviation
+# Calculate the minimum, 1st quantile, median, mean, 3rd quantile, max, and standard deviation
 # for each variable in the input dataframe and save as a .txt file. 
   SummaryStats(inputdf = items_f_s_m, 
                outfn = "VVKAJ_Items_f_s_m_summ.txt")
@@ -103,7 +103,7 @@
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
   
 # Load your QC-ed totals data to be analyzed.
-  tot_m_QCed <- read.table("VVKAJ_Tot_m_QCed_n45.txt", sep="\t", header=T)
+  tot_m_QCed <- read.table("VVKAJ_Tot_m_QCed.txt", sep="\t", header=T)
   
 # Note that each row is a total dietary intake of each user on each day. 
   head(tot_m_QCed)
@@ -114,7 +114,7 @@
 # Summary statistics of one variable
   summary(tot_m_QCed$KCAL)
   
-# View min, quantiles, mean, etc. for a variable in your dataset. 
+# Calculate the min, quantiles, mean, etc. for a variable in your dataset. 
   SummaryStats(inputdf = tot_m_QCed, 
                outfn = "VVKAJ_Tot_m_QCed_summ.txt")
   

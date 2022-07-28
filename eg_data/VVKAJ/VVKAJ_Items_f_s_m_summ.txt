@@ -1,5 +1,6 @@
 Variables	Min	FirstQu	Median	Mean	ThirdQu	Max	SD
 UserName	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric
+SampleID	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric
 RecallRecId	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric
 UserID	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric	not_numeric
 RecallNo	1	1	2	2.02507374631268	3	3	0.835488470425364

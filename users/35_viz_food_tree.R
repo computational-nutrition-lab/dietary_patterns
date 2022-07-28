@@ -63,6 +63,9 @@
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/Foodtree")
   
 # Load the generated food tree. This will load the .nwk file and save it as a tree object called "tree".
+# It is OK to see a message saying: 
+# Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
+# Also defined by 'tidytree'  
   tree <- read.tree("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.nwk")
   tree
   

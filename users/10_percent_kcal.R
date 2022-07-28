@@ -58,7 +58,7 @@
   CPT_kcal <- read.table("VVKAJ_Tot_m_QCed_CPT_kcal.txt", sep="\t", header=T)
   CPT_kcal
 
-# **** Do not alter the columnnames of CPT_kcal, because the plotting functions below assume that 
+# **** Do not alter the columnnames of CPT_kcal because the plotting functions below assume that 
 # CPT_kcal has "UserName", "macronutrient", "n", "mean", and "sd" columns in it.
 
 # --------------------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@
 
 # Calculate sd_base and sd_forstacked for stacked barchart. 
 # Note that this function assumes all users (individuals) have CARB, PROT, and TFAT values.
-  CalcStackedSD(input.df = CPT_kcal, out.fn = "CPT_kcal_forstacked.txt")
+  CalcStackedSD(input.df= CPT_kcal, out.fn= "CPT_kcal_forstacked.txt")
   
 # Load the saved file that has SD for stacked barchart.
   CPT_kcal_forstacked_read <- read.table("CPT_kcal_forstacked.txt", sep="\t", header=T)
@@ -97,14 +97,14 @@
   stacked_with_SD <- StackedWithSD(data=CPT_kcal_forstacked_read) + theme(axis.text.x=element_text(size=11))
   stacked_with_SD
   
-# Change the Y axis scale if necessary. Note that if error bars of Carbohydrates disappear after 
-# changing the limits of Y axis, that may be because the error bars are higher than the max Y.
-# Ensure you have enough max value for the Y axis.
+# Change the Y axis scale if necessary. Note that if the error bars of Carbohydrates disappear 
+# after changing the limits of Y axis, it may be because the error bars are higher than the max Y.
+# Ensure you have enough max Y value to accommodate the error bars.
   
 # You can also change the breakpoints of the Y axis.
   stacked_with_SD + scale_y_continuous(breaks = c(0, 20, 40, 60, 80, 100))
-  
 
+  
 # Come back to the main directory
   setwd(main_wd)
   

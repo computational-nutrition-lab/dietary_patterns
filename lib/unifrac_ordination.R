@@ -110,15 +110,17 @@
   PrepMeta <- function(data=meta){
     
     # make UserName as rownames of meta.
-    # rownames(data) <- data[, "UserName"]
+    rownames(data) <- data[, "SampleID"]
 
-    #subset metadata to the correct samples
+    # subset metadata to the correct samples.
+    # colnames(food) has users.  
     meta2 <<- data[colnames(food), ]
     
     # Transform meta2 to sample_data object.
     SAMPLES <<- phyloseq::sample_data(meta2)
   }
     
+# ---------------------------------------------------------------------------------------------------------------
 # prep foodtree.
   PrepTree <- function(data=foodtree){
     
@@ -150,11 +152,11 @@
     # Remove the suffix 'vectors.' in the column names of 'allvectors'
     colnames(allvectors) <<- sub(pattern='vectors.', replacement='', x=colnames(allvectors))
     
-    # extract Axes 1 through the specified axis
+    # Extract Axes 1 through the specified axis
     vectors <<- allvectors[, 1:number.of.axes]
     
-    # make UserName as rownames of meta. (to use UserName in rownames for merging)
-    # rownames(meta.data) <- meta.data[, "UserName"]
+    # make SampleID as rownames of meta. (to use SampleID in rownames for merging)
+    rownames(meta.data) <- meta.data[, "SampleID"]
     
     # merge by the rownames.
     meta_usersdf <<- merge(x=meta.data, y=vectors, all.y=T, by="row.names", sort=FALSE)

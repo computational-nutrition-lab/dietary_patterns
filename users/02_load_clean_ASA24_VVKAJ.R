@@ -34,10 +34,15 @@
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
 
 # Load your raw items data.
-  items_raw <- read.csv("VVKAJ_Items.csv", sep = ",", header=T) 
+  # items_raw <- read.csv("VVKAJ_Items.csv", sep = ",", header=T) 
+  
+  # Load the items data after adding "SampleID" to it. 
+  items_raw <- read.table("VVKAJ_Items_ID.txt", sep = "\t", header=T) 
+
   
 # Save it as a .txt file for further processing.
   write.table(items_raw, "VVKAJ_Items.txt", sep="\t", row.names=F)
+  
   
 # Special characters such as "'", ",", "%" may interfere correct data loading; thus,
 # we replace them with an underscore "_".  Takes only .txt files as input. 
@@ -53,8 +58,9 @@
   head(items_f)
 
 # Ensure your items file has the expected dimensions (number of rows x number of columns,
-# shown as number of obs. and number of variables) in the environment window of R Studio.
-  
+# shown as number of obs. and number of variables) in the environment window of R Studio, or
+# you can also check the dimension of items_f by using dim() function.
+  dim(items_f)
 
 # ========================================================================================
 # <Optional> Use individuals_to_remove.txt to filter out users marked as Remove = yes.  
@@ -124,7 +130,7 @@
   new_totals <- read.table("VVKAJ_Tot.txt", header=T, sep="\t")
 
 # The number of rows should be {No. of users x No. days}.
-# In this case, 15 users x 3 days = 45 rows (observations).
+# For the example data, 15 users x 3 days = 45 rows (observations).
   nrow(new_totals) 
 
 # View the new_total

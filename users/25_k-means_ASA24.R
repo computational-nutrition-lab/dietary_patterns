@@ -67,7 +67,7 @@
 # Run elbow, silhouette, and gap methods to find an optimum K (number of clusters). 
 # Do not alter the name of the input file: kmeans_input. This function below assumes that
 # the input is named as "kmeans_input". 
-# You can only run those three methods for K= 1 through (number of observations - 1). 
+# You can only run those three methods for K = 1 through (number of observations - 1). 
 # The gap method output will be printed on the Console. The gap values are plotted in 
 # xxx_gapmethod.pdf.
   ChooseK(out.dir= res_dir_nut_asis, out.prefix= res_prefix_nut_asis)
@@ -138,10 +138,10 @@
   ChooseK(out.dir= res_dir_cat_asis, out.prefix= res_prefix_cat_asis)
   
 # With specific K values in mind, perform k-means analysis with one specified K.
-  OneK(myK= 3, out.dir= res_dir_cat_asis, out.fn = "VKAJ_Cat_asis_K3")
+  OneK(myK= 3, out.dir= res_dir_cat_asis, out.fn = "VVKAJ_Cat_asis_K3")
   
 # Try multiple Ks and print the biplots in one panel.
-  MultipleK(myKs = c(3,4,5,6), out.dir = res_dir_cat_asis, out.fn = "VKAJ_Cat_asis_K3-6")
+  MultipleK(myKs = c(3,4,5,6), out.dir = res_dir_cat_asis, out.fn = "VVKAJ_Cat_asis_K3-6")
   
 
 # ===============================================================================================================
