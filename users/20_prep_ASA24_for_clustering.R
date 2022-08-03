@@ -48,8 +48,8 @@
 
 # ASA24 data ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Load the totals data:
-  # totals <- read.table("Totals_to_use.txt", sep = "\t", header = T)
-  totals <- read.table("VVKAJ_Tot_m_QCed.txt", sep = "\t", header = T)
+  # totals <- read.table("Totals_to_use.txt", sep = "\t", header= T)
+  totals <- read.table("VVKAJ_Tot_m_QCed.txt", sep= "\t", header= T)
 
 # Load the items.txt
 # items <- read.table("VVKAJ_Items_f_s_m.txt", quote = "", sep = "\t", header = T)

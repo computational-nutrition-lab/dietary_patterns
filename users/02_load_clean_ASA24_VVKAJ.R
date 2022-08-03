@@ -33,34 +33,31 @@
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
 
-# Load your raw items data.
-  # items_raw <- read.csv("VVKAJ_Items.csv", sep = ",", header=T) 
-  
-  # Load the items data after adding "SampleID" to it. 
-  items_raw <- read.table("VVKAJ_Items_ID.txt", sep = "\t", header=T) 
+# Load your raw items data and save it as a .txt file. 
+  items_raw <-  read.csv("VVKAJ_Items.csv", sep = ",", header=T) 
+  write.table(items_raw, "VVKAJ_Items.txt", sep="\t", row.names=F) 
 
-  
-# Save it as a .txt file for further processing.
-  write.table(items_raw, "VVKAJ_Items.txt", sep="\t", row.names=F)
-  
-  
 # Special characters such as "'", ",", "%" may interfere correct data loading; thus,
-# we replace them with an underscore "_".  Takes only .txt files as input. 
+# we replace them with an underscore "_".  Takes only .txt files as input.
 # Specify column(s) to be processed in the "columns" argument.
   format.file(filename = "VVKAJ_Items.txt",
               columns  = "Food_Description", 
               outfn    = "VVKAJ_Items_f.txt")  # _f stands for "formatted".  
-  
+
+# Add SampleID with a desired prefix, and save it as a txt file.  
+  AddSampleIDtoItems(input.fn="VVKAJ_Items_f.txt", user.name="UserName", recall.no="RecallNo", 
+                     prefix="vvkaj.", out.fn="VVKAJ_Items_f_id.txt")
+
 # Load the formatted Items file.
-  items_f <- read.table("VVKAJ_Items_f.txt", sep="\t", header=T)
+  items_f_id <- read.table("VVKAJ_Items_f_id.txt", sep="\t", header=T)
   
-# All special characters in items_f should have been replaced with an underscore.   
-  head(items_f)
+# A combination of the specified prefix and sequential number should be added.    
+  head(items_f_id)
 
 # Ensure your items file has the expected dimensions (number of rows x number of columns,
 # shown as number of obs. and number of variables) in the environment window of R Studio, or
 # you can also check the dimension of items_f by using dim() function.
-  dim(items_f)
+  dim(items_f_id)
 
 # ========================================================================================
 # <Optional> Use individuals_to_remove.txt to filter out users marked as Remove = yes.  
@@ -83,13 +80,13 @@
 # Remove the specified individuals.  
 # The output will be saved as a text file with the specified name. 
 # This assumes the usernames are in UserName column, and will print which user(s) will be removed.   
-  RemoveRows(data=items_f,  metadata.file= ind_to_rm, output.name= "VVKAJ_Items_f_s.txt")
+  RemoveRows(data=items_f_id, metadata.file= ind_to_rm, output.name= "VVKAJ_Items_f_id_s.txt")
   
 # Load the output for further processing.
-  items_f_s <- read.table("VVKAJ_Items_f_s.txt", header=T, sep="\t")
+  items_f_id_s <- read.table("VVKAJ_Items_f_id_s.txt", header=T, sep="\t")
   
-# Show unique usernames in items_f_s and confirm "VVKAJ101" has been removed.
-  unique(items_f_s$UserName)  
+# Show unique usernames in items_f_id_s and confirm "VVKAJ116" has been removed.
+  unique(items_f_id_s$UserName)  
   
 # ========================================================================================
 # <Optional> Merge individuals' metadata to items.   
@@ -106,13 +103,13 @@
   
 # Add this metadata of each participant in totals or items.
 # 'NA' will be inserted to UserNames which are not in ind_metadata.
-  items_f_s_m <- merge(x=items_f_s, y=ind_metadata, by="UserName", all.x=T)
+  items_f_id_s_m <- merge(x=items_f_id_s, y=ind_metadata, by="UserName", all.x=T)
   
 # Check that the items data and metadata are merged.
-  head(items_f_s_m)
+  head(items_f_id_s_m)
   
 # Save the merged dataframe as a .txt file.
-  write.table(items_f_s_m, "VVKAJ_Items_f_s_m.txt", sep="\t", row.names=F, quote=F)
+  write.table(items_f_id_s_m, "VVKAJ_Items_f_id_s_m.txt", sep="\t", row.names=F, quote=F)
 
   
 # ========================================================================================
@@ -121,7 +118,7 @@
 
 # Use one of the input files saved above as an input for calculating totals for.
 # Specify which columns have usernames and Recall.No., which is the number of recorded days. 
-  GenerateTotals(inputfn = "VVKAJ_Items_f_s_m.txt", 
+  GenerateTotals(inputfn = "VVKAJ_Items_f_id_s_m.txt", 
                  User.Name = 'UserName', 
                  Recall.No = 'RecallNo',
                  outfn = "VVKAJ_Tot.txt")
@@ -133,7 +130,7 @@
 # For the example data, 15 users x 3 days = 45 rows (observations).
   nrow(new_totals) 
 
-# View the new_total
+# View the new_totals
   head(new_totals)
 
 # ========================================================================================
@@ -144,7 +141,7 @@
   ind_metadata <- read.table("ind_metadata.txt", sep="\t", header=T)
 
 # Add this metadata of each participant to totals.
-# 'NA' will be inserted to UserNames which are not in ind_metadata. --> Checked. Really works.
+# 'NA' will be inserted to UserNames which are not in ind_metadata. 
   new_totals_m <- merge(x=new_totals, y=ind_metadata, by="UserName", all.x=T)
   
 # Check that the items data and metadata are merged.

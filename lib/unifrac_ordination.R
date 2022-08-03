@@ -191,16 +191,16 @@
   WeightedUnifracDis <- function(input.phyloseq.obj = phyfoods, output.fn){
     
     # Calculate unweighted unifrac distance and save as a matrix.
-    weighted_uni_dis1 <- as.matrix(phyloseq::distance(phyfoods, method="wunifrac"))
+    weighted_uni_dis4 <- as.matrix(phyloseq::distance(phyfoods, method="wunifrac"))
     
     # Convert it to a data frame. (to edit rownames) 
-    weighted_uni_dis2 <- as.data.frame(weighted_uni_dis1)
+    weighted_uni_dis5 <- as.data.frame(weighted_uni_dis4)
     
     # Create a new column with a columnname of "Sample" and put rownames (UserName) on that column 
-    weighted_uni_dis3 <- data.frame("Sample" = rownames(weighted_uni_dis2), weighted_uni_dis2)
+    weighted_uni_dis6 <- data.frame("Sample" = rownames(weighted_uni_dis5), weighted_uni_dis5)
     
     # Save as a txt file.
-    write.table(x = weighted_uni_dis3, file = output.fn, sep="\t", row.names = F)
+    write.table(x = weighted_uni_dis6, file = output.fn, sep="\t", row.names = F)
   }
   
   

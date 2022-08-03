@@ -66,7 +66,7 @@
 # It is OK to see a message saying: 
 # Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
 # Also defined by 'tidytree'  
-  tree <- read.tree("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.nwk")
+  tree <- read.tree("VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.nwk")
   tree
   
     # NHANES
@@ -100,10 +100,10 @@
   annotated_tree
   
 # Save the tree as a PDF file. 
-  ggsave("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.pdf", annotated_tree, device="pdf", width=6, height=6, units="in", dpi=300)
+  ggsave("VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.pdf", annotated_tree, device="pdf", width=6, height=6, units="in", dpi=300)
   
 # Or a png file.
-  ggsave("VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.png", annotated_tree, device='png', width=6, height=6, dpi=300)
+  ggsave("VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.png", annotated_tree, device='png', width=6, height=6, dpi=300)
 
   
   

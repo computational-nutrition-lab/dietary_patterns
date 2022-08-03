@@ -35,8 +35,8 @@
 
 # Load your items data to be analyzed.
 # "_f_s_m" stands for: "food names formatted", "selected individuals", and "metadata merged".  
-  items_f_s_m <- read.table("VVKAJ_Items_f_s_m.txt", sep="\t", header=T)
-  head(items_f_s_m)
+  items_f_id_s_m <- read.table("VVKAJ_items_f_id_s_m.txt", sep="\t", header=T)
+  head(items_f_id_s_m)
 
 # ---------------------------------------------------------------------------------------------------------------
 # Summary statistics
@@ -44,13 +44,13 @@
 # Summary statistics of one variable
 
 # View min, quantiles, mean, etc. for a variable in your dataset. 
-  summary(items_f_s_m$KCAL)
+  summary(items_f_id_s_m$KCAL)
 
 # Summary statistics of all the variables
 # Calculate the minimum, 1st quantile, median, mean, 3rd quantile, max, and standard deviation
 # for each variable in the input dataframe and save as a .txt file. 
-  SummaryStats(inputdf = items_f_s_m, 
-               outfn = "VVKAJ_Items_f_s_m_summ.txt")
+  SummaryStats(inputdf = items_f_id_s_m, 
+               outfn = "VVKAJ_items_f_id_s_m_summ.txt")
 # *** NOTE that these are individual items, not by user or day. 
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -76,23 +76,23 @@
 # Generate a boxplot to view data distribution.
   
 # Boxplot of KCAL by users. And 
-  ggplot(items_f_s_m, aes(x=UserName, y=KCAL)) +
+  ggplot(items_f_id_s_m, aes(x=UserName, y=KCAL)) +
     geom_boxplot() + no_grid + space_axes + rotate_X_labels
 
 # Boxplot of KCAL by gender.
-  ggplot(items_f_s_m, aes(x=Gender, y=KCAL)) +
+  ggplot(items_f_id_s_m, aes(x=Gender, y=KCAL)) +
     geom_boxplot() + no_grid + space_axes 
   
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot
   
 # Scaterplot of two numeric variables: TFAT and KCAL. 
-  ggplot(items_f_s_m, aes(x=TFAT, y=KCAL)) +
+  ggplot(items_f_id_s_m, aes(x=TFAT, y=KCAL)) +
     geom_point() + no_grid + space_axes 
 
 # Test if the two variables are correlated.
 # The output should show p-value and R correlation coefficient
-  cor.test(x=items_f_s_m$TFAT, y=items_f_s_m$KCAL, method="pearson")
+  cor.test(x=items_f_id_s_m$TFAT, y=items_f_id_s_m$KCAL, method="pearson")
 
   
 # ===============================================================================================================

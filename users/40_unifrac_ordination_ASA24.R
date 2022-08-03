@@ -13,18 +13,19 @@
 # Import necessary functions and data
 # Folder structure 
 # 
-#                          |----- data ---- Food_tree_data
+#                          |----- data 
 #                          |
-#                          |----- eg_data 
+#                          |----- eg_data ---- VVKAJ ---- Unifrac 
+#                          |                          |
+#                          |                           -- Foodtree
 #                          |
-#                          |----- lib --- source codes are here
+#                          |----- lib s(ource codes)
 #                          |
-#                          |----- users --- this script is here
+#                          |----- users (this script)
 #  Main -------------------|
-#  (dietary_patterns)      |----- results ---- Food_tree_results
+#  (dietary_patterns)      |----- results 
 #                          |
 #                          |----- ...
-#
 
 # Set your working directory to the main directory.
   Session --> Set working directory --> Choose directory.
@@ -46,7 +47,7 @@
   library(ggtree)
   library(ggplot2)
 
-  # Load ggplot formatting themes
+# Load ggplot formatting themes
   source("lib/ggplot2themes.R")
   
   # # Define ggplot2 arguments and themes first.
@@ -62,6 +63,9 @@
 # Load the necessary scripts.
   source("lib/unifrac_ordination.R")
   
+# Specify the directory where the data is.
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
+  
 # ---------------------------------------------------------------------------------------------------------------
 # Load the necessary files for creating a phyloseq object.  
   
@@ -69,7 +73,7 @@
   # Load food OTU table - this is our food OTU data
   # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
   # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
-  food <- read.delim("eg_data/VVKAJ/Foodtree/VVKAJ_Items_f_s_m_ff_reduced_4Lv.food.otu.txt", row.names = 1)
+  food <- read.delim("Foodtree/VVKAJ_Items_f_id_s__m_ff_reduced_4Lv.food.otu.txt", row.names = 1)
   
   # "food" is a matrix of Food descriptions (rows) x SampleID (columns).
   head(food)
@@ -80,7 +84,7 @@
 # Taxonomy (tax)
   # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.taxonomy.txt")
   # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
-  tax <- read.delim("eg_data/VVKAJ/Foodtree/VVKAJ_Items_f_s_m_ff_reduced_4Lv.tax.txt")
+  tax <- read.delim("Foodtree/VVKAJ_Items_f_id_s__m_ff_reduced_4Lv.tax.txt")
   
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data= tax)
@@ -89,7 +93,7 @@
   # meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv",
   #                   row.names = 1, check.names = F)
   # meta <- read.table( "eg_data/VVKAJ/ind_metadata.txt", sep="\t", header=T)
-  meta <- read.table( "eg_data/VVKAJ/ind_metadata_UserxDay.txt", sep="\t", header=T)
+  meta <- read.table( "ind_metadata_UserxDay.txt", sep="\t", header=T)
   
   # Format the metadata file and save it as 'SAMPLES'. 
   PrepMeta(data= meta)
@@ -97,7 +101,7 @@
 # Food tree
   # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
   # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
-  foodtree <- read_tree("eg_data/VVKAJ/Foodtree/VVKAJ_Items_f_s_m_ff_reduced_4Lv.tree.nwk")
+  foodtree <- read_tree("Foodtree/VVKAJ_Items_f_id_s__m_ff_reduced_4Lv.tree.nwk")
   # It is OK to see a message saying that
     # "Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
     # Also defined by 'tidytree'"
@@ -133,7 +137,7 @@
 # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
   ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=TRUE) 
 
-      # If it gives a warning with Lv1 saying that:
+      # NOTE: If it gives a warning with Lv1 saying that:
       # In matrix(tree$edge[order(tree$edge[, 1]), ][, 2], byrow = TRUE,  :
       #             data length [1461] is not a sub-multiple or multiple of the number of rows [731]
       # A solution shared in GitHub discussion forum is to transform all multichotomies into dichotomies with 
@@ -152,29 +156,45 @@
 
 # Save the percent variance explained as a txt file.
   # Eigen(eigen.input = eigen_percent, output.fn="results/ordinated_weighted_eigen_percent_mct_4Lv.txt")
-  Eigen(eigen.input = eigen_percent, output.fn="eg_data/VVKAJ/Unifrac/4Lv_ordinated_weighted_eigen_percent.txt")
-    
+  Eigen(eigen.input = eigen_percent, output.fn="Unifrac/4Lv_ordinated_weighted_eigen_percent.txt")
+
+# ========================================================================================
+# Save unifrac distance (unweighted or weighted) matrices. 
+# ========================================================================================
+
+# Generate and save an unweighted unifrac distance matrix of "Samples". 
+  UnweightedUnifracDis(input.phyloseq.obj = phyfoods, 
+                       output.fn = "Unifrac/4Lv_UNweighted_uni_dis.txt")        
+
+# ---------------------------------------------------------------------------------------------------------------
+# Generate and save an weighted unifrac distance matrix of "Samples". 
+  WeightedUnifracDis(input.phyloseq.obj = phyfoods, 
+                     output.fn = "Unifrac/4Lv_WEIGHTED_uni_dis.txt")        
+
 
 # ========================================================================================
 # Plot your ordination results 
 # ========================================================================================
 
+# Change to the folder called "Unifrac" in your "VVKAJ" folder.
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/Unifrac/")
+  
 # Merge the first n axes to the metadata and save it as a txt file. 
 # The merged dataframe, 'meta_usersdf', will be used for plotting.
   MergeAxesAndMetadata(ord.object=ordinated, number.of.axes=10, meta.data= meta, 
                        # output.fn= "results/ordinated_weighted_axes_meta_MCT.txt")
-                       output.fn= "eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_meta_users.txt")
+                       output.fn= "4Lv_ordinated_Weighted_meta_users.txt")
 
 # Read in the metadata and users' Axis values. 
 # meta_usersdf_loaded <- read.table("results/ordinated_weighted_axes_meta_MCT.txt", header=T)
-  meta_usersdf_loaded <- read.table("eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_meta_users.txt", header=T)
+  meta_usersdf_loaded <- read.table("4Lv_ordinated_Weighted_meta_users.txt", header=T)
 
 # Take a look at meta_usersdf_loaded. 
   head(meta_usersdf_loaded,3)
 
 # Plot Axis 1 and Axis 2 to show the separation of samples colored by UserName, gender, timing, etc. as in the metadata.
   p1 <- ggplot(meta_usersdf, aes(x=Axis.1, y=Axis.2, color=UserName)) +
-          geom_point(aes(color=UserName)) + 
+          geom_point(aes(color=UserName), size=2) + 
           scale_color_manual(values = distinct100colors) + # OR use viridis theme.
           # scale_color_viridis_d() +
           xlab( paste("Axis.1 (", paste(round(eigen_percent[1]*100, 1)), "%)", sep="") ) +
@@ -183,88 +203,117 @@
   p1
   
 # Save p1 as a PDF. 
-  ggsave("eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_Axis12.pdf", device="pdf",
-         height=6, width=6, unit="in", dpi=300)
+  ggsave("4Lv_ordinated_Weighted_Axis12_p1.pdf", 
+         p1, device="pdf", height=6, width=6, unit="in", dpi=300)
 
-# Or a png.
-  ggsave("eg_data/VVKAJ/Unifrac/4Lv_ordinated_Weighted_Axis12.png", device="png",
-         height=6, width=6, unit="in", dpi=300)
+# You can add ellipses at a desired confidence level; but with this 
+# example data, there are too few samples per user to draw them. 
+  ellipses <- p1 + stat_ellipse(level=0.95) 
+  ellipses
   
-    
-# Add ellipses at a desired confidence level. 
-  p1 + stat_ellipse(level=0.95) 
+# Save ellipses as a PDF. 
+  ggsave("4Lv_ordinated_Weighted_Axis12_ellipses.pdf", 
+         ellipses, device="pdf", height=6, width=6, unit="in", dpi=300)
   
-# Add lines to connect samples in order of the variable on the x axis.
-#  p1 + geom_line(aes(color = UserName))  
-  
-# Add lines to connect samples in the order in which they appear in the data.
-  p1 + geom_path(aes(color = UserName))  
-  
-# make a polygon by UserName
-# Could be messy with overlapping clusters and/or too many samples
-  p1 + geom_polygon(aes(fill = UserName)) + geom_point(aes(color=UserName), size=3) + 
-    scale_fill_manual(values=distinct100colors)  
-    
-# Specify colors for specific user(s) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Highlight one sample with others being grey.  
-      select_point_1 <- subset(meta_usersdf, UserName=="VVKAJ101") 
-
-      p1 + geom_point(size=2, color="grey") +  
-        geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=2) 
-
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Highlight multiple samples with others being grey.
-      select_points <- subset(meta_usersdf, UserName=="VVKAJ101" | UserName=="VVKAJ106" )
-    
-      p1 + geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
-        scale_color_manual(values = c("VVKAJ101"="red", "VVKAJ106"="blue")) 
-      # It is OK to see a message: "Scale for 'colour' is already present. 
-      # Adding another scale for 'colour', which will replace the existing scale."
-    
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Highlight one sample; other points will retain their original colors. 
-      select_point_1 <- subset(meta_usersdf, UserName=="VVKAJ101") 
-    
-      # Changing the shape sizes might help find the dots. Note that points may be overlapping
-      p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) 
-        
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    # Highlight multiple samples; other points will retain their original colors. 
-      select_point_1 <- subset(meta_usersdf, UserName=="VVKAJ101") 
-      select_point_2 <- subset(meta_usersdf, UserName=="VVKAJ106") 
+# Add lines to connect samples in the order in which they appear in the data. 
+# Note that geom_line option, not geom_path, connects in the order of the variable 
+# on the x axis, so it could be misleading.
+  pathconnected <- p1 + geom_path(aes(color = UserName))  
+  pathconnected
   
-      p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
-           geom_point(data=select_point_2, aes(x=Axis.1, y=Axis.2), color="green", size=4) 
-        
+# Save pathconnected as a PDF. 
+  ggsave("4Lv_ordinated_Weighted_Axis12_pathconnected.pdf", 
+         pathconnected, device="pdf", height=6, width=6, unit="in", dpi=300)
+
+# Make a polygon by UserName
+# Could be messy with overlapping clusters and/or too many samples.
+  polygons <- p1 + geom_polygon(aes(fill = UserName)) + 
+    geom_point(aes(color=UserName), size=2) + 
+    scale_fill_manual(values=distinct100colors)
+  polygons
+  
+# Save polygons as a PDF. 
+  ggsave("4Lv_ordinated_Weighted_Axis12_polygons.pdf", 
+         polygons, device="pdf", height=6, width=6, unit="in", dpi=300)
+  
+      
 # ========================================================================================
-# Save distance matrices. 
+# Change colors for specific user(s) 
 # ========================================================================================
 
-# ---------------------------------------------------------------------------------------------------------------
-# Generate and save an unweighted unifrac distance matrix for use outside R.  type="samples" only. 
-  UnweightedUnifracDis(input.phyloseq.obj = phyfoods, 
-                       output.fn = "eg_data/VVKAJ/Unifrac/4Lv_UNweighted_uni_dis.txt")        
-    
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# [A] Highlight one sample with others being grey.  
+  # Specify which user to highlight; e.g. VVKAJ101.
+  select_point_1 <- subset(meta_usersdf, UserName=="VVKAJ101") 
+
+  panelA <- 
+    p1 + geom_point(size=2, color="grey") +  
+    geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=2) 
+  panelA
   
-# Generate and save an weighted unifrac distance matrix for use outside R.  type="samples" only. 
-  WeightedUnifracDis(input.phyloseq.obj = phyfoods, 
-                     output.fn = "eg_data/VVKAJ/Unifrac/4Lv_WEIGHTED_uni_dis.txt")        
+# Save the panel as a PDF. 
+  ggsave("4Lv_ordinated_Weighted_Axis12_p1_VVKAJ101_grey.pdf", 
+         panelA, device="pdf", height=6, width=6, unit="in", dpi=300)
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# [B] Highlight multiple samples with others being grey.
+# Specify colors for each samples to be highlighted in the scale_color_manual argument.
+  select_points <- subset(meta_usersdf, UserName=="VVKAJ101" | UserName=="VVKAJ106" )
+
+  panelB <- 
+    p1 + geom_point(data=select_points, aes(x=Axis.1, y=Axis.2, color=as.factor(UserName))) +
+    scale_color_manual(values = c("VVKAJ101"="red", "VVKAJ106"="blue")) 
+  # It is OK to see a message: "Scale for 'colour' is already present. 
+  # Adding another scale for 'colour', which will replace the existing scale."
+  panelB
+  
+# Save the panel as a PDF. 
+  ggsave("4Lv_ordinated_Weighted_Axis12_p1_VVKAJ101_106_grey.pdf", 
+         panelB, device="pdf", height=6, width=6, unit="in", dpi=300)
   
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# [C] Highlight one sample; other points will retain their original colors. 
+  select_point_1 <- subset(meta_usersdf, UserName=="VVKAJ101") 
+
+# Changing the shape sizes might help find the dots. Note that points may be overlapping
+  panelC <- 
+    p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) 
+  panelC
   
+# Save the panel as a PDF. 
+  ggsave("4Lv_ordinated_Weighted_Axis12_p1_VVKAJ101_color.pdf", 
+         panelC, device="pdf", height=6, width=6, unit="in", dpi=300)
+  
+    
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# [D] Highlight multiple samples; other points will retain their original colors. 
+  select_point_1 <- subset(meta_usersdf, UserName=="VVKAJ101") 
+  select_point_2 <- subset(meta_usersdf, UserName=="VVKAJ106") 
+
+  panelD <- 
+    p1 + geom_point(data=select_point_1, aes(x=Axis.1, y=Axis.2), color="black", size=4) +
+         geom_point(data=select_point_2, aes(x=Axis.1, y=Axis.2), color="green", size=4) 
+  panelD
+  
+# Save the panel as a PDF. 
+  ggsave("4Lv_ordinated_Weighted_Axis12_p1_VVKAJ101_106_color.png", 
+         panelD, device="png", height=6, width=6, unit="in", dpi=300)
+  
+  
+
 # ========================================================================================
 # Use other ordination methods 
 # ========================================================================================
 
 # ---------------------------------------------------------------------------------------------------------------
 # Perform Principal Coordinate Analysis (PCoA) with UNweighted unifrac distance of your food data.
-  # This may take a few minutes depending on your data size.
-  # e.g. takes ~ 1 min to process a 7.9-MB phyloseq object . 
+# This may take a few minutes depending on your data size.
+# e.g. takes ~ 1 min to process a 7.9-MB phyloseq object . 
   ordinated_2 = phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=FALSE)  
   
-  # Use the same code above for creating plots.
+# Use the same code above for creating plots, but now with ordinated_2 for the ord.object argument.
   
 # ---------------------------------------------------------------------------------------------------------------
 # With a small dataset,
