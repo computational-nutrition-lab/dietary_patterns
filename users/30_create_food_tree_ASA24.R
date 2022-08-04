@@ -1,5 +1,3 @@
-# For USERS ==============================================================================
-
 # ========================================================================================
 # Generate a food tree from ASA24 data.
 # Version 1
@@ -74,11 +72,12 @@
   
 # Create a folder called "Foodtree" in the current working directory ("VVKAJ").
 # Format your items data, and save the formatted items file to the "Foodtree" folder.
-  FormatFoods(input_fn="VVKAJ_Items_f_id_s_m.txt", output_fn="Foodtree/VVKAJ_Items_f_id_s_m_ff.txt", dedupe=F)
+  FormatFoods(input_fn="VVKAJ_Items_f_id_s_m.txt", 
+              output_fn="Foodtree/VVKAJ_Items_f_id_s_m_ff.txt", dedupe=F)
 
-
-# ---------------------------------------------------------------------------------------------------------------
+# ========================================================================================
 # Generate a food tree with the whole ASA24 database. 
+# ========================================================================================
   
 # Come back to the main directory for now.
   setwd(main_wd)   
@@ -89,12 +88,13 @@
                food_database_fn="data/Food_tree_data/ASA24Database.txt", 
                addl_foods_fn= c("data/Food_tree_data/Soylent_codes_formatted.txt"), 
                num.levels = 4,  # How many levels of foods to be classified
-               output_taxonomy_fn = "data/Food_tree_ASA24/ASA24_Lv4.taxonomy.txt",  # Name your output taxonomy file
-               output_tree_fn=      "data/Food_tree_ASA24/ASA24_Lv4.tree.nwk"       # Name your output tree
+               output_taxonomy_fn = "data/Food_tree_ASA24/ASA24_Lv4.taxonomy_2.txt",  # Name your output taxonomy file
+               output_tree_fn=      "data/Food_tree_ASA24/ASA24_Lv4.tree_2.nwk"       # Name your output tree
                )
 
-# ---------------------------------------------------------------------------------------------------------------
+# ========================================================================================
 # Generate a food tree with your own items dataset. 
+# ========================================================================================
   
 # Specify the directory where the data is again.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/Foodtree")
@@ -103,7 +103,7 @@
   FilterDbByDietRecords(food_database_fn = "../../../data/Food_tree_data/ASA24Database.txt", 
                         food_records_fn  = "VVKAJ_Items_f_id_s_m_ff.txt",   # output of FormatFoods above.
                         output_fn        = "VVKAJ_Items_f_id_s_m_ff_database.txt")
-  
+
 # Make a food tree with the reduced data.
   MakeFoodTree(nodes_fn=         "../../../data/Food_tree_data/NodeLabelsMCT.txt", 
                food_database_fn= "VVKAJ_Items_f_id_s_m_ff_database.txt",    # output for FilterDbByDietRecords above.
@@ -112,9 +112,10 @@
                output_taxonomy_fn = "VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tax.txt",
                output_tree_fn=      "VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.nwk" 
                )
-  
-# ---------------------------------------------------------------------------------------------------------------
+
+# ========================================================================================  
 # Generate standard, grams of fiber, and dehydrated grams per kcal OTU tables to be used later.
+# ========================================================================================  
 # Make the standard food otu table with data in gram weights of food.
 # It is OK to see see a warning message: 
 # In write.table(dhydrt.otu, output_fn, sep = "\t", quote = F, append = TRUE) :
@@ -141,17 +142,10 @@
 
   
   
+  #
   
   
-  
-  
-  
-  
-  
-  
-  
-    
-########## BELOW IS OLD, MCT VERSEION OF IT. ############
+  ####### BELOW IS OLD, MCT VERSEION OF IT. ############
   
   # ========================================================================================
   # Prep data

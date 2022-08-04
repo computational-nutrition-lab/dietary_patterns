@@ -14,11 +14,10 @@
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
-# Import source code to run the analyses to follow.
+# Import source code to run the analyses to follow and generate plots.
   source("lib/specify_dir_and_check_col.R")  
   source("lib/data_overview.R")  
-  # source("lib/load_clean_ASA24.R")
-  # source("lib/format.file.R")
+  source("lib/ggplot2themes.R")  
 
 # Call color palette.
   distinct100colors <- readRDS("lib/distinct100colors.rda")
@@ -34,8 +33,9 @@
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ")  
 
 # Load your items data to be analyzed.
-# "_f_s_m" stands for: "food names formatted", "selected individuals", and "metadata merged".  
-  items_f_id_s_m <- read.table("VVKAJ_items_f_id_s_m.txt", sep="\t", header=T)
+# "_f_id_s_m" stands for: "food names formatted", "SampleID added", "selected individuals", 
+# and "metadata merged".  
+  items_f_id_s_m <- read.table("VVKAJ_Items_f_id_s_m.txt", sep="\t", header=T)
   head(items_f_id_s_m)
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -50,46 +50,42 @@
 # Calculate the minimum, 1st quantile, median, mean, 3rd quantile, max, and standard deviation
 # for each variable in the input dataframe and save as a .txt file. 
   SummaryStats(inputdf = items_f_id_s_m, 
-               outfn = "VVKAJ_items_f_id_s_m_summ.txt")
+               outfn = "VVKAJ_Items_f_id_s_m_summ.txt")
 # *** NOTE that these are individual items, not by user or day. 
-  
-# ---------------------------------------------------------------------------------------------------------------
-  # Define ggplot2 themes
-  library(ggplot2)
-  
-  # Theme black and white, with the base font size 14: change if necessary.
-  theme_set(theme_bw(base_size = 14))
-  
-  # No gridlines inside charts
-  no_grid <- theme(panel.grid.major = element_blank(), 
-                   panel.grid.minor = element_blank())
-  
-  # Insert some space between axes and axes labels. 
-  space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
-                      axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
-  
-  # Rotate the X axis labels 45 degrees for visibility. 
-  rotate_X_labels <- theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1) )
 
 # ---------------------------------------------------------------------------------------------------------------
 # Boxplot
 # Generate a boxplot to view data distribution.
   
 # Boxplot of KCAL by users. And 
-  ggplot(items_f_id_s_m, aes(x=UserName, y=KCAL)) +
+  users_kcal <- ggplot(items_f_id_s_m, aes(x=UserName, y=KCAL)) +
     geom_boxplot() + no_grid + space_axes + rotate_X_labels
-
-# Boxplot of KCAL by gender.
-  ggplot(items_f_id_s_m, aes(x=Gender, y=KCAL)) +
+  users_kcal
+  
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Items_f_id_s_m_users_kcal.pdf", users_kcal, device="pdf")
+  
+# Similarly, generate a boxplot of KCAL by gender.
+  gender_kcal <- ggplot(items_f_id_s_m, aes(x=Gender, y=KCAL)) +
     geom_boxplot() + no_grid + space_axes 
+  gender_kcal
+
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Items_f_id_s_m_gender_kcal.pdf", gender_kcal, device="pdf")
+  
   
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot
   
 # Scaterplot of two numeric variables: TFAT and KCAL. 
-  ggplot(items_f_id_s_m, aes(x=TFAT, y=KCAL)) +
+  TFAT_KCAL <- ggplot(items_f_id_s_m, aes(x=TFAT, y=KCAL)) +
     geom_point() + no_grid + space_axes 
+  TFAT_KCAL
 
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Items_f_id_s_m_TFAT_KCAL.pdf", TFAT_KCAL, device="pdf")
+  
+  
 # Test if the two variables are correlated.
 # The output should show p-value and R correlation coefficient
   cor.test(x=items_f_id_s_m$TFAT, y=items_f_id_s_m$KCAL, method="pearson")
@@ -114,49 +110,55 @@
 # Summary statistics of one variable
   summary(tot_m_QCed$KCAL)
   
-# Calculate the min, quantiles, mean, etc. for a variable in your dataset. 
+# Calculate the min, quantiles, mean, etc. for a variable in your dataset
+# in the same way we did with the items.   
   SummaryStats(inputdf = tot_m_QCed, 
                outfn = "VVKAJ_Tot_m_QCed_summ.txt")
-  
-# ---------------------------------------------------------------------------------------------------------------
-# Load ggplot2 package and define theme if you have not done so.
-  library(ggplot2)
-  
-# Define ggpplot theme - white background, no inner grid.
-  theme_set(theme_bw(base_size = 14))
-  no_grid <- theme(panel.grid.major = element_blank(), 
-                   panel.grid.minor = element_blank())
-  space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
-                      axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
-  rotate_X_labels <- theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1) )
-  
+
 # ---------------------------------------------------------------------------------------------------------------
 # Boxplot
 # Generate a boxplot to view data distribution.
 
 # Boxplot of KCAL by users. This is a variation of the days, and note that
 # some users may have less number of days due to the QC process or missing data. 
-  ggplot(tot_m_QCed, aes(x=UserName, y=KCAL)) +
+  users_kcal_t <- ggplot(tot_m_QCed, aes(x=UserName, y=KCAL)) +
     geom_boxplot() + no_grid + space_axes + rotate_X_labels
-    
+  users_kcal_t
+  
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Tot_m_QCed_users_KCAL.pdf", users_kcal_t, device="pdf")
+  
 # Boxplot of KCAL by gender.
-  ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
+  gender_KCAL_t <- ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
     geom_boxplot() + no_grid + space_axes 
+  gender_KCAL_t
+  
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Tot_m_QCed_gender_KCAL.pdf", gender_KCAL_t, device="pdf")
+  
 
 # Boxplot of KCAL by gender, with each datapoint.  Note that geom_boxplot must have outlier.shape = NA 
 # when plotted with geom_jitter. Otherwise, outlier points will be duplicated and will be misleading. 
-  ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
+  gender_KCAL_t_dots <- ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
     geom_boxplot(outlier.shape = NA) + no_grid + space_axes +
     geom_jitter(width=0.3)
+  gender_KCAL_t_dots
+  
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Tot_m_QCed_gender_KCAL_dots.pdf", gender_KCAL_t_dots, device="pdf")
   
   
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot
   
 # Scaterplot of two variables. 
-  ggplot(tot_m_QCed, aes(x=TFAT, y=KCAL)) +
+  TFAT_KCAL_t <- ggplot(tot_m_QCed, aes(x=TFAT, y=KCAL)) +
     geom_point() + no_grid + space_axes
+  TFAT_KCAL_t
   
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Tot_m_QCed_TFAT_KCAL.pdf", TFAT_KCAL_t, device="pdf")
+
 # Test if the two variables are correlated.
 # The output should show p-value and R correlation coefficient
   cor.test(x=tot_m_QCed$TFAT, y=tot_m_QCed$KCAL, method="pearson")
@@ -176,7 +178,7 @@
   tot_m_QCed_fullonly <-    read.table("VVKAJ_Tot_m_QCed_fullonly.txt", sep="\t", header=T)
   tot_m_QCed_partialonly <- read.table("VVKAJ_Tot_m_QCed_partialonly.txt", sep="\t", header=T)
 
-# Make RecallNo (day) as a factor.
+# Make RecallNo (day) as a factor so that it can be used as a variable on the X (or Y) axes.
   tot_m_QCed$RecallNo <-             as.factor(tot_m_QCed$RecallNo)
   tot_m_QCed_w_NA$RecallNo <-        as.factor(tot_m_QCed_w_NA$RecallNo)
   tot_m_QCed_fullonly$RecallNo <-    as.factor(tot_m_QCed_fullonly$RecallNo)
@@ -184,13 +186,17 @@
 
 # Plot points and lines separately.  Specify your "x" and "y" twice.
 # The geom_line function only connects the data of individuals with all days of data.
-  ggplot() +
-    geom_point(tot_m_QCed,          mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName)) +
-    geom_line( tot_m_QCed_fullonly, mapping = aes(x=RecallNo, y=TFAT, group=UserName, color=UserName), 
+  lineplot_1 <- ggplot() + 
+    geom_point(tot_m_QCed,          mapping = aes(x=RecallNo, y=KCAL, group=UserName, color=UserName)) +
+    geom_line( tot_m_QCed_fullonly, mapping = aes(x=RecallNo, y=KCAL, group=UserName, color=UserName), 
               linetype="dashed") + no_grid +
     scale_color_manual(values = distinct100colors) 
+  lineplot_1
 
-
+# Save it as a .pdf file.
+  ggsave("VVKAJ_Tot_m_QCed_KCAL_lineplot.pdf", lineplot_1, device="pdf")
+  
+  
 # ---------------------------------------------------------------------------------------------------------------
 # Come back to the main directory before you start running another script.
   setwd(main_wd)

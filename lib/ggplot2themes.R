@@ -21,3 +21,6 @@
 # Insert some space between axes and axes labels. 
   space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
                       axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
+  
+# Rotate the X axis labels 45 degrees for visibility. 
+  rotate_X_labels <- theme(axis.text.x = element_text(size=12, angle = 45, hjust = 1) )

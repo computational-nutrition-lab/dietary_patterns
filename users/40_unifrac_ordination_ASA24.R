@@ -33,11 +33,13 @@
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
+# Come back to the main directory (dietary_patterns) if necessary.
+  setwd(main_wd)
+
 # ---------------------------------------------------------------------------------------------------------------
 # If you have not downloaded and installed the phyloseq package yet, 
 # you can do so by first installing BiocManager (if you have not done so):
-  # if (!require("BiocManager", quietly = TRUE))
-  #   install.packages("BiocManager")
+  if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
   
 # Then download and install the phyloseq package.  
   # BiocManager::install("phyloseq")
@@ -47,21 +49,12 @@
   library(ggtree)
   library(ggplot2)
 
-# Load ggplot formatting themes
+# Load necessary functions and ggplot formatting themes
+  source("lib/unifrac_ordination.R")
   source("lib/ggplot2themes.R")
-  
-  # # Define ggplot2 arguments and themes first.
-  #   theme1 <- theme_bw(base_size = 16) +
-  #     theme(axis.title.x=element_text(margin=margin(t = 10, r = 0, b = 0, l = 0))) +
-  #     theme(axis.title.y=element_text(margin=margin(t = 0, r = 10, b = 0, l = 0))) +
-  #     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
-  #     theme(aspect.ratio = 1)
-  
+
 # Load the distinct 100 colors for use.   
   distinct100colors <- readRDS("lib/distinct100colors.rda")
-  
-# Load the necessary scripts.
-  source("lib/unifrac_ordination.R")
   
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
@@ -73,7 +66,7 @@
   # Load food OTU table - this is our food OTU data
   # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
   # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
-  food <- read.delim("Foodtree/VVKAJ_Items_f_id_s__m_ff_reduced_4Lv.food.otu.txt", row.names = 1)
+  food <- read.delim("Foodtree/VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.food.otu.txt", row.names = 1)
   
   # "food" is a matrix of Food descriptions (rows) x SampleID (columns).
   head(food)
@@ -84,7 +77,7 @@
 # Taxonomy (tax)
   # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.taxonomy.txt")
   # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
-  tax <- read.delim("Foodtree/VVKAJ_Items_f_id_s__m_ff_reduced_4Lv.tax.txt")
+  tax <- read.delim("Foodtree/VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tax.txt")
   
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data= tax)
@@ -101,7 +94,7 @@
 # Food tree
   # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
   # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
-  foodtree <- read_tree("Foodtree/VVKAJ_Items_f_id_s__m_ff_reduced_4Lv.tree.nwk")
+  foodtree <- read_tree("Foodtree/VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.nwk")
   # It is OK to see a message saying that
     # "Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
     # Also defined by 'tidytree'"
@@ -114,7 +107,7 @@
   phyfoods <- phyloseq(OTU, TAX, SAMPLES, TREE)
   # It is OK to see a message (or multiple of them) saying that
     # Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
-    # Also defined by 'tidytree'
+    # Also defined by 'tidytree'.
 
 # Check your metadata
   # Show the sample names. 

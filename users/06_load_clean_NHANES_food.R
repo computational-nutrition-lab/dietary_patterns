@@ -6,7 +6,7 @@
 
 # Folder structure 
 # 
-#                          |----- eg_data -- NAHES -- Data -- Food Items and Totals files 
+#                          |----- eg_data -- NHANES -- Data -- Food Items and Totals files 
 #                          |
 #                          |----- lib
 #                          |

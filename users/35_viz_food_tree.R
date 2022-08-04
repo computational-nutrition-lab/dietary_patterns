@@ -32,7 +32,6 @@
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
-  
 # ========================================================================================
 # Load the "ggtree" package and source script for visualizing food trees.
 # ========================================================================================
@@ -102,8 +101,5 @@
 # Save the tree as a PDF file. 
   ggsave("VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.pdf", annotated_tree, device="pdf", width=6, height=6, units="in", dpi=300)
   
-# Or a png file.
-  ggsave("VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.png", annotated_tree, device='png', width=6, height=6, dpi=300)
-
   
   
