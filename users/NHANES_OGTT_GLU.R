@@ -61,13 +61,14 @@ library(SASxport)
   dim(glu)
   
 # LBXGLU - Fasting Glucose (mg/dL). 
-  # Count the number of rows with missing data.
+  # Count the number of rows with no missing data.
   sum(complete.cases(glu))
   library(naniar)
   vis_miss(glu)
 
   # Take out only rows with no missing data in LBXGLU and LBXGLUSI.
   glu_comp <- glu[!is.na(glu$LBXGLU), ]
+  hist(glu_comp$LBXGLU)
   
 # Load the oral glucose tolerance test.
   ogtt <- read.xport("eg_data/NHANES/Laboratory_data/OGTT_I.XPT")
@@ -132,22 +133,32 @@ library(SASxport)
     else{                        GO$OGTT_index[i] <- "Diab" }
   }
   head(GO)
-
-# -------------------------------------------------------------------------------------------------------
+  # Convert to factor
+  GO$OGTT_index <- factor(GO$OGTT_index, levels = c('Norm', 'Pred', 'Diab'))
+  # Look at the frequency.
+  table(GO$OGTT_index)
+  
 # Change workind dir.
   setwd("~/GitHub/dietary_patterns/eg_data/NHANES/Laboratory_data/")
 
 # Save GO for later use.
   write.table(x=GO, "GO.txt", sep="\t", quote=F, row.names = F)
 
+# ===============================================================================================================
+# Frequency of normal, prediabetes, and diabetes in the glucose test data
+# ===============================================================================================================
+
 # Load GO.txt
   GO <-  read.delim("GO.txt", sep="\t", header=T) 
   head(GO)
   
-  # Convert to factor
+# Convert to factor
+  GO$GLU_index <- factor(GO$GLU_index, levels = c('Norm', 'Pred', 'Diab'))
   GO$OGTT_index <- factor(GO$OGTT_index, levels = c('Norm', 'Pred', 'Diab'))
   # Look at the frequency.
+  table(GO$GLU_index)
   table(GO$OGTT_index)
+  
 
 # Look at the frequency of GO$GLU_index (by fasting glucose level) and GO$OGTT_index (oral glucose
 # tolerance test).
@@ -161,9 +172,25 @@ library(SASxport)
   sortedccrr = rbind(sortedcc, colSums(sortedcc))  # Add row totals 
   rownames(sortedccrr)[length(rownames(sortedccrr))] <- "Total"  # Change the last rowname
   sortedccrr
+  # The vertical ones are OGTT_index with 1623 normal ones.
   
-  # The vertical ones are OGTT_index with 1623 normal ones.    
+#                   GLU test
+#             Diab Norm Pred Total
+# OGTT  Norm    20  936  667  1623
+#       Pred    28   74  238   340
+#       Diab    58   11   52   121
+#       Total  106 1021  957  2084
   
+  # Save the table as a .txt file... 
+  write.table(x=sortedccrr, "GO_OGTT_GLU_freq.txt", sep="\t", row.names=T, col.names=NA, quote=F)
+
+# ---------------------------------------------------------------------------------------------------------------
+
+  
+  
+  
+  
+    
   
    
 # ---------------------------------------------------------------------------------------------------------------

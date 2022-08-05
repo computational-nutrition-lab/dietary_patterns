@@ -58,7 +58,7 @@
   CPT_kcal <- read.table("VVKAJ_Tot_m_QCed_CPT_kcal.txt", sep="\t", header=T)
   CPT_kcal
 
-# **** Do not alter the columnnames of CPT_kcal because the plotting functions below assume that 
+# **NOTE** Do not alter the columnnames of CPT_kcal because the plotting functions below assume that 
 # CPT_kcal has "UserName", "macronutrient", "n", "mean", and "sd" columns in it.
 
 # --------------------------------------------------------------------------------------------------------------

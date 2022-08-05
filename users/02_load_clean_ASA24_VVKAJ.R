@@ -1,5 +1,3 @@
-# For USERS ==============================================================================
-
 # ========================================================================================
 # Load and clean ASA24 data.
 # Version 1
@@ -15,7 +13,7 @@
 # Set your working directory to the main directory.
   Session --> Set working directory --> Choose directory.
 
-# Name your main directory for future use. 
+# Name your main directory for future use.
   main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
@@ -31,20 +29,25 @@
 # ========================================================================================
 
 # Specify the directory where the data is.
-  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
+  SpecifyDataDirectory(directory.name= "eg_data/VVKAJ/")
 
-# Load your raw items data and save it as a .txt file. 
+# Load your raw items data (as downloaded from the ASA24 study website).
+# The csv file will be loaded as a dataframe in R and be named as items_raw. 
   items_raw <-  read.csv("VVKAJ_Items.csv", sep = ",", header=T) 
+  
+# Save it as a .txt file. 
   write.table(items_raw, "VVKAJ_Items.txt", sep="\t", row.names=F) 
 
 # Special characters such as "'", ",", "%" may interfere correct data loading; thus,
 # we replace them with an underscore "_".  Takes only .txt files as input.
 # Specify column(s) to be processed in the "columns" argument.
+# Specify the output file name in the outfn argument; "_f" stands for "formatted".  
   format.file(filename = "VVKAJ_Items.txt",
               columns  = "Food_Description", 
-              outfn    = "VVKAJ_Items_f.txt")  # _f stands for "formatted".  
+              outfn    = "VVKAJ_Items_f.txt")  
 
-# Add SampleID with a desired prefix, and save it as a txt file.  
+# Add SampleID with a desired prefix, and save it as a txt file. SampleIDs are IDs unique 
+# to each combination of users and day.  
   AddSampleIDtoItems(input.fn="VVKAJ_Items_f.txt", user.name="UserName", recall.no="RecallNo", 
                      prefix="vvkaj.", out.fn="VVKAJ_Items_f_id.txt")
 
@@ -56,7 +59,7 @@
 
 # Ensure your items file has the expected dimensions (number of rows x number of columns,
 # shown as number of obs. and number of variables) in the environment window of R Studio, or
-# you can also check the dimension of items_f by using dim() function.
+# you can also check the dimension of items_f by using the dim() function.
   dim(items_f_id)
 
 # ========================================================================================
@@ -74,13 +77,14 @@
   # ... ...        
   # 16  VVKAJ116   yes 
 
-# Show which has "yes" in the "Remove" column, and remove them. 
+# Show which has "yes" in the "Remove" column. 
   subset(ind_to_rm, Remove == "yes")
 
 # Remove the specified individuals.  
 # The output will be saved as a text file with the specified name. 
 # This assumes the usernames are in UserName column, and will print which user(s) will be removed.   
-  RemoveRows(data=items_f_id, metadata.file= ind_to_rm, output.name= "VVKAJ_Items_f_id_s.txt")
+  RemoveRows(data=items_f_id, metadata.file= ind_to_rm, 
+             output.name= "VVKAJ_Items_f_id_s.txt")
   
 # Load the output for further processing.
   items_f_id_s <- read.table("VVKAJ_Items_f_id_s.txt", header=T, sep="\t")
@@ -146,8 +150,6 @@
   
 # Check that the items data and metadata are merged.
   head(new_totals_m)
-# Here, the first three rows have the same metadata because they are the day 1, 2, and 3 
-# dietary data of the same participant, VVKAJ102.
   
 # Save the merged dataframe as a .txt file.
   write.table(new_totals_m, "VVKAJ_Tot_m.txt", sep="\t", row.names=F, quote=F)
@@ -157,7 +159,7 @@
 # QC totals data
 # ======================================================================================== 
 # Look for outliers in your totals. 
-# Note that input object (QCtotals) will be overwritten after outlier removal.
+# Note that input dataframe (QCtotals) will be overwritten after outlier removal.
   
 # Load your totals if necessary - to be used as input for QC.
   new_totals <- read.table("VVKAJ_Tot_m.txt", sep="\t", header=T)
@@ -184,16 +186,7 @@
       VC_outliers[order(VC_outliers$BCAR, decreasing = T),
                   c('UserName', 'KCAL', 'VC', 'V_TOTAL', 'V_DRKGR', 'F_TOTAL')]  # F is fruits.
 
-# Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotals, target.colname = "BCAR", min = 15, max = 8200)
-    
-      # You may find numerous potential outliers here. Then, click "No", and view those 
-      # outliers with their other nutrient intake information by running the following;
-      BCAR_outliers <- subset(new_totals, BCAR < 15 | BCAR > 8200)
-      # sort in the order of BCAR and show only the specified variables.
-      BCAR_outliers[order(BCAR_outliers$BCAR, decreasing = T), c('UserName', 'KCAL', 'BCAR')] 
-
-# Save as "Totals_QCed.txt"
+# Save as "Totals_m_QCed.txt"
   write.table(QCtotals, "VVKAJ_Tot_m_QCed.txt", sep="\t", quote=F, row.names=F)
   
 # ---------------------------------------------------------------------------------------------------------------

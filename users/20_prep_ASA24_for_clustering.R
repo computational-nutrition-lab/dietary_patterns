@@ -334,7 +334,7 @@
 # Filter out highly correlated variables from the original dataset.  
   selected_variables <- subsetted_non0var[, cbc_res$reps]
 
-# ***NOTE: "selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+# **NOTE** "selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
   
 # Check the name of the original and filtered variables. 
   # Among the variables in the same group, the one with the highest variance is kept 
