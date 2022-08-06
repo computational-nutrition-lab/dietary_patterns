@@ -174,7 +174,7 @@
   
 # The columnname for BMI is BMXBMI
 
-    summary(glu_2$BMXBMI)
+  summary(glu_2$BMXBMI)
   vis_miss(glu_2[, c("SEQN", 'BMXBMI')])
   # 14 are missing BMI and has NA's...
   
@@ -193,9 +193,6 @@
   # the normal population.
   
 
-    
-  glu_2 %>% group_by(GLU_index) 
-  
 # ---------------------------------------------------------------------------------------------------------------
 # Look at the KCAL frequency of each group.   
   # Make sure the labels in the legend are correct. 
@@ -214,7 +211,7 @@
 # Select only men in their 50s, for example, so that the samples are more uniform and smaller?
   
 # ---------------------------------------------------------------------------------------------------------------
-# Use Diabetes questionnaire results...  
+# Use the demographics results...  
 # ---------------------------------------------------------------------------------------------------------------  
 # Load the demographics data.   
   demo <- read.xport("eg_data/NHANES/DEMO_I.XPT")
@@ -228,6 +225,10 @@
 # Add the demographics info to glu_2.
   glu_3 <- merge(x=glu_2, y=demo, all.x=T, by="SEQN") # 1554 rows.
   colnames(glu_3)
+  
+# Save the glu_3 as a txt file.
+  write.table(glu_3, "eg_data/NHANES/Laboratory_data/QCtotalANDglu_body_meta_demo.txt", 
+              sep="\t", row.names = F, quote = F)
     
 # Age - no missing data. 
   hist(glu_3$RIDAGEYR)
@@ -244,34 +245,32 @@
   table(glu_3_males50s$RIDAGEYR)
   table(glu_3_males50s$GLU_index)
   
-  colnames(glu_3_males50s)
-
+# Save the glu_3_males50s as a txt file.
+  write.table(glu_3_males50s, "eg_data/NHANES/Laboratory_data/QCtotalANDglu_body_meta_demo_males50s.txt", 
+              sep="\t", row.names = F, quote = F)
+  
+  
 # Look at the KCAL frequency of each group.   
 # Make sure the labels in the legend are correct. 
-  KCALfreq <- ggplot(data=glu_3_males50s, aes(x=KCAL, group=GLU_index, color=GLU_index)) +
+  KCALfreq_males50s <- ggplot(data=glu_3_males50s, aes(x=KCAL, group=GLU_index, color=GLU_index)) +
     geom_density(adjust=1.5, alpha=.4, size=1.2, linetype="longdash") + space_axes + no_grid +
     scale_color_manual(values= c("steelblue3", "gold3", "hotpink") ,
                        labels= c("Normal", "Prediabetes", "Diabetes")) +
     labs(x="KCAL", y="Density") 
-  KCALfreq
+  KCALfreq_males50s
   
   # Save the chart as .png.
-  ggsave("KCAL_by_GLU_index_males50s.png", KCALfreq, device="png")
+  ggsave("KCAL_by_GLU_index_males50s.png", KCALfreq_males50s, device="png")
   
 # Create a boxplot of KCAL of each GLU_index group.
-  KCAL_dots <- ggplot(glu_3_males50s, aes(x=GLU_index, y=KCAL)) +
+  KCAL_dots_males50s <- ggplot(glu_3_males50s, aes(x=GLU_index, y=KCAL)) +
     geom_boxplot(outlier.shape = NA) + no_grid + space_axes +
     geom_jitter(width=0.3)
-  KCAL_dots
+  KCAL_dots_males50s
   
-  ggsave("KCAL_by_GLU_index_box_males50s.png", KCAL_dots, device="png")
+  ggsave("KCAL_by_GLU_index_box_males50s.png", KCAL_dots_males50s, device="png")
   
-  
-# T-test if they are different...
-  
-  
-  
-# perform PCA and plot the individuals. color code by GLU_index.
+# ANOVA if they are different...?
   
   
   
