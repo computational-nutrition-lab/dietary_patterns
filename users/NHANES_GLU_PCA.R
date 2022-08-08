@@ -6,44 +6,39 @@
 
   setwd("~/GitHub/dietary_patterns/eg_data/NHANES/Laboratory_data/")
 
+# Load the necessary functions 
+  source("../../../lib/prep_data_for_clustering.R")
+  source("../../../lib/PCA.R")
+  source("../../../lib/k-means.R")
+
+# ===============================================================================================================
+# Prep for PCA with nutrients
+# ===============================================================================================================
+  
 # ---------------------------------------------------------------------------------------------------------------
 # Load the glu_3_males50s data. 
   glu_3_males50s <- read.table("QCtotalANDglu_body_meta_demo_males50s.txt", 
                                sep="\t", header=T)
+  # There should be 124 individuals (rows)
   dim(glu_3_males50s)
 
-# ===============================================================================================================
-# Prep for PCA
-# ===============================================================================================================
-  # Perform PCA and plot the individuals. color code by GLU_index.
-  head(glu_3_males50s)
-  # Load the necessary functions
-  source("../../../lib/prep_data_for_clustering.R")
-  source("../../../lib/PCA.R")
-  source("../../../lib/k-means.R")
-  
-  # Define which columns to drop.
+# Define which columns to drop.
   drops <- c("KCAL","GRMS", "MOIS", "NoOfItems")
   
-  # Take only the columns whose names are NOT in the drop vector. 
+# Take only the columns whose names are NOT in the drop vector. 
   aaa <- glu_3_males50s[ , !(names(glu_3_males50s) %in% drops)]
   dim(glu_3_males50s)
   dim(aaa)
   
-  # Save it as glu_3_males50s.  
-  glu_3_males50s <- aaa
-  
-  # Define the input data to be used.
-  input_data <- glu_3_males50s
+# Define the input data to be used.
+  input_data <- aaa 
+  colnames(input_data)
   
 # ---------------------------------------------------------------------------------------------------------------  
-  # The columns specified as start.col, end.col, and all columns in between will be selected.
+# The columns specified as start.col, end.col, and all columns in between will be selected.
   # Nutrients
   SubsetColumns(data=input_data, start.col="PROT", end.col="P226")
-  # OR food categories
-  SubsetColumns(data=input_data, start.col="F_CITMLB", end.col="A_DRINKS")
-  
-  # The output is a df called "subsetted".
+    # The output is a df called "subsetted".
   
   # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
   # The removed columns will be shown if any.
@@ -52,10 +47,10 @@
   
   # Check the columns (variables) remained.
   colnames(subsetted_non0var)  
-  dim(subsetted_non0var)  
+  dim(subsetted_non0var)
   
-  # ---------------------------------------------------------------------------------------------------------------
-  # Collapse variables by correlation: take only one variables if they are highly correlated.
+# ---------------------------------------------------------------------------------------------------------------
+# Collapse variables by correlation: take only one variable if they are highly correlated.
   cbc_res <- CollapseByCorrelation(x = subsetted_non0var,
                                    min.cor = 0.75, 
                                    select.rep.fcn = 'mean', verbose = T)
@@ -69,7 +64,132 @@
   # Among the variables in the same group, the one with the highest variance is kept 
   #  (according to the explanation above.)
   # filtered
-  head(selected_variables, 1)     
+  head(selected_variables, 1) 
+  dim( selected_variables)     
+  
+  # original
+  head(subsetted_non0var, 1)
+  dim(subsetted_non0var)
+  
+# ---------------------------------------------------------------------------------------------------------------
+  # Save the variables after removing correlated variables
+  write.table(selected_variables, 
+              "QCtotalANDglu_body_meta_demo_males50s_Nut_rv.txt", 
+              sep="\t", row.names=F, quote=F)
+  
+# ---------------------------------------------------------------------------------------------------------------
+  # Save the correlation matrix for record in the results folder.
+  # cc is the correlation matrix produced when variables are collapsed by correlation. 
+  SaveCorrMatrix(x=cc, 
+                 out.fn = "QCtotalANDglu_body_meta_demo_males50s_Nut_corr_mat.txt")
+# ---------------------------------------------------------------------------------------------------------------
+  
+# ===============================================================================================================
+# PCA with nutrients
+# ===============================================================================================================
+
+# Change directory
+  # setwd("~/GitHub/dietary_patterns/eg_data/NHANES/Laboratory_data/")
+  
+# Your input data should be a data frame with variables with non-zero variance. 
+  pca_input <- read.table("QCtotalANDglu_body_meta_demo_males50s_Nut_rv.txt", 
+                          sep="\t", header=T)
+  
+  # Ensure your input file has the correct number of rows and columns.
+  dim(pca_input)
+  
+  # Perform PCA with the subset data, scaled.
+  scaled_pca <- prcomp(x= pca_input, scale= TRUE)   
+  
+  #### Save PCA plots and .txt all at once. ####
+  
+  # Specify the directory (folder) to save the results.
+  res_dir_Nut = "PCA_Nut_males50s" 
+  
+  # Specify the prefix of filenames to be saved. 
+  res_prefix_Nut = "males50s_Nut"
+  
+# Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
+  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+             out.dir= res_dir_nut, out.prefix= res_prefix_nut)
+  
+# Combine the input (totals before processing) with all the variables and the PC results. 
+  # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
+  SaveInputAndPCs(input="QCtotalANDglu_body_meta_demo_males50s.txt", pca.results = scaled_pca, 
+                  out.dir= res_dir_Nut, out.prefix= res_prefix_Nut)
+  # Note that even though the input file has both nutrients (Nut) and food categories (Cat) data,  
+  # PCA was done with only either Nut or Cat, not both.
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Create a biplot with Normal, Prediabetes, and Diabetes people color-coded.   
+
+# Load the input & PC info.
+  Nut_PCs <- read.table("PCA_Nut_males50s/males50s_Nut_PCs.txt", sep="\t", header=T)
+
+# Change to a factor so that factors will be displayed in order.
+  Nut_PCs$GLU_index <- factor(Nut_PCs$GLU_index, levels= c("Norm", "Pred", "Diab"))
+  
+  head(Nut_PCs)
+  dim(Nut_PCs)
+  
+  ggplot(data= Nut_PCs, aes(x=PC1, y=PC2, color= GLU_index)) +
+    geom_point(aes(fill=GLU_index), size=3) +
+    theme_bw(base_size = 14)
+  # No visual separation between the groups...
+  
+# Use the autoplot function.
+  foodnut_PCA <- autoplot(scaled_pca, loadings=T, loadings.label=T, loadings.colour = 'grey50',  # loadings.label=T if want to see it
+                          data = input_data,  size= 3 ) +
+    # coord_cartesian(xlim =c(-0.2, 0.2), ylim = c(-0.2, 0.25)) +
+    geom_point(size = 3, alpha = 1, na.rm = T, shape = 21,  aes(fill= GLU_index)) +
+    theme_bw(base_size = 12) + theme(aspect.ratio = 1) +  
+    # xlim(-0.3, 0.2) + ylim(-0.3, 0.2) +
+    theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    scale_fill_manual( values= c("hotpink",   "steelblue3", "yellow"  ), 
+                       labels= c("Diabetic",  "Normal",     "Prediabetic") )
+  foodnut_PCA
+  
+  ggsave("PCA_Nut_males50s/males50s_Nut_PCA_by_GLU_index.png", foodnut_PCA, 
+         device="png", width=7, height=6.5)
+  
+
+# ---------------------------------------------------------------------------------------------------------------
+# ===============================================================================================================
+# Prep Food categories data for PCA
+# ===============================================================================================================
+  
+# ---------------------------------------------------------------------------------------------------------------  
+# The columns specified as start.col, end.col, and all columns in between will be selected.
+# food categories
+  SubsetColumns(data=input_data, start.col="F_CITMLB", end.col="A_DRINKS")
+  
+  # The output is a df called "subsetted".
+  
+  # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
+  # The removed columns will be shown if any.
+  KeepNonZeroVarColumns(data = subsetted)
+  # The output is a df called "subsetted_non0var".
+  
+  # Check the columns (variables) remained.
+  colnames(subsetted_non0var)  
+  dim(subsetted_non0var)  
+  
+# ---------------------------------------------------------------------------------------------------------------
+# Collapse variables by correlation: take only one variable if they are highly correlated.
+  cbc_res <- CollapseByCorrelation(x = subsetted_non0var,
+                                   min.cor = 0.75, 
+                                   select.rep.fcn = 'mean', verbose = T)
+  
+  # Filter out highly correlated variables from the original dataset.  
+  selected_variables <- subsetted_non0var[, cbc_res$reps]
+  
+  # ***"selected_variables" is the dataframe to be used for PCA, cluster analyses etc.***
+  
+  # Check to see the name of the original and filtered variables. 
+  # Among the variables in the same group, the one with the highest variance is kept 
+  #  (according to the explanation above.)
+  # filtered
+  head(selected_variables, 1) 
   dim(selected_variables)     
   
   # original
@@ -79,57 +199,76 @@
   # ---------------------------------------------------------------------------------------------------------------
   # Save the variables after removing correlated variables
   write.table(selected_variables, 
-              "QCtotalANDglu_body_meta_demo_males50s_Nut_rv.txt", 
-              sep="\t", row.names=F, quote=F)
+              "QCtotalANDglu_body_meta_demo_males50s_Cat_rv.txt", 
+              sep="\t", row.names= F, quote= F)
   
   # ---------------------------------------------------------------------------------------------------------------
   # Save the correlation matrix for record in the results folder.
   # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc, 
-                 out.fn = "QCtotalANDglu_body_meta_demo_males50s_Nut_corr_mat.txt")
+                 out.fn = "QCtotalANDglu_body_meta_demo_males50s_Cat_corr_mat.txt")
   # ---------------------------------------------------------------------------------------------------------------
   
 # ===============================================================================================================
-# PCA with nutrients
+# PCA with Food categories.
 # ===============================================================================================================
-
-# Your input data should be a data frame with variables with non-zero variance. 
-  pca_input <- read.table("QCtotalANDglu_body_meta_demo_males50s_Nut_rv.txt", 
+  
+  # Your input data should be a data frame with variables with non-zero variance. 
+  pca_input <- read.table("QCtotalANDglu_body_meta_demo_males50s_Cat_rv.txt", 
                           sep="\t", header=T)
   
   # Ensure your input file has the correct number of rows and columns.
   dim(pca_input)
   
   # Perform PCA with the subset data, scaled.
-  scaled_pca <- prcomp(x=pca_input, scale = TRUE)   
+  scaled_pca <- prcomp(x= pca_input, scale= TRUE)   
   
-  #### Save PCA plots and txt all at once. ####
+  #### Save PCA plots and .txt all at once. ####
   
   # Specify the directory (folder) to save the results.
-  res_dir_nut = "PCA_Nut_males50s" 
+  res_dir_Cat = "PCA_Cat_males50s" 
   
   # Specify the prefix of filenames to be saved. 
-  res_prefix_nut = "males50s_Nut"
+  res_prefix_Cat = "males50s_Cat"
   
-# Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, out.dir= res_dir_nut, out.prefix= res_prefix_nut)
+  # Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
+  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+             out.dir= res_dir_Cat, out.prefix= res_prefix_Cat)
   
-# Combine the input (totals before processing) with all the variables and the PC results. 
+  # Combine the input (totals before processing) with all the variables and the PC results. 
   # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
   SaveInputAndPCs(input="QCtotalANDglu_body_meta_demo_males50s.txt", pca.results = scaled_pca, 
-                  out.dir= res_dir_nut, out.prefix= res_prefix_nut)
+                  out.dir= res_dir_Cat, out.prefix= res_prefix_Cat)
   # Note that even though the input file has both nutrients (Nut) and food categories (Cat) data,  
   # PCA was done with only either Nut or Cat, not both.
   
 # ---------------------------------------------------------------------------------------------------------------
-# Do the same with Food categories.
-  
-  
-  
-# ---------------------------------------------------------------------------------------------------------------
 # Create a biplot with Normal, Prediabetes, and Diabetes people color-coded.   
   
+  # Load the input & PC info.
+  Cat_PCs <- read.table("PCA_Cat_males50s/males50s_Cat_PCs.txt", sep="\t", header=T)
   
+  head(Cat_PCs)
+  dim(Cat_PCs)
   
+  ggplot(data=Cat_PCs, aes(x=PC1, y=PC2, color= GLU_index)) +
+    geom_point(aes(fill=GLU_index), size=3) +
+    theme_bw(base_size = 14)
   
+# Use the autoplot function.
+  foodcat_PCA <- autoplot(scaled_pca, loadings=T, loadings.label=T, loadings.colour = 'grey50',  # loadings.label=T if want to see it
+           data = input_data,  size= 3 ) +
+    # coord_cartesian(xlim =c(-0.2, 0.2), ylim = c(-0.2, 0.25)) +
+    geom_point(size= 3, alpha= 1, na.rm= T, shape= 21,  aes(fill=GLU_index)) +
+    theme_bw(base_size= 12) + theme(aspect.ratio = 1) +  
+    # xlim(-0.3, 0.2) + ylim(-0.3, 0.2) +
+    theme( panel.grid.major = element_blank(), panel.grid.minor = element_blank()) +
+    scale_fill_manual( values= c("hotpink",  "steelblue3",  "yellow") ,
+                       labels= c("Diabetic", "Normal",      "Prediabetic") )
+  foodcat_PCA
+  
+  ggsave("PCA_Cat_males50s/males50s_Cat_PCA_by_GLU_index.png", foodcat_PCA, 
+         device="png", width=7, height=6.5)
+
+  ?autoplot
   

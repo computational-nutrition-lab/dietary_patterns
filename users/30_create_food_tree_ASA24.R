@@ -14,7 +14,7 @@
 #  #
 #  &
 
-  # use this working directory until this script is complete. 
+# use this working directory until this script is complete. 
   setwd("~/GitHub/dietary_patterns")
 
 # Folder structure 

@@ -10,12 +10,12 @@
 # 
 # Import NHANES data using the SASexport package.
 # install.packages("SASxport")
-library(SASxport)
-library(foreign)
+  library(SASxport)
+  library(foreign)
 
 
 # ========================================================================================
-# Load and prepare food code table.  
+# Load and prepare food code table. 
 # ========================================================================================
 
 # Load food items and bring the food description to the first column.

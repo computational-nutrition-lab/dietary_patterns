@@ -31,6 +31,7 @@
 
   # Load the metadata of people, which is in Total Day 1.
   metadata_raw <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR1TOT_I.XPT")
+  DR2total <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR2TOT_I.XPT")
   head(metadata_raw, 1)
   dim(metadata_raw)
   colnames(metadata_raw)

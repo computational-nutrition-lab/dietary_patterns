@@ -60,11 +60,11 @@
   
 # CheckDB and ensure no food reported Food_D12_FC_cc_f.txt in is missing in the database.
   
-  # check if there is any food item reported by people but are missing in the database. 
+  # Check if there is any food item reported by people but are missing in the database. 
   check.db(food_database_fn = "eg_data/NHANES1516/processed/NHANESDatabase.txt", 
            food_records_fn =  "eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98_red.txt", 
            output_fn =        "eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98_red_missing.txt")
-  #  the output "eg_data/NHANES/Food_D12_FC_cc_f_missing.txt" dose not contain any data. 
+  #  the output "eg_data/NHANES/Food_D12_FC_cc_f_missing.txt" does not contain any data. 
   
 # Does the output contain anything? 
   mmm = read.table("eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98_red_missing.txt", sep="\t", header=T)
