@@ -72,14 +72,14 @@
   dim(subsetted_non0var)
   
 # ---------------------------------------------------------------------------------------------------------------
-  # Save the variables after removing correlated variables
-  write.table(selected_variables, 
+# Save the variables after removing correlated variables
+  write.table(selected_variables,
               "QCtotalANDglu_body_meta_demo_males50s_Nut_rv.txt", 
               sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
-  # Save the correlation matrix for record in the results folder.
-  # cc is the correlation matrix produced when variables are collapsed by correlation. 
+# Save the correlation matrix for record in the results folder.
+# cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc, 
                  out.fn = "QCtotalANDglu_body_meta_demo_males50s_Nut_corr_mat.txt")
 # ---------------------------------------------------------------------------------------------------------------

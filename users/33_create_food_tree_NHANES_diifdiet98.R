@@ -1,15 +1,15 @@
-# ========================================================================================
+# ==============================================================================================================
 # Create food tree with NHANES data. AFTER SELECTING INDIVIDUALS USED IN QCTOTAL AND
 # selecting only the 98 individuals with various diets. 
 # Version 1
 # Created on 06/08/2022 by Rie Sadohara
-# ========================================================================================
+# ==============================================================================================================
 
   setwd("~/GitHub/dietary_patterns")
 
-# ========================================================================================
+# ==============================================================================================================
 # Load source scripts
-# ========================================================================================
+# ==============================================================================================================
   source("lib/Food_tree_scripts/newick.tree.r")
   source("lib/Food_tree_scripts/check.db.r")
   source("lib/Food_tree_scripts/format.foods.r")
@@ -27,10 +27,10 @@
 # This is too large as is, so use FilterDBByDietRecords() function to 
 # remove unnecessary columns. All rows will be kept. 
 
-# ========================================================================================
+# ==============================================================================================================
 # Keep only the individuals in QC-ed total data (optional; if wish to be
 #  consistent with clustering analysis using 'QCtotal') 
-# ========================================================================================
+# ==============================================================================================================
 
 # Load the diffdiet 98 people. Note this is a total data (1 row/person).
   QCtotal_b <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_98diffdiet.txt", sep="\t", header=T)
@@ -49,9 +49,9 @@
 # Save. This will be the input in the following procedures.
   write.table(ssss, "eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98.txt", sep="\t", row.names=F, quote=F)
   
-# ========================================================================================
+# ==============================================================================================================
 # Limit to just the foods reported in your study (formatted dietrecords.txt as the input) 
-# ========================================================================================
+# ==============================================================================================================
 # Keep only the foods reported in your study. This is already done, but need to run this 
 #  so that the data will be formatted in a compatible way to create food tree.
   FilterDbByDietRecords(food_database_fn = "eg_data/NHANES1516/processed/NHANESDatabase.txt", 
@@ -67,7 +67,7 @@
   #  the output "eg_data/NHANES/Food_D12_FC_cc_f_missing.txt" does not contain any data. 
   
 # Does the output contain anything? 
-  mmm = read.table("eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98_red_missing.txt", sep="\t", header=T)
+  mmm <- read.table("eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98_red_missing.txt", sep="\t", header=T)
   head(mmm)
   # Has something ===> put this missing.txt file in addl_foods_fn argument of MakeFoodTree.
   # Empty         ===> put NULL in addl_foods_fn argument of MakeFoodTree.
@@ -81,8 +81,10 @@
                output_taxonomy_fn = "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.taxonomy.txt"
                ) 
 
-# --------------------------------------------------------------------------------------------------------------
+# ==============================================================================================================
   # Viz food tree.  
+# ==============================================================================================================
+# --------------------------------------------------------------------------------------------------------------
   source("lib/viz_food_tree.r")
   
   # Load your ggtree object. 
@@ -99,7 +101,7 @@
   VizFoodTree(input.tree=tree, layout="radial")
   
   # Look at the color-coded and annotated food tree, saved as tree_an_hi_o_rt.
-  tree_an_hi_o_rt
+  annotated_tree
   
   # Save it as a high resolution file
   ggsave("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv5.tif", tree_an_hi_o_rt,  
@@ -112,29 +114,29 @@
     # appending column names to file
 
 # Make the standard food otu table with data in gram weights of food.
-  MakeFoodOtu(food_records_fn=  "eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98.txt", # need to supply data that have 'FoodAmt' before applying FilterDBByDietRecords.  
+  MakeFoodOtu(food_records_fn=  "Food_D12_FC_cc_f_diffdiet98.txt", # need to supply data that have 'FoodAmt' before applying FilterDBByDietRecords.  
               food_record_id =  "SEQN",                       # Specify the ID of your participants
-              food_taxonomy_fn= "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.taxonomy.txt",  # Specify your taxonomy file produced by MakeFoodTree.
-              output_fn =       "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.food.otu.txt")  # Name your output otu file.
+              food_taxonomy_fn= "Food_D12_FC_cc_f_diffdiet98_red_Lv4.taxonomy.txt",  # Specify your taxonomy file produced by MakeFoodTree.
+              output_fn =       "Food_D12_FC_cc_f_diffdiet98_red_Lv4.food.otu.txt")  # Name your output otu file.
   
 # Make a food otu table with data in grams of fiber per food
   MakeFiberOtu(food_records_fn=  "eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98.txt", 
                food_record_id=   "SEQN", 
-               food_taxonomy_fn= "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.taxonomy.txt", 
-               output_fn=        "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.fiber.otu.txt")
+               food_taxonomy_fn= "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv4.taxonomy.txt", 
+               output_fn=        "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv4.fiber.otu.txt")
   
 # Make a food otu table as dehydrated grams per kcal
-  MakeDhydrtOtu(food_records_fn=  "eg_data/NHANES/Food_D12_FC_cc_f_diffdiet98.txt", 
+  MakeDhydrtOtu(food_records_fn=  "eg_data/NHANES/Food_D12_FC_cc_f_males50s.txt", 
                 food_record_id =  "SEQN", 
-                food_taxonomy_fn= "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.taxonomy.txt", 
-                output_fn =       "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.dhydrt.otu.txt")
+                food_taxonomy_fn= "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv4.taxonomy.txt", 
+                output_fn =       "results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv4.dhydrt.otu.txt")
 
 
-# ========================================================================================
+# ================================================================================================================
 # OR you can create a food tree from all the possible food items.
 # Same as in 32_create_food_tree_NHANES.R
-# ========================================================================================
-  MakeFoodTree(nodes_fn="data/Food_tree_data/NodeLabelsMCT.txt", # can use this for now. 
+# ================================================================================================================
+  MakeFoodTree(nodes_fn="data/Food_tree_data/NodeLabelsMCT.txt", # can use this for now.
                addl_foods_fn =   NULL, 
                num.levels = 2,
                food_database_fn= "eg_data/NHANES1516/processed/NHANESDatabase.txt", 
