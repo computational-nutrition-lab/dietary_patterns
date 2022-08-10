@@ -27,7 +27,6 @@
 
 # Load necessary packages.
   library(SASxport)
-  # library(foreign)
 
 # Set where the NHANES data and food code table are.
 # it is not in the eg_data folder because it's too large to save in GitHub folder. 
@@ -37,6 +36,7 @@
 # Load necessary functions.
   source("lib/load_clean_NHANES.R")
   source("lib/prep_data_for_clustering.R")
+  source("lib/Food_tree_scripts/format.foods.r")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Prep the code table - replace special characters with "_" or "and"
@@ -56,7 +56,7 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Load FPED15-16, needed for the AddFoodCat function. 
   FPED <- read.table("eg_data/NHANES/FPED/FPED_1516_forR.txt", sep="\t", header=T)
-  head(FPED, 1)
+  head(FPED, 2)
   colnames(FPED)[1] <- "Food_code" # Important! Change the food code column name as Food_code.
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -67,7 +67,7 @@
                         food.code.table = foodcodetable_f,
                         out.fn = "eg_data/NHANES/DR1IFF_I_d.txt") # 'd' stands for food descriptions
 
-# Load the saved food items file. 
+# Load the saved food items file.
   Food_D1 <- read.table("eg_data/NHANES/DR1IFF_I_d.txt", sep="\t", header=T)
   dim(Food_D1)
   head(Food_D1, 1)
@@ -83,7 +83,6 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Import items data Day 2, add food item descriptions, and save it as a txt file.
-  # Import items data Day 2, add food item descriptions, and save it as a txt file.
   ImportNHANESFoodItems(data.name="E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR2IFF_I.XPT",
                         food.code.column = "DR2IFDCD",
                         food.code.table = foodcodetable_f,
@@ -108,7 +107,7 @@
 # ===============================================================================================================
   # Food Day 1 with Food Category *** WILL BE A HUGE TABLE. ***
   Food_D1_FC <- read.table("eg_data/NHANES/Food_D1_FC.txt", sep="\t", header=T)
-  dim(Food_D1)
+  dim(Food_D1_FC)
   length(unique(Food_D1_FC$SEQN))
   head(Food_D1_FC,2)
   
@@ -142,7 +141,6 @@
 # FotmatFoods() function adds "Main.Food.Description" where special characters are removed/replaced, the previous
 # Main.Food.Description as Old.Main.Food.Description, ModCode, and FoodID. $FoodID is a cha vector, but has .0 at the end. 
   # MAKE SURE dedupe=F. If true (default!), duplicated foods will be removed! 
-  source("lib/Food_tree_scripts/format.foods.r")
   FormatFoods(input_fn="eg_data/NHANES/Food_D1_FC_cc.txt", output_fn= "eg_data/NHANES/Food_D1_FC_cc_f.txt", dedupe=F)
   FormatFoods(input_fn="eg_data/NHANES/Food_D2_FC_cc.txt", output_fn= "eg_data/NHANES/Food_D2_FC_cc_f.txt", dedupe=F)
   
@@ -166,8 +164,8 @@
   # Food_code and foodcode are the same though 'identical()' says they are not...
   
   # Use these resultant objects for the following procedures.
-  Food_D1_FC_cc_f
-  Food_D2_FC_cc_f 
+  # Food_D1_FC_cc_f
+  # Food_D2_FC_cc_f 
 
   
 # ===============================================================================================================
@@ -279,7 +277,7 @@
 # Change "FoodAmt" back to "DR1GRMS" to be consistent with the variable names in dayXvariables
   names(food1bb)[names(food1bb) == "FoodAmt"] <- "DR1IGRMS"
   names(food2bb)[names(food2bb) == "FoodAmt"] <- "DR2IGRMS"
-      
+
 # Combine day 1 and day 2 data.
   # Day 1
   # Import the list of variables to be picked up in Day 1. 
@@ -347,7 +345,6 @@
 # Calculate total for day 1. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Take only the Day 1 data
   food12d_d1 <- subset(food12d, Day==1) 
-  colnames(food12d_d1)
       
 # Sum nutrients and food categories; this will be total data calculated by hand.
 # First, speicify the first and the last column (variable) names to calculate totals for. 
@@ -381,7 +378,7 @@
   food12d_d2 <- subset(food12d, Day==2) 
   
   # Sum nutrients.  
-  # First, speicfy the first and the last column (variable) names to calculate totals for. 
+  # First, speicify the first and the last column (variable) names to calculate totals for. 
   first.val <- "GRMS"
   last.val <- "A_DRINKS"
   
@@ -431,7 +428,7 @@
   last.val <- "NoOfItems"  #### Now you want the average of No of Items reported, too. 
   
   start_col_num <- match(first.val, names(total12d))  # The number of column that matches the first variable specified.
-  end_col_num <-   match(last.val,  names(total12d)) # The number of column that matches the last variable specified.
+  end_col_num <-   match(last.val,  names(total12d))  # The number of column that matches the last variable specified.
   
   # Sum food items by SEQN from start through end columns.
   meantotal12a <- aggregate(total12d[, start_col_num:end_col_num], 
@@ -467,22 +464,22 @@
 # that fall outside the specified range for each nutrient.
 
 # Define the input data.  This dataframe will be modified after each filter.
-  QCtotal <- meantotal12b
+  QCtotals <- meantotal12b
   
   # Flag if KCAL is <600 or >5700 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotal, 
+  QCOutliers(input.data = QCtotals, 
              target.colname = "KCAL", min = 600, max = 5700)
   
   # Flag if PROT is <10 or >240 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotal, 
+  QCOutliers(input.data = QCtotals, 
              target.colname = "PROT", min = 10, max = 240)
   
   # Flag if TFAT is <15 or >230 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotal, 
+  QCOutliers(input.data = QCtotals, 
              target.colname = "TFAT", min = 15, max = 230)
 
   # Flag if VC (Vitamin C) is <5 or >400 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotal,  
+  QCOutliers(input.data = QCtotals,  
              target.colname = "VC", min = 5, max = 400)
   
       # or show the outliers if too many.
@@ -491,7 +488,7 @@
       head(VCoutliers[order(VCoutliers$VC, decreasing = T), ], n=10)
 
   # Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotal,  
+  QCOutliers(input.data = QCtotals,  
              target.colname = "BCAR", min = 15, max = 8200)
     
       # or show the outliers if too many.
@@ -500,12 +497,11 @@
       head(bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ], n=10)
       
   # 
-  head(QCtotal)
-      
+  dim(QCtotals)
       
 # ---------------------------------------------------------------------------------------------------------------
 # Save QCtotal as a .txt file. 
-  write.table(QCtotal, "eg_data/NHANES/Total_D12_FC_mean_QC_1.txt", sep="\t", quote=F, row.names=F)
+  write.table(QCtotals, "eg_data/NHANES/Total_D12_FC_mean_QC.txt", sep="\t", quote=F, row.names=F)
   
 # ---------------------------------------------------------------------------------------------------------------
   # Take n random samples of participants (SEQN).
