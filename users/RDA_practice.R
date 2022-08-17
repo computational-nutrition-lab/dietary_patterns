@@ -69,24 +69,30 @@ anova(ord_rda, by="axis")
 # ---------------------------------------------------------------------------------------------------------------
   # Load the necessary files for creating a phyloseq object.  
   
-  # Food
+# Food
   # Load food OTU table - this is our food OTU data
-  # food <- read.delim("results/Food_tree_NHANES/Food_D12_FC_cc_f_red_Lv5.dhydrt.otu.txt", row.names = 1)
-  # food <- read.delim("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv5.dhydrt.otu.txt", row.names = 1)
   food <- read.delim("Foodtree/Food_D12_FC_cc_f_males50s_red_Lv4.dhydrt.otu.txt", row.names=1)
-  # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
-  # Format the food file and create a otu_table called OTU.
   PrepFood(data=food)
   food[1:10, 1:10]
   
   # Taxonomy (tax)
-  # tax <- read.delim("results/Food_tree_NHANES/Food_D12_FC_cc_f_red_Lv5.taxonomy.txt")
-  # tax <- read.delim("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv5.taxonomy.txt")
   tax <- read.delim("Foodtree/Food_D12_FC_cc_f_males50s_red_Lv4.taxonomy.txt")
-  # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_4Lv.taxonomy.txt")
-  # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data=tax)
+  head(TAX,1) 
+ 
+  
+  head(food) 
+  dim(food) 
+  colnames(food)
+  food_t <- t(food)
+  colnames(food_t)
+  head(food_t)[1:3,1:3]
+  
+ 
+  #### unconstrained
+  un_rda <- rda(tax)
+  
   
   # Sample
   # MCT
@@ -100,24 +106,98 @@ anova(ord_rda, by="axis")
   rownames(demog) <- paste("X", demog$SEQN, sep="") # Add 'X' at the beginning
   head(demog)
   
-  PrepMeta_NHANES(data=demog)
-  # Error in `[.data.frame`(data, , "SampleID") : undefined columns selected
-  # Need to create PrepMeta for NHANES. because the current PrepMeta function uses
-  # "SampleID", that is the combination of UserName and Day of ASA24, but  
-  # NHANES data do not have such a naming scheme.
+# ----------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------
+# chapter 2 Prepare for the workshop
+  # Load the required packages
+  library(vegan)
+  library(labdsv)
+  library(MASS)
+  library(mvpart)
+  library(ggplot2)
   
-  PrepMeta_NHANES <- function(data=meta){
-    
-    # make UserName as rownames of meta.
-    # rownames(data) <- data[, "SampleID"]
-    
-    # subset metadata to the correct samples.
-    # colnames(food) has users.  
-    meta2 <<- data[colnames(food), ]
-    
-    # Transform meta2 to sample_data object.
-    SAMPLES <<- phyloseq::sample_data(meta2)
-  }
+  # # Install the required packages
+  # install.packages("vegan")
+  # install.packages("labdsv")
+  # install.packages("MASS")
+  # install.packages("ggplot2")
+  # 
+  # # install mvpart from package archive file
+  # install.packages("remotes")
+  # remotes::install_url("https://cran.r-project.org/src/contrib/Archive/mvpart/mvpart_1.6-2.tar.gz")
+  
+# Chapter 4
+# Make sure the files are in your working directory!  If R
+# cannot find the dataset, set your working directory with
+# setwd() to the folder in which your data is stored (e.g.
+# setwd('~/Desktop/workshop10'))
+  
+  setwd("../../../RDA/")
+  # Species community data frame (fish abundance)
+  # spe <- read.csv("data/doubsspe.csv", row.names = 1)
+  spe <- read.table("data/doubsspe.txt", sep=",", header=T, row.names = 1)
+  spe <- spe[-8, ]  # Site number 8 contains no species, so we remove row 8 (site 8) 
+  # Be careful to only run this command line once as you are
+  # overwriting 'spe' each time!
+  
+  # Environmental data frame: "DoubsEnv.csv"
+  # env <- read.csv("data/doubsenv.csv", row.names = 1)
+  env <- read.table("data/doubsenv.txt", sep=",", header=T, row.names = 1)
+  head(env)
+  env <- env[-8, ]  # Remove corresponding abiotic data for site 8 (because removed from fish data). 
+  head(env)
+  # Again, be careful to only run the last line once.
+  
+# Count number of species frequencies in each abundance class
+  ab <- table(unlist(spe))
+# Plot distribution of species frequencies
+  barplot(ab, las = 1, # make axis labels perpendicular to axis
+          xlab = "Abundance class", ylab = "Frequency", # label axes
+          col = grey(5:0/5)) # 5-colour gradient for the bars
+  
+  
+  
+  
+# Chapter 6 Redundancy analysis
+  # https://r.qcbs.ca/workshop10/book-en/redundancy-analysis.html
+  
+  # We'll use our standardized environmental data, but we
+  # will remove 'das', which was correlated with many other
+  # variables:
+ 
+  # Make sure the files are in your working directory!  If R
+  # cannot find the dataset, set your working directory with
+  # setwd() to the folder in which your data is stored (e.g.
+  # setwd('~/Desktop/workshop10'))
+  
+  # Species community data frame (fish abundance)
+  spe <- read.csv("data/doubsspe.csv", row.names = 1)
+  spe <- spe[-8, ]  # Site number 8 contains no species, so we remove row 8 (site 8) 
+  # Be careful to only run this command line once as you are
+  # overwriting 'spe' each time!
+  
+  # Environmental data frame: "DoubsEnv.csv"
+  env <- read.csv("data/doubsenv.csv", row.names = 1)
+  env <- env[-8, ]  # Remove corresponding abiotic data for site 8 (because removed from fish data). 
+  # Again, be careful to only run the last line once.
+
+  env.z <- decostand(env, method = "standardize")
+  env.z <- subset(env.z, select = -das)
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   
