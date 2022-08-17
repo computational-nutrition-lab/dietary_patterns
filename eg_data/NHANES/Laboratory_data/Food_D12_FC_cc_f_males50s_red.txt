@@ -11,6 +11,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 11350020	ALMOND MILK, UNSWEETENED	Almond_milk_unsweetened	Almond milk, unsweetened	0	11350020.0
 11411200	YOGURT, LOW FAT MILK, PLAIN	Yogurt_low_fat_milk_plain	Yogurt, low fat milk, plain	0	11411200.0
 11411300	YOGURT, NONFAT MILK, PLAIN	Yogurt_nonfat_milk_plain	Yogurt, nonfat milk, plain	0	11411300.0
+11411410	YOGURT, GREEK, LOW FAT MILK, PLAIN	Yogurt_Greek_low_fat_milk_plain	Yogurt, Greek, low fat milk, plain	0	11411410.0
 11430000	YOGURT, NS AS TO TYPE OF MILK, FRUIT	Yogurt_NS_as_to_type_of_milk_fruit	Yogurt, NS as to type of milk, fruit	0	11430000.0
 11431000	YOGURT, WHOLE MILK, FRUIT	Yogurt_whole_milk_fruit	Yogurt, whole milk, fruit	0	11431000.0
 11432000	YOGURT, LOW FAT MILK, FRUIT	Yogurt_low_fat_milk_fruit	Yogurt, low fat milk, fruit	0	11432000.0
@@ -57,6 +58,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 13120720	ICE CREAM CONE, CHOCOLATE COVERED OR DIPPED, FLAVORS OTHER T	Ice_cream_cone_chocolate_covered_or_dipped_flavors_other_than_chocolate	Ice cream cone, chocolate covered or dipped, flavors other than chocolate	0	13120720.0
 13120730	ICE CREAM CONE, NO TOPPING, FLAVORS OTHER THAN CHOCOLATE	Ice_cream_cone_no_topping_flavors_other_than_chocolate	Ice cream cone, no topping, flavors other than chocolate	0	13120730.0
 13130330	LIGHT ICE CREAM, NO SUGAR ADDED, FLAVORS OTHER THAN CHOCOLAT	Light_ice_cream_no_sugar_added_flavors_other_than_chocolate	Light ice cream, no sugar added, flavors other than chocolate	0	13130330.0
+13140700	LIGHT ICE CREAM, CREAMSICLE OR DREAMSICLE	Light_ice_cream_creamsicle_or_dreamsicle	Light ice cream, creamsicle or dreamsicle	0	13140700.0
 13140900	LIGHT ICE CREAM, FUDGESICLE	Light_ice_cream_fudgesicle	Light ice cream, fudgesicle	0	13140900.0
 13150000	SHERBET, ALL FLAVORS	Sherbet_all_flavors	Sherbet, all flavors	0	13150000.0
 13210300	CUSTARD	Custard	Custard	0	13210300.0
@@ -71,6 +73,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 14104250	CHEESE, COLBY JACK	Cheese_Colby_Jack	Cheese, Colby Jack	0	14104250.0
 14104400	CHEESE, FETA	Cheese_Feta	Cheese, Feta	0	14104400.0
 14106200	CHEESE, MONTEREY	Cheese_Monterey	Cheese, Monterey	0	14106200.0
+14106500	CHEESE, MONTEREY, REDUCED FAT	Cheese_Monterey_reduced_fat	Cheese, Monterey, reduced fat	0	14106500.0
 14107010	CHEESE, MOZZARELLA, NFS	Cheese_Mozzarella_NFS	Cheese, Mozzarella, NFS	0	14107010.0
 14107030	CHEESE, MOZZARELLA, PART SKIM	Cheese_Mozzarella_part_skim	Cheese, Mozzarella, part skim	0	14107030.0
 14107200	CHEESE, MUENSTER	Cheese_Muenster	Cheese, Muenster	0	14107200.0
@@ -125,6 +128,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 22301000	HAM, FRESH, COOKED, NS AS TO FAT EATEN	Ham_fresh_cooked_NS_as_to_fat_eaten	Ham, fresh, cooked, NS as to fat eaten	0	22301000.0
 22311000	HAM, SMOKED OR CURED, COOKED, NS AS TO FAT EATEN	Ham_smoked_or_cured_cooked_NS_as_to_fat_eaten	Ham, smoked or cured, cooked, NS as to fat eaten	0	22311000.0
 22400110	PORK ROAST, NS AS TO CUT, COOKED, LEAN AND FAT EATEN	Pork_roast_NS_as_to_cut_cooked_lean_and_fat_eaten	Pork roast, NS as to cut, cooked, lean and fat eaten	0	22400110.0
+22401020	PORK ROAST, LOIN, COOKED, LEAN ONLY EATEN	Pork_roast_loin_cooked_lean_only_eaten	Pork roast, loin, cooked, lean only eaten	0	22401020.0
 22600100	BACON, NS AS TO TYPE OF MEAT, COOKED	Bacon_NS_as_to_type_of_meat_cooked	Bacon, NS as to type of meat, cooked	0	22600100.0
 22600200	PORK BACON, NS AS TO FRESH, SMOKED OR CURED, COOKED	Pork_bacon_NS_as_to_fresh_smoked_or_cured_cooked	Pork bacon, NS as to fresh, smoked or cured, cooked	0	22600200.0
 22701010	PORK, SPARERIBS, COOKED, LEAN AND FAT EATEN	Pork_spareribs_cooked_lean_and_fat_eaten	Pork, spareribs, cooked, lean and fat eaten	0	22701010.0
@@ -194,6 +198,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 25210210	FRANKFURTER OR HOT DOG, BEEF	Frankfurter_or_hot_dog_beef	Frankfurter or hot dog, beef	0	25210210.0
 25220105	BEEF SAUSAGE	Beef_sausage	Beef sausage	0	25220105.0
 25220106	BEEF SAUSAGE, REDUCED FAT	Beef_sausage_reduced_fat	Beef sausage, reduced fat	0	25220106.0
+25220108	BEEF SAUSAGE, REDUCED SODIUM	Beef_sausage_reduced_sodium	Beef sausage, reduced sodium	0	25220108.0
 25220350	BRATWURST	Bratwurst	Bratwurst	0	25220350.0
 25220410	BOLOGNA, NFS	Bologna_NFS	Bologna, NFS	0	25220410.0
 25220425	BOLOGNA, MADE FROM ANY KIND OF MEAT, REDUCED FAT	Bologna_made_from_any_kind_of_meat_reduced_fat	Bologna, made from any kind of meat, reduced fat	0	25220425.0
@@ -201,9 +206,11 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 25221310	POLISH SAUSAGE	Polish_sausage	Polish sausage	0	25221310.0
 25221350	ITALIAN SAUSAGE	Italian_sausage	Italian sausage	0	25221350.0
 25221405	PORK SAUSAGE	Pork_sausage	Pork sausage	0	25221405.0
+25221408	PORK SAUSAGE, REDUCED SODIUM	Pork_sausage_reduced_sodium	Pork sausage, reduced sodium	0	25221408.0
 25221500	SALAMI, NFS	Salami_NFS	Salami, NFS	0	25221500.0
 25221810	THURINGER	Thuringer	Thuringer	0	25221810.0
 25221830	TURKEY OR CHICKEN SAUSAGE	Turkey_or_chicken_sausage	Turkey or chicken sausage	0	25221830.0
+25221855	TURKEY OR CHICKEN SAUSAGE, REDUCED SODIUM	Turkey_or_chicken_sausage_reduced_sodium	Turkey or chicken sausage, reduced sodium	0	25221855.0
 25221910	VIENNA SAUSAGE, CANNED	Vienna_sausage_canned	Vienna sausage, canned	0	25221910.0
 25230210	HAM, PREPACKAGED OR DELI, LUNCHEON MEAT	Ham_prepackaged_or_deli_luncheon_meat	Ham, prepackaged or deli, luncheon meat	0	25230210.0
 25230220	HAM, PREPACKAGED OR DELI, LUNCHEON MEAT, REDUCED SODIUM	Ham_prepackaged_or_deli_luncheon_meat_reduced_sodium	Ham, prepackaged or deli, luncheon meat, reduced sodium	0	25230220.0
@@ -284,6 +291,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 27450410	SHRIMP AND VEGETABLES INCLUDING CARROTS, BROCCOLI, AND/OR DA	Shrimp_and_vegetables_including_carrots_broccoli_and_or_dark_green_leafy_no_potatoes_soy_based_sauce	Shrimp and vegetables including carrots, broccoli, and/or dark-green leafy; no potatoes, soy-based sauce	0	27450410.0
 27510215	CHEESEBURGER, 1 MEDIUM PATTY, PLAIN, ON BUN, FROM FAST FOOD	Cheeseburger_1_medium_patty_plain_on_bun_from_fast_food_restaurant	Cheeseburger, 1 medium patty, plain, on bun, from fast food / restaurant	0	27510215.0
 27510225	CHEESEBURGER, 1 MEDIUM PATTY, WITH CONDIMENTS, ON BUN, FROM	Cheeseburger_1_medium_patty_with_condiments_on_bun_from_fast_food_restaurant	Cheeseburger, 1 medium patty, with condiments, on bun, from fast food / restaurant	0	27510225.0
+27510241	CHEESEBURGER, 1 MEDIUM PATTY, PLAIN, ON WHITE BUN	Cheeseburger_1_medium_patty_plain_on_white_bun	Cheeseburger, 1 medium patty, plain, on white bun	0	27510241.0
 27510251	CHEESEBURGER, 1 MEDIUM PATTY, WITH CONDIMENTS, ON WHITE BUN	Cheeseburger_1_medium_patty_with_condiments_on_white_bun	Cheeseburger, 1 medium patty, with condiments, on white bun	0	27510251.0
 27510252	CHEESEBURGER, 1 MEDIUM PATTY, WITH CONDIMENTS, ON WHEAT BUN	Cheeseburger_1_medium_patty_with_condiments_on_wheat_bun	Cheeseburger, 1 medium patty, with condiments, on wheat bun	0	27510252.0
 27510305	BACON CHEESEBURGER, 1 MEDIUM PATTY, PLAIN, ON BUN, FROM FAST	Bacon_cheeseburger_1_medium_patty_plain_on_bun_from_fast_food_restaurant	Bacon cheeseburger, 1 medium patty, plain, on bun, from fast food / restaurant	0	27510305.0
@@ -305,6 +313,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 27520350	HAM AND CHEESE SANDWICH, WITH SPREAD, GRILLED	Ham_and_cheese_sandwich_with_spread_grilled	Ham and cheese sandwich, with spread, grilled	0	27520350.0
 27520510	PORK BARBECUE SANDWICH OR SLOPPY JOE, ON BUN	Pork_barbecue_sandwich_or_Sloppy_Joe_on_bun	Pork barbecue sandwich or Sloppy Joe, on bun	0	27520510.0
 27540190	CHICKEN PATTY SANDWICH, WITH LETTUCE AND SPREAD	Chicken_patty_sandwich_with_lettuce_and_spread	Chicken patty sandwich, with lettuce and spread	0	27540190.0
+27540250	CHICKEN FILLET, BROILED, SANDWICH WITH CHEESE, ON WHOLE WHEA	Chicken_fillet_broiled_sandwich_with_cheese_on_whole_wheat_roll_with_lettuce_tomato_and_non_mayonnaise_type_spread	Chicken fillet, broiled, sandwich with cheese, on whole wheat roll, with lettuce, tomato and non-mayonnaise type spread	0	27540250.0
 27550000	FISH SANDWICH, ON BUN, WITH SPREAD	Fish_sandwich_on_bun_with_spread	Fish sandwich, on bun, with spread	0	27550000.0
 27550100	FISH SANDWICH, ON BUN, WITH CHEESE AND SPREAD	Fish_sandwich_on_bun_with_cheese_and_spread	Fish sandwich, on bun, with cheese and spread	0	27550100.0
 27560300	CORN DOG, FRANKFURTER OR HOT DOG WITH CORNBREAD COATING	Corn_dog_frankfurter_or_hot_dog_with_cornbread_coating	Corn dog, frankfurter or hot dog with cornbread coating	0	27560300.0
@@ -549,6 +558,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 53711000	CEREAL OR GRANOLA BAR (QUAKER CHEWY GRANOLA BAR)	Cereal_or_granola_bar_Quaker_Chewy_Granola_Bar_	Cereal or granola bar (Quaker Chewy Granola Bar)	0	53711000.0
 53712100	CEREAL OR GRANOLA BAR, NFS	Cereal_or_Granola_bar_NFS	Cereal or Granola bar, NFS	0	53712100.0
 53712200	CEREAL OR GRANOLA BAR, LOWFAT, NFS	Cereal_or_granola_bar_lowfat_NFS	Cereal or granola bar, lowfat, NFS	0	53712200.0
+53714200	CEREAL OR GRANOLA BAR, CHOCOLATE COATED, NFS	Cereal_or_granola_bar_chocolate_coated_NFS	Cereal or granola bar, chocolate coated, NFS	0	53714200.0
 53714220	CEREAL OR GRANOLA BAR WITH NUTS, CHOCOLATE COATED	Cereal_or_granola_bar_with_nuts_chocolate_coated	Cereal or granola bar with nuts, chocolate coated	0	53714220.0
 53720300	NUTRITION BAR (POWERBAR)	Nutrition_bar_PowerBar_	Nutrition bar (PowerBar)	0	53720300.0
 53720800	NUTRITION BAR (ZONE PERFECT CLASSIC CRUNCH)	Nutrition_bar_Zone_Perfect_Classic_Crunch_	Nutrition bar (Zone Perfect Classic Crunch)	0	53720800.0
@@ -641,6 +651,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 57316450	CEREAL (GENERAL MILLS OATMEAL CRISP WITH ALMONDS)	Cereal_General_Mills_Oatmeal_Crisp_with_Almonds_	Cereal (General Mills Oatmeal Crisp with Almonds)	0	57316450.0
 57327450	CEREAL (QUAKER TOASTED OAT BRAN)	Cereal_Quaker_Toasted_Oat_Bran_	Cereal (Quaker Toasted Oat Bran)	0	57327450.0
 57330000	CEREAL (KELLOGG'S RAISIN BRAN)	Cereal_Kellogg_s_Raisin_Bran_	Cereal (Kellogg's Raisin Bran)	0	57330000.0
+57336000	CEREAL (GENERAL MILLS CHEX RICE)	Cereal_General_Mills_Chex_Rice_	Cereal (General Mills Chex Rice)	0	57336000.0
 57339000	CEREAL (KELLOGG'S RICE KRISPIES)	Cereal_Kellogg_s_Rice_Krispies_	Cereal (Kellogg's Rice Krispies)	0	57339000.0
 57344000	CEREAL (KELLOGG'S SPECIAL K)	Cereal_Kellogg_s_Special_K_	Cereal (Kellogg's Special K)	0	57344000.0
 57348000	CEREAL, FROSTED CORN FLAKES	Cereal_frosted_corn_flakes	Cereal, frosted corn flakes	0	57348000.0
@@ -727,6 +738,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 58150110	RICE, FRIED, MEATLESS	Rice_fried_meatless	Rice, fried, meatless	0	58150110.0
 58150330	RICE, FRIED, WITH PORK	Rice_fried_with_pork	Rice, fried, with pork	0	58150330.0
 58151100	SUSHI, NFS	Sushi_NFS	Sushi, NFS	0	58151100.0
+58151210	SUSHI ROLL, SHRIMP	Sushi_roll_shrimp	Sushi roll, shrimp	0	58151210.0
 58160110	RICE WITH BEANS	Rice_with_beans	Rice with beans	0	58160110.0
 58160130	RICE WITH BEANS AND CHICKEN	Rice_with_beans_and_chicken	Rice with beans and chicken	0	58160130.0
 58160135	RICE WITH BEANS AND BEEF	Rice_with_beans_and_beef	Rice with beans and beef	0	58160135.0
@@ -885,9 +897,12 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 73102210	CARROTS, COOKED, NS AS TO FORM, FAT NOT ADDED IN COOKING	Carrots_cooked_NS_as_to_form_fat_not_added_in_cooking	Carrots, cooked, NS as to form, fat not added in cooking	0	73102210.0
 73102211	CARROTS, COOKED, FROM FRESH, FAT NOT ADDED IN COOKING	Carrots_cooked_from_fresh_fat_not_added_in_cooking	Carrots, cooked, from fresh, fat not added in cooking	0	73102211.0
 73102213	CARROTS, COOKED, FROM CANNED, FAT NOT ADDED IN COOKING	Carrots_cooked_from_canned_fat_not_added_in_cooking	Carrots, cooked, from canned, fat not added in cooking	0	73102213.0
+73102243	CARROTS, COOKED, FROM CANNED, GLAZED	Carrots_cooked_from_canned_glazed	Carrots, cooked, from canned, glazed	0	73102243.0
 73111212	PEAS AND CARROTS, COOKED, FROM FROZEN, FAT NOT ADDED IN COOK	Peas_and_carrots_cooked_from_frozen_fat_not_added_in_cooking	Peas and carrots, cooked, from frozen, fat not added in cooking	0	73111212.0
 73201027	PUMPKIN, COOKED, FROM FRESH, MADE WITH OIL	Pumpkin_cooked_from_fresh_made_with_oil	Pumpkin, cooked, from fresh, made with oil	0	73201027.0
+73402010	SWEET POTATO, BAKED, PEEL EATEN, FAT NOT ADDED IN COOKING	Sweet_potato_baked_peel_eaten_fat_not_added_in_cooking	Sweet potato, baked, peel eaten, fat not added in cooking	0	73402010.0
 73403010	SWEET POTATO, BAKED, PEEL NOT EATEN, FAT NOT ADDED IN COOKIN	Sweet_potato_baked_peel_not_eaten_fat_not_added_in_cooking	Sweet potato, baked, peel not eaten, fat not added in cooking	0	73403010.0
+73403022	SWEET POTATO, BAKED, PEEL NOT EATEN, MADE WITH BUTTER	Sweet_potato_baked_peel_not_eaten_made_with_butter	Sweet potato, baked, peel not eaten, made with butter	0	73403022.0
 73405020	SWEET POTATO, BOILED, FAT ADDED IN COOKING, NS AS TO TYPE OF	Sweet_potato_boiled_fat_added_in_cooking_NS_as_to_type_of_fat	Sweet potato, boiled, fat added in cooking, NS as to type of fat	0	73405020.0
 73410400	SWEET POTATO FRIES, FAST FOOD / RESTAURANT	Sweet_potato_fries_fast_food_restaurant	Sweet potato fries, fast food / restaurant	0	73410400.0
 73502000	SQUASH, WINTER TYPE, SOUP, HOME RECIPE, CANNED, OR READY-TO-	Squash_winter_type_soup_home_recipe_canned_or_ready_to_serve	Squash, winter type, soup, home recipe, canned, or ready-to-serve	0	73502000.0
@@ -968,8 +983,10 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 75226022	PEPPERS, GREEN, COOKED, MADE WITH BUTTER	Peppers_green_cooked_made_with_butter	Peppers, green, cooked, made with butter	0	75226022.0
 75231031	SNOWPEA, COOKED, FROM FROZEN, MADE WITH MARGARINE	Snowpea_cooked_from_frozen_made_with_margarine	Snowpea, cooked, from frozen, made with margarine	0	75231031.0
 75233027	SQUASH, SUMMER, YELLOW OR GREEN, COOKED, FROM FRESH, MADE WI	Squash_summer_yellow_or_green_cooked_from_fresh_made_with_oil	Squash, summer, yellow or green, cooked, from fresh, made with oil	0	75233027.0
+75233028	SQUASH, SUMMER, YELLOW OR GREEN, COOKED, FROM FRESH, MADE WI	Squash_summer_yellow_or_green_cooked_from_fresh_made_with_butter	Squash, summer, yellow or green, cooked, from fresh, made with butter	0	75233028.0
 75235750	WINTER MELON, COOKED	Winter_melon_cooked	Winter melon, cooked	0	75235750.0
 75302080	BEAN SALAD, YELLOW AND/OR GREEN STRING BEANS	Bean_salad_yellow_and_or_green_string_beans	Bean salad, yellow and/or green string beans	0	75302080.0
+75307002	GREEN PEPPERS AND ONIONS, COOKED, MADE WITH BUTTER	Green_peppers_and_onions_cooked_made_with_butter	Green peppers and onions, cooked, made with butter	0	75307002.0
 75307003	GREEN PEPPERS AND ONIONS, COOKED, MADE WITH MARGARINE	Green_peppers_and_onions_cooked_made_with_margarine	Green peppers and onions, cooked, made with margarine	0	75307003.0
 75311012	MIXED VEGETABLES, COOKED, FROM FROZEN, FAT NOT ADDED IN COOK	Mixed_vegetables_cooked_from_frozen_fat_not_added_in_cooking	Mixed vegetables, cooked, from frozen, fat not added in cooking	0	75311012.0
 75330121	VEGETABLE COMBINATION, INCLUDING CARROTS, BROCCOLI, AND/OR D	Vegetable_combination_including_carrots_broccoli_and_or_dark_green_leafy_cooked_no_sauce_made_with_oil	Vegetable combination, including carrots, broccoli, and/or dark-green leafy; cooked, no sauce, made with oil	0	75330121.0
@@ -994,6 +1011,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 75510020	OLIVES, BLACK	Olives_black	Olives, black	0	75510020.0
 75510030	OLIVES, GREEN, STUFFED	Olives_green_stuffed	Olives, green, stuffed	0	75510030.0
 75511040	PEPPER, HOT, PICKLED	Pepper_hot_pickled	Pepper, hot, pickled	0	75511040.0
+75534550	WASABI PASTE	Wasabi_paste	Wasabi paste	0	75534550.0
 75649010	VEGETABLE SOUP, CANNED, PREPARED WITH WATER OR READY-TO-SERV	Vegetable_soup_canned_prepared_with_water_or_ready_to_serve	Vegetable soup, canned, prepared with water or ready-to-serve	0	75649010.0
 75651000	MINESTRONE SOUP, HOME RECIPE	Minestrone_soup_home_recipe	Minestrone soup, home recipe	0	75651000.0
 75651020	VEGETABLE BEEF SOUP, CANNED, PREPARED WITH WATER, OR READY-T	Vegetable_beef_soup_canned_prepared_with_water_or_ready_to_serve	Vegetable beef soup, canned, prepared with water, or ready-to-serve	0	75651020.0
@@ -1016,6 +1034,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 81302070	PESTO SAUCE	Pesto_sauce	Pesto sauce	0	81302070.0
 82101000	VEGETABLE OIL, NFS	Vegetable_oil_NFS	Vegetable oil, NFS	0	82101000.0
 82104000	OLIVE OIL	Olive_oil	Olive oil	0	82104000.0
+83100200	SALAD DRESSING, NFS, FOR SANDWICHES	Salad_dressing_NFS_for_sandwiches	Salad dressing, NFS, for sandwiches	0	83100200.0
 83104000	FRENCH OR CATALINA DRESSING	French_or_Catalina_dressing	French or Catalina dressing	0	83104000.0
 83105500	HONEY MUSTARD DRESSING	Honey_mustard_dressing	Honey mustard dressing	0	83105500.0
 83106000	ITALIAN DRESSING, MADE WITH VINEGAR AND OIL	Italian_dressing_made_with_vinegar_and_oil	Italian dressing, made with vinegar and oil	0	83106000.0
@@ -1090,6 +1109,7 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 91801000	CHEWING GUM, REGULAR	Chewing_gum_regular	Chewing gum, regular	0	91801000.0
 92100500	COFFEE, NS AS TO BREWED OR INSTANT	Coffee_NS_as_to_brewed_or_instant	Coffee, NS as to brewed or instant	0	92100500.0
 92101000	COFFEE, BREWED	Coffee_brewed	Coffee, brewed	0	92101000.0
+92101500	COFFEE, BREWED, BLEND OF REGULAR AND DECAFFEINATED	Coffee_brewed_blend_of_regular_and_decaffeinated	Coffee, brewed, blend of regular and decaffeinated	0	92101500.0
 92101610	COFFEE, ESPRESSO	Coffee_espresso	Coffee, espresso	0	92101610.0
 92101820	COFFEE, MACCHIATO, SWEETENED	Coffee_macchiato_sweetened	Coffee, macchiato, sweetened	0	92101820.0
 92101850	COFFEE, CAFE CON LECHE	Coffee_cafe_con_leche	Coffee, cafe con leche	0	92101850.0
@@ -1105,13 +1125,16 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 92161000	COFFEE, CAPPUCCINO	Coffee_Cappuccino	Coffee, Cappuccino	0	92161000.0
 92302000	TEA, HOT, LEAF, BLACK	Tea_hot_leaf_black	Tea, hot, leaf, black	0	92302000.0
 92303010	TEA, HOT, LEAF, GREEN	Tea_hot_leaf_green	Tea, hot, leaf, green	0	92303010.0
+92305010	TEA, ICED, INSTANT, BLACK, UNSWEETENED	Tea_iced_instant_black_unsweetened	Tea, iced, instant, black, unsweetened	0	92305010.0
 92305040	TEA, ICED, INSTANT, BLACK, PRE-SWEETENED WITH SUGAR	Tea_iced_instant_black_pre_sweetened_with_sugar	Tea, iced, instant, black, pre-sweetened with sugar	0	92305040.0
 92305090	TEA, ICED, INSTANT, BLACK, PRE-SWEETENED WITH LOW CALORIE SW	Tea_iced_instant_black_pre_sweetened_with_low_calorie_sweetner	Tea, iced, instant, black, pre-sweetened with low calorie sweetner	0	92305090.0
+92305180	TEA, ICED, INSTANT, BLACK, DECAFFEINATED, UNSWEETENED	Tea_iced_instant_black_decaffeinated_unsweetened	Tea, iced, instant, black, decaffeinated, unsweetened	0	92305180.0
 92305920	TEA, ICED, INSTANT, GREEN, PRE-SWEETENED WITH LOW CALORIE SW	Tea_iced_instant_green_pre_sweetened_with_low_calorie_sweetener	Tea, iced, instant, green, pre-sweetened with low calorie sweetener	0	92305920.0
 92306000	TEA, HOT, HERBAL	Tea_hot_herbal	Tea, hot, herbal	0	92306000.0
 92306800	TEA, HOT, CHAI, WITH MILK	Tea_hot_chai_with_milk	Tea, hot, chai, with milk	0	92306800.0
 92307510	ICED TEA / LEMONADE JUICE DRINK, LIGHT	Iced_Tea_Lemonade_juice_drink_light	Iced Tea / Lemonade juice drink, light	0	92307510.0
 92308000	TEA, ICED, BREWED, BLACK, PRE-SWEETENED WITH SUGAR	Tea_iced_brewed_black_pre_sweetened_with_sugar	Tea, iced, brewed, black, pre-sweetened with sugar	0	92308000.0
+92308010	TEA, ICED, BREWED, BLACK, PRE-SWEETENED WITH LOW CALORIE SWE	Tea_iced_brewed_black_pre_sweetened_with_low_calorie_sweetener	Tea, iced, brewed, black, pre-sweetened with low calorie sweetener	0	92308010.0
 92308020	TEA, ICED, BREWED, BLACK, UNSWEETENED	Tea_iced_brewed_black_unsweetened	Tea, iced, brewed, black, unsweetened	0	92308020.0
 92309000	TEA, ICED, BOTTLED, BLACK	Tea_iced_bottled_black	Tea, iced, bottled, black	0	92309000.0
 92309500	TEA, ICED, BOTTLED, GREEN	Tea_iced_bottled_green	Tea, iced, bottled, green	0	92309500.0
@@ -1160,8 +1183,10 @@ FoodCode	DRXFCSD	Main.food.description	Old.Main.food.description	ModCode	FoodID
 94100200	WATER, BOTTLED, SWEETENED, WITH LOW CALORIE SWEETENER	Water_bottled_sweetened_with_low_calorie_sweetener	Water, bottled, sweetened, with low calorie sweetener	0	94100200.0
 94220215	WATER, BOTTLED, FLAVORED, SUGAR FREE (GLACEAU VITAMIN WATER)	Water_bottled_flavored_sugar_free_Glaceau_Vitamin_Water_	Water, bottled, flavored, sugar free (Glaceau Vitamin Water)	0	94220215.0
 95103000	NUTRITIONAL DRINK OR SHAKE, READY-TO-DRINK (ENSURE)	Nutritional_drink_or_shake_ready_to_drink_Ensure_	Nutritional drink or shake, ready-to-drink (Ensure)	0	95103000.0
+95110010	NUTRITIONAL DRINK OR SHAKE, READY-TO-DRINK, SUGAR FREE (SLIM	Nutritional_drink_or_shake_ready_to_drink_sugar_free_Slim_Fast_	Nutritional drink or shake, ready-to-drink, sugar free (Slim Fast)	0	95110010.0
 95230030	NUTRITIONAL POWDER MIX, PROTEIN, NFS	Nutritional_powder_mix_protein_NFS	Nutritional powder mix, protein, NFS	0	95230030.0
 95310400	ENERGY DRINK (MONSTER)	Energy_drink_Monster_	Energy drink (Monster)	0	95310400.0
 95320200	SPORTS DRINK (GATORADE G)	Sports_drink_Gatorade_G_	Sports drink (Gatorade G)	0	95320200.0
+95320500	SPORTS DRINK (POWERADE)	Sports_drink_Powerade_	Sports drink (Powerade)	0	95320500.0
 95322200	SPORTS DRINK, LOW CALORIE (GATORADE G2)	Sports_drink_low_calorie_Gatorade_G2_	Sports drink, low calorie (Gatorade G2)	0	95322200.0
 95322500	SPORTS DRINK, LOW CALORIE (POWERADE ZERO)	Sports_drink_low_calorie_Powerade_Zero_	Sports drink, low calorie (Powerade Zero)	0	95322500.0

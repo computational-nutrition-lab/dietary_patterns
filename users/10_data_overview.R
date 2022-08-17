@@ -169,8 +169,8 @@
 # Prepare your totals dataset for line plot - insert NA to missing combinations of UserName and RecallNo (day), 
 # and separate rows into NA's and no NAs. 
   PrepLinePlot(inputdf= tot_m_QCed, day="RecallNo", username="UserName", 
-               all.fn=           "VVKAJ_Tot_m_QCed_wNA.txt",
-               full.days.only.fn="VVKAJ_Tot_m_QCed_fullonly.txt",
+               all.fn=              "VVKAJ_Tot_m_QCed_wNA.txt",
+               full.days.only.fn=   "VVKAJ_Tot_m_QCed_fullonly.txt",
                partial.days.only.fn="VVKAJ_Tot_m_QCed_partialonly.txt")
   
 # Load the files.

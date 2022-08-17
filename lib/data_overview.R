@@ -25,13 +25,13 @@
       
       # if numeric, calculate summary stats.
       if(is.numeric(ith_col)){
-        summarybox[i, 2] <- min(ith_col)
-        summarybox[i, 3] <- quantile(ith_col, 0.25)
-        summarybox[i, 4] <- median(ith_col)
-        summarybox[i, 5] <- mean(ith_col)
-        summarybox[i, 6] <- quantile(ith_col, 0.75)
-        summarybox[i, 7] <- max(ith_col)
-        summarybox[i, 8] <- sd(ith_col)
+        summarybox[i, 2] <- min(     ith_col, na.rm=TRUE)
+        summarybox[i, 3] <- quantile(ith_col, 0.25, na.rm=TRUE)
+        summarybox[i, 4] <- median(  ith_col, na.rm=TRUE)
+        summarybox[i, 5] <- mean(    ith_col, na.rm=TRUE)
+        summarybox[i, 6] <- quantile(ith_col, 0.75, na.rm=TRUE)
+        summarybox[i, 7] <- max(     ith_col, na.rm=TRUE)
+        summarybox[i, 8] <- sd(      ith_col, na.rm=TRUE)
         
       }else{
         

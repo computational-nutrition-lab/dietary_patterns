@@ -67,21 +67,21 @@
                         food_records_fn  = "Food_D12_FC_cc_f_males50s.txt",   # output of FormatFoods.  
                         output_fn =        "Food_D12_FC_cc_f_males50s_red.txt")
   
-  # CheckDB and ensure no food reported Food_D12_FC_cc_f.txt in is missing in the database.
+# CheckDB and ensure no food reported Food_D12_FC_cc_f.txt in is missing in the database.
   
-  # Check if there is any food item reported by people but are missing in the database. 
+# Check if there is any food item reported by people but are missing in the database. 
   check.db(food_database_fn = "../../NHANES1516/processed/NHANESDatabase.txt", 
            food_records_fn =  "Food_D12_FC_cc_f_males50s_red.txt", 
            output_fn =        "Food_D12_FC_cc_f_males50s_red_missing.txt")
   #  the output "eg_data/NHANES/Food_D12_FC_cc_f_missing.txt" does not contain any data. 
   
-  # Does the output contain anything? 
+# Does the output contain anything? 
   mmm = read.table("Food_D12_FC_cc_f_males50s_red_missing.txt", sep="\t", header=T)
   head(mmm)
   # Has something ===> put this missing.txt file in addl_foods_fn argument of MakeFoodTree.
   # Empty         ===> put NULL in addl_foods_fn argument of MakeFoodTree.
   
-  # Create food tree with the reduced dataset (only reported foods).   
+# Create food tree with the reduced dataset (only reported foods).   
   MakeFoodTree(nodes_fn="../../../data/Food_tree_data/NodeLabelsMCT.txt", # can use this for now. 
                addl_foods_fn = NULL, 
                num.levels = 4,
@@ -99,12 +99,18 @@
   source("../../../lib/viz_food_tree.r")
   
 # Load your ggtree object. 
-  tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.txt")
-  tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv3.txt")
-  tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv4.txt")
-  tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv5.txt")
-  
+  # tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv2.txt")
+  # tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv3.txt")
+  # tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv4.txt")
+  # tree <- read.tree("results/Food_tree_NHANES/Food_D12_FC_cc_f_diffdiet98_red_Lv5.txt")
+   
   tree <- read.tree("Foodtree/Food_D12_FC_cc_f_males50s_red_Lv4.nwk")
+
+# It is OK to see an error that says:
+# Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
+# Also defined by 'tidytree'
+  
+# Prepare the tree data for visualization.
   PrepFoodTreePlots(input.tree=tree)
   
 # Create a color-coded and annotated food tree with 9 L1 levels.
@@ -113,6 +119,9 @@
   VizFoodTree(input.tree=tree, layout="radial")  
 
   annotated_tree
+  
+  ggsave("Foodtree/Food_D12_FC_cc_f_males50s_red_Lv4_viz.png", annotated_tree,
+         device="png", width=5.2, height=5)
   
 # --------------------------------------------------------------------------------------------------------------
 # Generate OTU tables for downstream analyses; MAY TAKE SOME TIME
@@ -140,6 +149,4 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 
-  
-# ---------------------------------------------------------------------------------------------------------------
   

@@ -119,6 +119,18 @@
     # Transform meta2 to sample_data object.
     SAMPLES <<- phyloseq::sample_data(meta2)
   }
+  
+# ---------------------------------------------------------------------------------------------------------------
+# For NHANES data.
+  PrepMeta_NHANES <- function(data=meta){
+
+    # subset metadata to the correct samples.
+    # colnames(food) has users.  
+    meta2 <<- data[colnames(food), ]
+    
+    # Transform meta2 to sample_data object.
+    SAMPLES <<- phyloseq::sample_data(meta2)
+  }
     
 # ---------------------------------------------------------------------------------------------------------------
 # prep foodtree.
@@ -159,6 +171,27 @@
     rownames(meta.data) <- meta.data[, "SampleID"]
     
     # merge by the rownames.
+    meta_usersdf <<- merge(x=meta.data, y=vectors, all.y=T, by="row.names", sort=FALSE)
+    
+    # Save as a txt file.
+    write.table(x = meta_usersdf, file= output.fn, sep="\t", row.names= F)
+  }
+
+# ---------------------------------------------------------------------------------------------------------------
+# For NHANES data. 
+  
+  MergeAxesAndMetadata_NHANES <- function(ord.object, number.of.axes, meta.data, output.fn){
+    
+    # extract all the Axis vectors
+    allvectors <<- as.data.frame(ord.object["vectors"])
+    
+    # Remove the suffix 'vectors.' in the column names of 'allvectors'
+    colnames(allvectors) <<- sub(pattern='vectors.', replacement='', x=colnames(allvectors))
+    
+    # Extract Axes 1 through the specified axis
+    vectors <<- allvectors[, 1:number.of.axes]
+    
+    # Merge by the rownames (X89125 etc.).
     meta_usersdf <<- merge(x=meta.data, y=vectors, all.y=T, by="row.names", sort=FALSE)
     
     # Save as a txt file.
