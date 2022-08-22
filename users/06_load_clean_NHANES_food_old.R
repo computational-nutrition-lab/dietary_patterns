@@ -103,7 +103,7 @@
   # NAs will be removed later in the filtering process.
 
 # ===============================================================================================================
-# Load the Food_Dx_FC which has food category data!  
+# Load the Food_Dx_FC which has food category data. 
 # ===============================================================================================================
   # Food Day 1 with Food Category *** WILL BE A HUGE TABLE. ***
   Food_D1_FC <- read.table("eg_data/NHANES/Food_D1_FC.txt", sep="\t", header=T)
@@ -197,20 +197,20 @@
   colnames(freqtable1_m)[1] <- "SEQN"
   keepnames_adults_mult1 <- keepnames_adults[keepnames_adults %in% freqtable1_m$SEQN] # 4405
   # Take only the participants whose names are in keepnames_adults_mult1.
-  food1b <- food1[food1$SEQN %in% keepnames_adults_mult1, ] # 66304 rows
+  food1b <- food1[food1$SEQN %in% keepnames_adults_mult1, ] # 66,304 rows
   
   # Do the same for food2
   freqtable2 <- as.data.frame(table(food2$SEQN))
   freqtable2_m <- freqtable2[freqtable2$Freq > 1, ]
   colnames(freqtable2_m)[1] <- "SEQN"
   keepnames_adults_mult2 <- keepnames_adults[keepnames_adults %in% freqtable2_m$SEQN] # 4401
-  food2b <- food2[food2$SEQN %in% keepnames_adults_mult2, ] # 66690 rows
+  food2b <- food2[food2$SEQN %in% keepnames_adults_mult2, ] # 66,690 rows
   head(food2b)
 
 # Create a vector of SEQN of those that have both day 1 and day 2 data.
   food1bnames <- unique(food1b$SEQN)
   food2bnames <- unique(food2b$SEQN)
-  keepnames12 <- food1bnames[food1bnames %in% food2bnames] #4401 people.
+  keepnames12 <- food1bnames[food1bnames %in% food2bnames] # 4,401 people.
 
 
 # ================================================================================================================  
@@ -218,7 +218,7 @@
 # ================================================================================================================  
   
 # ================================================================================================================  
-# Scenario A: Further processing of food1b and food2b for building food tree.  
+# Scenario A: Further processing of food1b and food2b for building a food tree.  
 # ================================================================================================================  
   
 # Make a day variable to distinguish them.
@@ -279,22 +279,23 @@
   names(food2bb)[names(food2bb) == "FoodAmt"] <- "DR2IGRMS"
 
 # Combine day 1 and day 2 data.
-  # Day 1
+# Day 1
   # Import the list of variables to be picked up in Day 1. 
   # day1variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_Day1.txt', header=F)  # OLD, before adding food category data.
   day1variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_FC_Day1.txt', header=F)
   tail(day1variables)
   # Which variables to pick up from the food data
   var_to_use1 <- names(food1bb) %in% day1variables$V1
-  # pick up only the specified variables 
+  # pick up only the specified variables
   food1c <- food1bb[, var_to_use1]
+  
   # Remove "DR1T", "DR1" from the column names 
   colnames(food1c) <- gsub(colnames(food1c), pattern = "^DR1I", replacement = "")
   colnames(food1c) <- gsub(colnames(food1c), pattern = "^DR1",  replacement = "")
   # Check
   head(food1c, 1)
  
-  # Do the same for Day 2  
+# Do the same for Day 2  
   # day2variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_Day2.txt', header=F) # OLD, before adding food category data.
   day2variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_FC_Day2.txt', header=F)
   var_to_use2 <- names(food2bb) %in% day2variables$V1
@@ -303,14 +304,14 @@
   colnames(food2c) <- gsub(colnames(food2c), pattern = "^DR2", replacement = "")
   head(food2c, 1)
   
-  # Make a day variable before combining
+# Make a day variable before combining
   food1c$Day <- 1
   food2c$Day <- 2
 
-  # Ensure the columns of food1c and food2c match before joining them.
+# Ensure the columns of food1c and food2c match before joining them.
   identical(colnames(food1c), colnames(food2c))
   
-  # Combine food1 and food2 as a longtable.
+# Combine food1 and food2 as a longtable.
   food12c <- rbind(food1c, food2c)
   
 # Pick up only the individuals listed in keepnames12.
@@ -327,11 +328,12 @@
       tail(hhh[order(hhh$Freq), ], 10)
       subset(food12d, SEQN==86563)[, 'Day'] # Participant No. 86563 reported only 1 food/day. Should be nonexistent.
 
-# save the combined and QCed food items as a .txt file. #### THIS WILL BE A HUGE FILE ####
+# Save the combined and QCed food items as a .txt file. #### THIS WILL BE A HUGE FILE ####
   write.table(food12d, "eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", quote=F, row.names=F)  
-
   head(food12d)
       
+# Load food12d.
+  food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", header=T)
       
 # ---------------------------------------------------------------------------------------------------------------
 # You may also want to consider special diets that some participants are following: e.g. DASH diet, diabetic diet, etc.
@@ -342,117 +344,110 @@
 # B-2: Calculate totals/day/participant with the food data of the selected SEQNs.
 # ===============================================================================================================
 
-# Calculate total for day 1. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Take only the Day 1 data
-  food12d_d1 <- subset(food12d, Day==1) 
-      
-# Sum nutrients and food categories; this will be total data calculated by hand.
-# First, speicify the first and the last column (variable) names to calculate totals for. 
-  first.val <- "GRMS"
-  last.val <- "A_DRINKS"
-  
-  start_col_num <- match(first.val, names(food12d_d1))  # The number of column that matches the first variable specified.
-  end_col_num <-   match(last.val, names(food12d_d1)) # The number of column that matches the last variable specified.
-    
-  # Sum food items by SEQN from start through end columns.
-  total1 <- aggregate(food12d_d1[, start_col_num:end_col_num], 
-                      by=list(food12d_d1$SEQN), 
-                      FUN=sum)
+# Calculate totals for day 1 and day 2, and combine the two datasets.
+  TotalNHANES(food12d= food12d, 
+              first.val= "GRMS", last.val= "A_DRINKS", 
+              outfn = "eg_data/NHANES/NHANES1516_total_d12_FC.txt" )  
 
-  total1$Day <- 1
-  colnames(total1)[1] <- "SEQN"
-
-# Create a vector of number of food items reported by each participant.
-  n_items1 <- as.data.frame(table(food12d_d1$SEQN))
-  colnames(n_items1) <- c("SEQN", "NoOfItems")
+# Load the resultant total.
+  total12d <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC.txt", sep="\t", header=T)
   
-  # Add it to total1
-  total1b <- merge(x=total1, y=n_items1, by="SEQN", all.x=T)
+# total12d has the sum of each variable (columns) for each day and participant. 
+  head(total12d)
   
-    # Some checking  
-    subset(total1b, NoOfItems<2) # should be zero.
-    # Look for any missing data
-    total1b[is.na(total1b$NoOfItems), ]
-
-# Calculate total for day 2. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  food12d_d2 <- subset(food12d, Day==2) 
-  
-  # Sum nutrients.  
-  # First, speicify the first and the last column (variable) names to calculate totals for. 
-  first.val <- "GRMS"
-  last.val <- "A_DRINKS"
-  
-  start_col_num <- match(first.val, names(food12d_d2))  # The number of column that matches the first variable specified.
-  end_col_num <-   match(last.val, names(food12d_d2)) # The number of column that matches the last variable specified.
-  
-  # Sum food items by SEQN from start through end columns.
-  total2 <- aggregate(food12d_d2[, start_col_num:end_col_num], 
-                      by=list(food12d_d2$SEQN), 
-                      FUN=sum)
-  
-  total2$Day <- 2
-  colnames(total2)[1] <- "SEQN"
-  
-  # Create a vector of number of food items reported by each participant.
-  n_items2 <- as.data.frame(table(food12d_d2$SEQN))
-  colnames(n_items2) <- c("SEQN", "NoOfItems")
-  # Add it to total1
-  total2b <- merge(x=total2, y=n_items2, by="SEQN", all.x=T)
-  
-     # Some checking
-     subset(total2b, NoOfItems<2) # should be zero.
-     # Look for any missing data
-     total2b[is.na(total2b$NoOfItems), ]
-      
-# Merge totals day 1 and day 2
-  # Check if all the columnnames match.
-  identical(colnames(total1b), colnames(total2b))
-  
-  # Merge
-  total12c <- rbind(total1b, total2b)
-  
-# Save the calculated totals of day 1 and 2 as a txt file.
-  write.table(total12c, "eg_data/NHANES/NHANES1516_total_d12_FC.txt", sep="\t", row.names=F, quote=F)
+# ------- BY HAND ------------------------------ 
+# # Calculate total for day 1. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# # Take only the Day 1 data
+#   food12d_d1 <- subset(food12d, Day==1) 
+#       
+# # Sum nutrients and food categories; this will be total data calculated by hand.
+# # First, specify the first and the last column (variable) names to calculate totals for. 
+#   first.val <- "GRMS"
+#   last.val <- "A_DRINKS"
+#   
+#   start_col_num <- match(first.val, names(food12d_d1))  # The number of column that matches the first variable specified.
+#   end_col_num <-   match(last.val, names(food12d_d1)) # The number of column that matches the last variable specified.
+#     
+#   # Sum food items by SEQN from start through end columns.
+#   total1 <- aggregate(food12d_d1[, start_col_num:end_col_num], 
+#                       by=list(food12d_d1$SEQN), 
+#                       FUN=sum)
+#   
+#   total1$Day <- 1
+#   colnames(total1)[1] <- "SEQN"
+# 
+# # Create a vector of number of food items reported by each participant.
+#   n_items1 <- as.data.frame(table(food12d_d1$SEQN))
+#   colnames(n_items1) <- c("SEQN", "NoOfItems")
+#   
+#   # Add it to total1
+#   total1b <- merge(x=total1, y=n_items1, by="SEQN", all.x=T)
+#   
+#     # Some checking
+#     subset(total1b, NoOfItems<2) # should be zero.
+#     # Look for any missing data
+#     total1b[is.na(total1b$NoOfItems), ]
+# 
+# # Calculate total for day 2. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   food12d_d2 <- subset(food12d, Day==2) 
+#   
+#   # Sum nutrients.  
+#   # First, speicify the first and the last column (variable) names to calculate totals for. 
+#   first.val <- "GRMS"
+#   last.val <- "A_DRINKS"
+#   
+#   start_col_num <- match(first.val, names(food12d_d2))  # The number of column that matches the first variable specified.
+#   end_col_num <-   match(last.val, names(food12d_d2)) # The number of column that matches the last variable specified.
+#   
+#   # Sum food items by SEQN from start through end columns.
+#   total2 <- aggregate(food12d_d2[, start_col_num:end_col_num], 
+#                       by=list(food12d_d2$SEQN), 
+#                       FUN=sum)
+#   
+#   total2$Day <- 2
+#   colnames(total2)[1] <- "SEQN"
+#   
+#   # Create a vector of number of food items reported by each participant.
+#   n_items2 <- as.data.frame(table(food12d_d2$SEQN))
+#   colnames(n_items2) <- c("SEQN", "NoOfItems")
+#   # Add it to total1
+#   total2b <- merge(x=total2, y=n_items2, by="SEQN", all.x=T)
+#   
+#      # Some checking
+#      subset(total2b, NoOfItems<2) # should be zero.
+#      # Look for any missing data
+#      total2b[is.na(total2b$NoOfItems), ]
+#       
+# # Merge totals day 1 and day 2
+#   # Check if all the columnnames match.
+#   identical(colnames(total1b), colnames(total2b))
+#   
+# # Merge
+#   total12c <- rbind(total1b, total2b)
+#   
+# # Save the calculated totals of day 1 and 2 as a txt file.
+#   write.table(total12c, "eg_data/NHANES/NHANES1516_total_d12_FC.txt", sep="\t", row.names=F, quote=F)
 
 # ===============================================================================================================
 # B-3: Calculate the mean of totals/participant. 
 # ===============================================================================================================
-  
-# Load the calculated totals.
-  total12d <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC.txt", sep="\t", header=T)
-  colnames(total12d)
 
-# Take average of Day 1 and Day 2.
-  # First, specify the first and the last column (variable) names to calculate means for. 
-  first.val <- "GRMS"
-  last.val <- "NoOfItems"  #### Now you want the average of No of Items reported, too. 
-  
-  start_col_num <- match(first.val, names(total12d))  # The number of column that matches the first variable specified.
-  end_col_num <-   match(last.val,  names(total12d))  # The number of column that matches the last variable specified.
-  
-  # Sum food items by SEQN from start through end columns.
-  meantotal12a <- aggregate(total12d[, start_col_num:end_col_num], 
-                            by=list(total12d$SEQN), 
-                            FUN=mean) 
-
-  # Remove the day, which is now all 1.5 (the average of 1 and 2.)
-  meantotal12 <- meantotal12a[, !names(meantotal12a) %in% "Day"]
-  # Change "Group.1" to "SEQN".
-  colnames(meantotal12)[1] <- "SEQN"
-  
-# Save meantotals as a txt file.
-  write.table(meantotal12, "eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt", sep="\t", row.names=F, quote=F)
+# Calculate the mean of two days of the totals data per participant. 
+  AverageTotalNHANES(food12d= food12d, 
+                     first.val= "GRMS", last.val= "NoOfItems", 
+                     outfn= "eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt")  
   
 # Load the mean total
   meantotal12b <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt", sep="\t", header=T)
-  
+
+    
 # ===============================================================================================================
 # B-4: QC the mean total in the same way as ASA24. 
 # ===============================================================================================================
   
 # For individual food data, there is no code for cleaning.
 # Outliers won't severely affect main analysis conclusions (ASA24 data cleaning doc)
-# But it's always a good idea to take a look at the distributions of variables of interest. 
+# But, it's always a good idea to take a look at the distributions of variables of interest. 
 # Could calculate totals by occasion, similar to ASA24 code.
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -487,28 +482,29 @@
       # Show the first n rows of the outliers in a descending order. 
       head(VCoutliers[order(VCoutliers$VC, decreasing = T), ], n=10)
 
-  # Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
-  QCOutliers(input.data = QCtotals,  
-             target.colname = "BCAR", min = 15, max = 8200)
-    
-      # or show the outliers if too many.
-      bcaroutliers <- Outlier_rows[, c('SEQN', 'KCAL', 'BCAR')]
-      # Show the first n rows of the outliers in a descending order. 
-      head(bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ], n=10)
-      
-  # 
+  # Do not include BCAR in the QC procedure - to be consistent with ASA24  analysis. 
+  # # Flag if BCAR (beta-carotene) is <15 or >8200 --> ask remove or not --> if yes, remove those rows
+  # QCOutliers(input.data = QCtotals,  
+  #            target.colname = "BCAR", min = 15, max = 8200)
+  #   
+  #     # or show the outliers if too many.
+  #     bcaroutliers <- Outlier_rows[, c('SEQN', 'KCAL', 'BCAR')]
+  #     # Show the first n rows of the outliers in a descending order. 
+  #     head(bcaroutliers[order(bcaroutliers$BCAR, decreasing = T), ], n=10)
+  #     
+# Look at how many rows (observations) were kept after QC. 
   dim(QCtotals)
       
 # ---------------------------------------------------------------------------------------------------------------
 # Save QCtotal as a .txt file. 
   write.table(QCtotals, "eg_data/NHANES/Total_D12_FC_mean_QC.txt", sep="\t", quote=F, row.names=F)
   
-# ---------------------------------------------------------------------------------------------------------------
-  # Take n random samples of participants (SEQN).
-  RandomSample(data=QCtotal, n=100, out.fn="eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt")
-      # This is the "input" file for the SaveInputAndPCs() function at the end of 23_PCA.R. 
-  
-  # Load the subsetted totals file. 
-  totals_QCed_sampled <- read.table(        "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt", sep="\t", header=T)
-  
-# ---------------------------------------------------------------------------------------------------------------
+# # ---------------------------------------------------------------------------------------------------------------
+#   # Take n random samples of participants (SEQN).
+#   RandomSample(data=QCtotal, n=100, out.fn="eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt")
+#       # This is the "input" file for the SaveInputAndPCs() function at the end of 23_PCA.R. 
+#   
+#   # Load the subsetted totals file. 
+#   totals_QCed_sampled <- read.table(        "eg_data/NHANES/NHANES1516_total_d12_FC_mean_QC_2_100sampled.txt", sep="\t", header=T)
+#   
+# # ---------------------------------------------------------------------------------------------------------------
