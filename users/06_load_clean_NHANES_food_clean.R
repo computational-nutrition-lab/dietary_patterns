@@ -6,13 +6,12 @@
 
 # Folder structure 
 # 
-#                          |----- eg_data -- NHANES -- Data -- Food Items and Totals files 
+#                          |----- eg_data -- NHANES -- Raw_data -- has Food Items and Totals files 
+#                          |                                       downloaded from NHANES 15-16.
 #                          |
-#                          |----- lib -- functions
-#                          |
+#  Main -------------------|----- lib -- functions
+#  (dietary_patterns)      |
 #                          |----- users -- where this script is located
-#  Main -------------------|
-#  (dietary_patterns)      |----- results -- PCA_results -- where the results will be saved
 #                          |
 #                          |----- ...
 #
@@ -39,23 +38,37 @@
 # Prep the code table - replace special characters with "_" or "and"
   
   # Format the food table and save it as a .txt file.
-  PrepareFoodCodeTable(raw.food.code.table = "eg_data/NHANES/FoodCodes_DRXFCD_I.XPT", 
+  PrepareFoodCodeTable(raw.food.code.table = "eg_data/NHANES/Raw_data/FoodCodes_DRXFCD_I.XPT", 
                        out.fn =              "eg_data/NHANES/FoodCodes_DRXFCD_I_f.txt")  
   
   # Load the formatted foodcode table.
   foodcodetable_f <- read.table("eg_data/NHANES/FoodCodes_DRXFCD_I_f.txt", sep="\t", header=T)
+  
+  # Check the first 10 rows of the output. 
   foodcodetable_f[1:10, ]  
   
 # ---------------------------------------------------------------------------------------------------------------
 # Load FPED15-16, needed for the AddFoodCat function. 
   FPED <- read.table("eg_data/NHANES/FPED/FPED_1516_forR.txt", sep="\t", header=T)
+  
+  # Check the first 2 rows of FPED. 
   head(FPED, 2)
   
   # Important! Change the food code column name as Food_code.
   colnames(FPED)[1] <- "Food_code"
 
 # ---------------------------------------------------------------------------------------------------------------
-# [NOTE] Raw food data (DR1IFF_I.XPT and DR2IFF_I.XPT) are very large files. 
+
+# [NOTE] Raw food data (DR1IFF_I.XPT and DR2IFF_I.XPT) are very large files and cannot be 
+# accommodated by GitHub. Thus, you will want to download them separately, and save them in a 
+# directory of your choice. Replace the path to your directory that contains the raw food data in 
+# the following code that uses the ImportNHANESFoodItems function.
+ 
+# [NOTE] Different alphabets are used on the variables' names in different release of NHANES 
+# data.  Therefore, you will need to change the alphabet (and potentially the other parts of the 
+# variable names) in order to run this script with other releases of NHANES. For example, 
+# DR1IFDCD is a column name for the food code used in the NHANES 2015-2016, and the 
+# alphabet for this release is "I".   
   
 # Import items data Day 1, add food item descriptions, and save it as a txt file.
 # IT WILL LIKELY BE A HUGE FILE.
@@ -75,7 +88,7 @@
              fped= FPED,
              grams= "DR1IGRMS", 
              out.fn= "eg_data/NHANES/Food_D1_FC.txt")
-  # OK to see a message saying "NAs introduced by coercion."
+  # It is OK to see a message saying "NAs introduced by coercion."
   # NAs will be removed later in the filtering process.
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -91,7 +104,8 @@
 # Count the number of participants - should be 7027 people.
   length(unique(Food_D2$SEQN)) 
 
-# Day 2. Add the food items info and serving for each item. #### WILL TAKE A FEW MOMENTS. ####
+# Do the same for Day 2. Add the food items info and serving for each item. 
+#### WILL TAKE A FEW MOMENTS. ####
   AddFoodCat(input.food= Food_D2, 
              fped= FPED, 
              grams= "DR2IGRMS", 
@@ -100,33 +114,31 @@
   # NAs will be removed later in the filtering process.
 
 # ===============================================================================================================
-# Load the Food_Dx_FC which has food category data. 
+# Load the Food_Dx_FC which has the food category data. 
 # ===============================================================================================================
-  # Food Day 1 with Food Category *** WILL BE A HUGE TABLE. ***
+# Food Day 1 with Food Category *** WILL BE A HUGE TABLE. ***
   Food_D1_FC <- read.table("eg_data/NHANES/Food_D1_FC.txt", sep="\t", header=T)
   
-  # Food Day 2 with Food Category *** WILL BE A HUGE TABLE. ***
+# Food Day 2 with Food Category *** WILL BE A HUGE TABLE. ***
   Food_D2_FC <- read.table("eg_data/NHANES/Food_D2_FC.txt", sep="\t", header=T)
   
-# Check the number of complete and incomplete data - 1902 rows are incomplete.
-  table(Food_D2_FC$DR2DRSTZ) 
-
 # Change the colnames for downstream analyses
-  colnames(Food_D1_FC)
   names(Food_D1_FC)[names(Food_D1_FC) == "DR1IFDCD"] <- "FoodCode"
-  names(Food_D2_FC)[names(Food_D2_FC) == "DR2IFDCD"] <- "FoodCode"
   names(Food_D1_FC)[names(Food_D1_FC) == "DR1IGRMS"] <- "FoodAmt"
-  names(Food_D2_FC)[names(Food_D2_FC) == "DR2IGRMS"] <- "FoodAmt"
   names(Food_D1_FC)[names(Food_D1_FC) == "DRXFCLD"] <- "Main.food.description"
+  
+  names(Food_D2_FC)[names(Food_D2_FC) == "DR2IFDCD"] <- "FoodCode"
+  names(Food_D2_FC)[names(Food_D2_FC) == "DR2IGRMS"] <- "FoodAmt"
   names(Food_D2_FC)[names(Food_D2_FC) == "DRXFCLD"] <- "Main.food.description"
   
+# Check the first row and ensure the column names are changed. 
   head(Food_D1_FC,1)
   
-# Save after changing the columnnames. cc stands for columnnames changed.
+# Save after changing the column names. "cc" stands for column names changed.
   write.table(Food_D1_FC, "eg_data/NHANES/Food_D1_FC_cc.txt", sep="\t", row.names=F, quote=F)
   write.table(Food_D2_FC, "eg_data/NHANES/Food_D2_FC_cc.txt", sep="\t", row.names=F, quote=F)
   
-# Replace the special characters with "_" using FormatFoods
+# Replace special characters with "_" using FormatFoods
 # FotmatFoods() function adds "Main.Food.Description" where special characters are removed/replaced, the previous
 # Main.Food.Description as Old.Main.Food.Description, ModCode, and FoodID. $FoodID is a cha vector, but has .0 at the end. 
 # MAKE SURE dedupe=F. If true (default!), duplicated foods will be removed! 
@@ -145,17 +157,21 @@
 # ===============================================================================================================
 
 # Load the demographics file, then filter by age > 18.
-  demog <- read.xport("eg_data/NHANES/DEMO_I.XPT")
-  
-# Remove children.  
+  demog <- read.xport("eg_data/NHANES/Raw_data/DEMO_I.XPT")
+  head(demog,1)
+# Remove children (under 18 years of age).  
   adults <- demog[demog$RIDAGEYR >= 18, ]
   
 # Check the number of adults - 5992. 
   length(unique(adults$SEQN)) 
   
+# Check the number of complete and incomplete data. According to the documentation  
+# (https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR1IFF_I.htm), value 4 is incomplete, 
+# so 2,208 rows are marked incomplete for Day 1, and 1,902 rows for Day 2.
+  table(Food_D1_FC$DR1DRSTZ) 
+  table(Food_D2_FC$DR2DRSTZ) 
+
 # Retain those with complete data (STZ==1)
-  # DR1DRSTZ == 1: reliable and all relevant variables associated with the 24-hour dietary recall contain a value.
-  # Code descriptions in Analytic notes: https://wwwn.cdc.gov/Nchs/Nhanes/2017-2018/DR1IFF_J.htm#Analytic_Notes
   food1 <- subset(Food_D1_FC_cc_f, DR1DRSTZ == 1)
   food2 <- subset(Food_D2_FC_cc_f, DR2DRSTZ == 1)
 
@@ -171,7 +187,7 @@
   colnames(freqtable1_m)[1] <- "SEQN"
   keepnames_adults_mult1 <- keepnames_adults[keepnames_adults %in% freqtable1_m$SEQN] # 4405
   
-  # Take only the participants whose names are in keepnames_adults_mult1.
+# Take only the participants whose names are in keepnames_adults_mult1.
   food1b <- food1[food1$SEQN %in% keepnames_adults_mult1, ] # 66,304 rows
   
 # Do the same for food2
@@ -180,61 +196,65 @@
   colnames(freqtable2_m)[1] <- "SEQN"
   keepnames_adults_mult2 <- keepnames_adults[keepnames_adults %in% freqtable2_m$SEQN] # 4401
   food2b <- food2[food2$SEQN %in% keepnames_adults_mult2, ] # 66,690 rows
-  head(food2b)
 
 # Create a vector of SEQN of those that have both day 1 and day 2 data.
   food1bnames <- unique(food1b$SEQN)
   food2bnames <- unique(food2b$SEQN)
   keepnames12 <- food1bnames[food1bnames %in% food2bnames] 
+  
+  length(keepnames12)
   # 4,401 people meet the criteria.
 
 
 # ================================================================================================================  
 # Now, choose Scenario A or B. (B consists of B-1, B-2, B-3, and B-4.)
+# Scenario A: Further process food1b and food2b for building a food tree.  
+# Scenario B-1-4: Calculate totals from the QC-ed food items and QC totals.
 # ================================================================================================================  
   
 # ================================================================================================================  
-# Scenario A: Further processing of food1b and food2b for building a food tree.  
+# Scenario A: Further process food1b and food2b for building a food tree.  
 # ================================================================================================================  
   
 # Make a day variable to distinguish them.
   food1b$Day <- 1
   food2b$Day <- 2
 
-  colnames(food1b)
-
-# Rename these to avoid overwwriting.
+# Copy these datasets to avoid overwriting.
   food1e <- food1b
   food2e <- food2b
 
-# Remove "^DR1I", "^DR1" from the columnnames 
+# Remove the prefixes "DR1I", "DR1" from the columnnames. 
   colnames(food1e) <- gsub(colnames(food1e), pattern = "^DR1I", replacement = "")
   colnames(food1e) <- gsub(colnames(food1e), pattern = "^DR1",  replacement = "")
-  colnames(food1e)
   colnames(food2e) <- gsub(colnames(food2e), pattern = "^DR2I", replacement = "")
   colnames(food2e) <- gsub(colnames(food2e), pattern = "^DR2",  replacement = "")
-  colnames(food2e)
       
 # Ensure the columns of food1c and food2c match before joining them.
   identical(colnames(food1e), colnames(food2e))
   
-# Combine food1 and food2 as a longtable.
+# Combine food1 and food2 as a longtable (add food2 rows after food1 rows).
   food12e <- rbind(food1e, food2e)
   
-# Pick up only the individuals listed in keepnames12.
+# Select only the individuals listed in keepnames12.
   food12f <- food12e[food12e$SEQN %in% keepnames12, ]
 
-# food12f has all information (SEQN, nutrients, food categories, food.description, day etc.)
 # Save. It will be a HUGE file.
   write.table(food12f, "eg_data/NHANES/Food_D12_FC_cc_f.txt", sep="\t", row.names=F, quote=F)
+# Use this as an input for food tree.
 
-# Use this as an input for food tree.  
-  
+# Add the demographic data to food12f for data overview.  
+  food12f_d <- merge(x=food12f, y=demog, by="SEQN", all.x=T)
+
+# Save. It will be a HUGE file.
+  write.table(food12f_d, "eg_data/NHANES/Food_D12_FC_cc_f_d.txt", sep="\t", row.names=F, quote=F)
+# Use this as an input for data overview.
+   
 # ================================================================================================================  
 # Scenario B-1: Further processing of food1b and food2b for calculating totals and clustering.  
 # ================================================================================================================  
 
-# Copy to avoid overwriting
+# Copy datasets to avoid overwriting
   food1bb <- food1b
   food2bb <- food2b
   
@@ -242,13 +262,15 @@
   names(food1bb)[names(food1bb) == "FoodAmt"] <- "DR1IGRMS"
   names(food2bb)[names(food2bb) == "FoodAmt"] <- "DR2IGRMS"
 
-# Combine day 1 and day 2 data.
+# Prepare data to combine day 1 and day 2 data.
+# Refer to the tutorial how to generate NHANES_Food_VarNames_FC_Day1.txt and
+# NHANES_Food_VarNames_FC_Day2.txt. 
+  
 # Day 1
-  # Import the list of variables to be picked up in Day 1. 
-  # day1variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_Day1.txt', header=F)  # OLD, before adding food category data.
+  # Import the list of variables to be selected in Day 1.  
   day1variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_FC_Day1.txt', header=F)
 
-  # Which variables to pick up from the food data
+  # Select the variables to pick up from the food data
   var_to_use1 <- names(food1bb) %in% day1variables$V1
   
   # Pick up only the specified variables
@@ -258,7 +280,7 @@
   colnames(food1c) <- gsub(colnames(food1c), pattern = "^DR1I", replacement = "")
   colnames(food1c) <- gsub(colnames(food1c), pattern = "^DR1",  replacement = "")
   
-  # Check
+  # Check the column names.
   head(food1c, 1)
  
 # Do the same for Day 2  
@@ -268,22 +290,31 @@
   colnames(food2c) <- gsub(colnames(food2c), pattern = "^DR2I", replacement = "")
   colnames(food2c) <- gsub(colnames(food2c), pattern = "^DR2", replacement = "")
   
-# Make a day variable before combining
+# Make a day variable before combining food1c and food2c. 
   food1c$Day <- 1
   food2c$Day <- 2
 
 # Ensure the columns of food1c and food2c match before joining them.
   identical(colnames(food1c), colnames(food2c))
   
+# If not, create a table that has the column names of both food1c and food2c,
+# examine the column names side-by-side.
+  names <- data.frame(matrix(nrow= max(ncol(food1c), ncol(food2c)), ncol=2))
+  colnames(names) <- c("food1c", "food2c")
+  names$food1c <- colnames(food1c)
+  names$food2c <- colnames(food2c)
+  names
+
 # Combine food1 and food2 as a longtable.
   food12c <- rbind(food1c, food2c)
   
 # Pick up only the individuals listed in keepnames12.
   food12d <- food12c[food12c$SEQN %in% keepnames12, ]
 
-# Save the combined and QC-ed food items as a .txt file. #### THIS WILL BE A HUGE FILE ####
+# Save the combined and QC-ed food items as a .txt file. 
+#### THIS WILL BE A HUGE FILE ####
   write.table(food12d, "eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", quote=F, row.names=F)  
-      
+
 # Load food12d.
   food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", header=T)
       
@@ -312,7 +343,7 @@
 # B-3: Calculate the mean of totals/participant. 
 # ===============================================================================================================
 
-# Calculate the mean of two days of the totals data per participant. 
+# Calculate the mean of the two days of the totals data per participant. 
   AverageTotalNHANES(food12d= food12d, 
                      first.val= "GRMS", last.val= "NoOfItems", 
                      outfn= "eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt")  
@@ -328,7 +359,7 @@
 # For individual food data, there is no code for cleaning.
 # Outliers won't severely affect main analysis conclusions (ASA24 data cleaning doc)
 # But, it's always a good idea to take a look at the distributions of variables of interest. 
-# Could calculate totals by occasion, similar to ASA24 code.
+# Could calculate totals by occasion, similar to the ASA24 code.
   
 # ---------------------------------------------------------------------------------------------------------------
 # For totals, the same QC can be applied as ASA24 totals QC procedure.
@@ -359,7 +390,7 @@
   
       # or show the outliers if too many.
       VCoutliers <- Outlier_rows[, c('SEQN', 'KCAL', 'VC')]
-      # Show the first n rows of the outliers in a descending order. 
+      # Show the first n rows of the outliers in descending order. 
       head(VCoutliers[order(VCoutliers$VC, decreasing = T), ], n=10)
 
 # Look at how many rows (observations) were kept after QC. 
