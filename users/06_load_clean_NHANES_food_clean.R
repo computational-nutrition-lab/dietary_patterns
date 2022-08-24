@@ -229,7 +229,7 @@
   colnames(food1e) <- gsub(colnames(food1e), pattern = "^DR1",  replacement = "")
   colnames(food2e) <- gsub(colnames(food2e), pattern = "^DR2I", replacement = "")
   colnames(food2e) <- gsub(colnames(food2e), pattern = "^DR2",  replacement = "")
-      
+
 # Ensure the columns of food1c and food2c match before joining them.
   identical(colnames(food1e), colnames(food2e))
   
@@ -240,14 +240,14 @@
   food12f <- food12e[food12e$SEQN %in% keepnames12, ]
 
 # Save. It will be a HUGE file.
-  write.table(food12f, "eg_data/NHANES/Food_D12_FC_cc_f.txt", sep="\t", row.names=F, quote=F)
+  write.table(food12f, "eg_data/NHANES/Food_D12_FC_cc_f_s.txt", sep="\t", row.names=F, quote=F)
 # Use this as an input for food tree.
 
 # Add the demographic data to food12f for data overview.  
   food12f_d <- merge(x=food12f, y=demog, by="SEQN", all.x=T)
 
 # Save. It will be a HUGE file.
-  write.table(food12f_d, "eg_data/NHANES/Food_D12_FC_cc_f_d.txt", sep="\t", row.names=F, quote=F)
+  write.table(food12f_d, "eg_data/NHANES/Food_D12_FC_cc_f_s_d.txt", sep="\t", row.names=F, quote=F)
 # Use this as an input for data overview.
    
 # ================================================================================================================  
@@ -262,7 +262,7 @@
   names(food1bb)[names(food1bb) == "FoodAmt"] <- "DR1IGRMS"
   names(food2bb)[names(food2bb) == "FoodAmt"] <- "DR2IGRMS"
 
-# Prepare data to combine day 1 and day 2 data.
+# [NOTE] Prepare data to combine day 1 and day 2 data.
 # Refer to the tutorial how to generate NHANES_Food_VarNames_FC_Day1.txt and
 # NHANES_Food_VarNames_FC_Day2.txt. 
   
@@ -283,6 +283,7 @@
   # Check the column names.
   head(food1c, 1)
  
+# ---------------------------------------------------------------------------------------------------------------
 # Do the same for Day 2  
   day2variables <- read.table('eg_data/NHANES/NHANES_Food_VarNames_FC_Day2.txt', header=F)
   var_to_use2 <- names(food2bb) %in% day2variables$V1
@@ -312,31 +313,38 @@
   food12d <- food12c[food12c$SEQN %in% keepnames12, ]
 
 # Save the combined and QC-ed food items as a .txt file. 
+# This has nutrient information, food categories, and day variable for each food item reported,
+# and shall be used to calculate totals in B-2. 
 #### THIS WILL BE A HUGE FILE ####
-  write.table(food12d, "eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", quote=F, row.names=F)  
+  # write.table(food12d, "eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", quote=F, row.names=F)  # OLD
+  write.table(food12d, "eg_data/NHANES/Food_D12_FC_QC.txt", sep="\t", quote=F, row.names=F)  
 
-# Load food12d.
-  food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", header=T)
-      
 # ---------------------------------------------------------------------------------------------------------------
-# You may also want to consider special diets that some participants are following: e.g. DASH diet, diabetic diet, etc.
-# Depending on your research question, you may want to exclude those following special diets.
-# The diet information is found in totals day 1.  
+# You may also want to consider special diets that some participants are following: e.g. DASH diet, diabetic diet, 
+# etc. Depending on your research question, you may want to exclude those following special diets.
+# The diet information is found in totals day 1. We will revisit diet information in the next section.
 
 # ===============================================================================================================
 # B-2: Calculate totals/day/participant with the food data of the selected SEQNs.
 # ===============================================================================================================
 
+# Load the QC-ed food items.
+  # food12d <- read.table("eg_data/NHANES/NHANES1516_items_d12_FC_QC.txt", sep="\t", header=T) # OLD
+  food12d <- read.table("eg_data/NHANES/Food_D12_FC_QC.txt", sep="\t", header=T)
+
 # Calculate totals for day 1 and day 2, and combine the two datasets.
   TotalNHANES(food12d= food12d, 
               first.val= "GRMS", last.val= "A_DRINKS", 
-              outfn = "eg_data/NHANES/NHANES1516_total_d12_FC.txt" )  
+              # outfn = "eg_data/NHANES/NHANES1516_total_d12_FC_eachday.txt"  # OLD.
+              outfn = "eg_data/NHANES/Total_D12_FC_QC_eachday.txt" 
+              )  
 
 # Load the resultant total.
-  total12d <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC.txt", sep="\t", header=T)
+  # total12d <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_eachday.txt", sep="\t", header=T) # OLD
+  total12d <- read.table("eg_data/NHANES/Total_D12_FC_QC_eachday.txt", sep="\t", header=T)
   
 # total12d has the sum of each variable (columns) for each day and participant. 
-  head(total12d)
+  head(total12d, 2)
   
 
 # ===============================================================================================================
@@ -346,10 +354,12 @@
 # Calculate the mean of the two days of the totals data per participant. 
   AverageTotalNHANES(food12d= food12d, 
                      first.val= "GRMS", last.val= "NoOfItems", 
-                     outfn= "eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt")  
+                     # outfn= "eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt"
+                     outfn= "eg_data/NHANES/Total_D12_FC_QC_mean.txt"
+                     )  
   
 # Load the mean total
-  meantotal12b <- read.table("eg_data/NHANES/NHANES1516_total_d12_FC_mean.txt", sep="\t", header=T)
+  meantotal12b <- read.table("eg_data/NHANES/Total_D12_FC_QC_mean.txt", sep="\t", header=T)
 
     
 # ===============================================================================================================
@@ -398,7 +408,18 @@
       
 # ---------------------------------------------------------------------------------------------------------------
 # Save QCtotal as a .txt file. 
-  write.table(QCtotals, "eg_data/NHANES/Total_D12_FC_mean_QC.txt", sep="\t", quote=F, row.names=F)
+  write.table(QCtotals, "eg_data/NHANES/Total_D12_FC_QC_mean_QC.txt", sep="\t", quote=F, row.names=F)
   
+# ---------------------------------------------------------------------------------------------------------------
+# Add demograhic data to the QC-ed total. 
+# Load the demographics file if you have not done so yet.
+  demog <- read.xport("eg_data/NHANES/Raw_data/DEMO_I.XPT")
+  
+# Merge QC-totals and demographics by SEQN.
+  QCtotals_d <- merge(x=QCtotals, y=demog, by="SEQN", all.x=TRUE)
 
+# Save QCtotal_d as a .txt file. 
+  write.table(QCtotals_d, "eg_data/NHANES/Total_D12_FC_QC_mean_QC_d.txt", sep="\t", quote=F, row.names=F)
+  
+  
   

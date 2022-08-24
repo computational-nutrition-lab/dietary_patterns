@@ -1,12 +1,12 @@
-# ========================================================================================
+# ===============================================================================================================
 # Take an overview of ASA24 items and totals data.
 # Version 1
 # Created on 06/22/2022 by Rie Sadohara
-# ========================================================================================
+# ===============================================================================================================
 
-# ========================================================================================
+# ===============================================================================================================
 # Set working directory 
-# ========================================================================================
+# ===============================================================================================================
 
 # Set your working directory to the main directory.
   Session --> Set working directory --> Choose directory.
@@ -25,9 +25,9 @@
 # You can come back to the main directory by:
   setwd(main_wd)
 
-# ========================================================================================
+# ===============================================================================================================
 # Load and analyze (QC-ed) NHANES food items data
-# ========================================================================================
+# ===============================================================================================================
 
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
@@ -36,12 +36,8 @@
 # "_FC_cc_f_d" stands for: "Food category variables added", "column names changed", 
 # "food formatted", and "demographic data merged".  
   food12f_d <- read.table("Food_D12_FC_cc_f_d.txt", sep="\t", header=T) 
-  head(food12f_d, 1)
+  head(food12f_d, 2)
   
-  # OLD - ASA24 version. 
-  # items_f_id_s_m <- read.table("VVKAJ_Items_f_id_s_m.txt", sep="\t", header=T)
-  # head(items_f_id_s_m)
-
 # ---------------------------------------------------------------------------------------------------------------
 # Summary statistics
   
@@ -60,34 +56,25 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Boxplot
 # Generate a boxplot to view data distribution.
-  
-# Boxplot of KCAL by users. And 
-  # users_kcal <- ggplot(food12f_d, aes(x=SEQN, y=KCAL)) +
-  #   geom_boxplot() + no_grid + space_axes + rotate_X_labels
-  # users_kcal
-  
-# Save it as a .pdf file.
-  # ggsave("Food_D12_FC_cc_f_d_users_kcal.pdf", users_kcal, device="pdf")
-  
-# Similarly, generate a boxplot of KCAL by gender.
+
+# Group by metadata variables and generate a boxplot. 
 # According to the documentation of the NHANES 2015-2016 
 # (https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DEMO_I.htm),
-# the gender column is RIAGENDR.   
+# the column for gender is RIAGENDR.   
   
 # Convert RIAGENDR into a factor, so that it will be a categorical variable.
   food12f_d$RIAGENDR <- factor(food12f_d$RIAGENDR, levels= c('1', '2'))
   
+# Generate a boxplot of KCAL by gender.
   gender_kcal <- ggplot(food12f_d, aes(x=RIAGENDR, y=KCAL, group=RIAGENDR)) +
     geom_boxplot() + no_grid + space_axes + labs(x="Gender") +
     scale_x_discrete(labels = c("Male", "Female")) 
   gender_kcal
 
 # Save it as a .pdf file.
-  ggsave("Food_D12_FC_cc_f_d_gender_kcal.pdf", gender_kcal, device="pdf")
-  
-  
-##### RESUME FROM HERE #####
-  
+  ggsave("Food_D12_FC_cc_f_d_gender_kcal.pdf", 
+         gender_kcal, device="pdf", width=5.3, height=4.5)
+
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot
   
@@ -97,7 +84,8 @@
   TFAT_KCAL
 
 # Save it as a .pdf file.
-  ggsave("VVKAJ_Items_f_id_s_m_TFAT_KCAL.pdf", TFAT_KCAL, device="pdf")
+  ggsave("Food_D12_FC_cc_f_d_TFAT_KCAL.pdf", 
+         TFAT_KCAL, device="pdf", width=5.3, height=4.5)
   
   
 # Test if the two variables are correlated.
@@ -106,111 +94,78 @@
 
   
 # ===============================================================================================================
-# Load and analyze (QC-ed) ASA24 totals data
+# Load and analyze (QC-ed) NHANES totals data
 # ===============================================================================================================
   
-# Specify the directory where the data is.
-  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")  
+# Specify the directory where the data is, if you have not done so yet.
+  SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
   
-# Load your QC-ed totals data to be analyzed.
-  tot_m_QCed <- read.table("VVKAJ_Tot_m_QCed.txt", sep="\t", header=T)
+# Load your QC-ed totals with demograhpic data to be analyzed.
+                                  
+# QCtotals <- read.table("NHANES1516_total_d12_FC_mean.txt", sep="\t", header=T)
+  QCtotals_d <- read.table("Total_D12_FC_QC_mean_QC_d.txt", sep="\t", header=T)
   
 # Note that each row is a total dietary intake of each user on each day. 
-  head(tot_m_QCed)
+  head(QCtotals_d, 2)
 
 # ---------------------------------------------------------------------------------------------------------------
 # Summary statistics
   
 # Summary statistics of one variable
-  summary(tot_m_QCed$KCAL)
+  summary(QCtotals_d$KCAL)
   
 # Calculate the min, quantiles, mean, etc. for a variable in your dataset
 # in the same way we did with the items.   
-  SummaryStats(inputdf = tot_m_QCed, 
-               outfn = "VVKAJ_Tot_m_QCed_summ.txt")
+  SummaryStats(inputdf = QCtotals_d, 
+               outfn = "Total_D12_FC_QC_mean_QC_d_summ.txt")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Boxplot
 # Generate a boxplot to view data distribution.
 
-# Boxplot of KCAL by users. This is a variation of the days, and note that
-# some users may have less number of days due to the QC process or missing data. 
-  users_kcal_t <- ggplot(tot_m_QCed, aes(x=UserName, y=KCAL)) +
-    geom_boxplot() + no_grid + space_axes + rotate_X_labels
-  users_kcal_t
+# Convert RIAGENDR into a factor, so that it will be a categorical variable.
+  QCtotals_d$RIAGENDR <- factor(QCtotals_d$RIAGENDR, levels= c('1', '2'))
   
-# Save it as a .pdf file.
-  ggsave("VVKAJ_Tot_m_QCed_users_KCAL.pdf", users_kcal_t, device="pdf")
-  
-# Boxplot of KCAL by gender.
-  gender_KCAL_t <- ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
-    geom_boxplot() + no_grid + space_axes 
+# Boxplot of KCAL by gender (RIAGENDR). "t" stands for "total"
+  gender_KCAL_t <- ggplot(QCtotals_d, aes(x= RIAGENDR, y=KCAL)) +
+    geom_boxplot() + no_grid + space_axes + labs(x="Gender") +
+    scale_x_discrete(labels = c("Male", "Female"))
   gender_KCAL_t
   
 # Save it as a .pdf file.
-  ggsave("VVKAJ_Tot_m_QCed_gender_KCAL.pdf", gender_KCAL_t, device="pdf")
+  ggsave("Total_D12_FC_QC_mean_QC_d_gender_KCAL.pdf", 
+         gender_KCAL_t, device="pdf", width=5.3, height=4.5)
   
 
 # Boxplot of KCAL by gender, with each datapoint.  Note that geom_boxplot must have outlier.shape = NA 
 # when plotted with geom_jitter. Otherwise, outlier points will be duplicated and will be misleading. 
-  gender_KCAL_t_dots <- ggplot(tot_m_QCed, aes(x=Gender, y=KCAL)) +
-    geom_boxplot(outlier.shape = NA) + no_grid + space_axes +
-    geom_jitter(width=0.3)
+  gender_KCAL_t_dots <- ggplot(QCtotals_d, aes(x= RIAGENDR, y= KCAL)) +
+    geom_boxplot(outlier.shape = NA) + no_grid + space_axes + labs(x="Gender") +
+    geom_jitter(width=0.3, color="grey60", alpha=0.5) +
+    scale_x_discrete(labels = c("Male", "Female"))
   gender_KCAL_t_dots
   
 # Save it as a .pdf file.
-  ggsave("VVKAJ_Tot_m_QCed_gender_KCAL_dots.pdf", gender_KCAL_t_dots, device="pdf")
+  ggsave("Total_D12_FC_QC_mean_QC_d_KCAL_dots.pdf", 
+         gender_KCAL_t_dots, device="pdf", width=5.3, height=4.5)
   
   
 # ---------------------------------------------------------------------------------------------------------------
 # Scatterplot
   
 # Scaterplot of two variables. 
-  TFAT_KCAL_t <- ggplot(tot_m_QCed, aes(x=TFAT, y=KCAL)) +
-    geom_point() + no_grid + space_axes
+  TFAT_KCAL_t <- ggplot(QCtotals_d, aes(x=TFAT, y=KCAL)) +
+    geom_point(color="grey30", alpha=0.5) + no_grid + space_axes
   TFAT_KCAL_t
   
 # Save it as a .pdf file.
-  ggsave("VVKAJ_Tot_m_QCed_TFAT_KCAL.pdf", TFAT_KCAL_t, device="pdf")
+  ggsave("Total_D12_FC_QC_mean_QC_d_TFAT_KCAL.pdf", 
+         TFAT_KCAL_t, device="pdf", width=5.3, height=4.5)
 
 # Test if the two variables are correlated.
 # The output should show p-value and R correlation coefficient
-  cor.test(x=tot_m_QCed$TFAT, y=tot_m_QCed$KCAL, method="pearson")
+  cor.test(x=QCtotals_d$TFAT, y=QCtotals_d$KCAL, method="pearson")
 
-# ---------------------------------------------------------------------------------------------------------------
-# Lineplot 
-  
-# Prepare your totals dataset for line plot - insert NA to missing combinations of UserName and RecallNo (day), 
-# and separate rows into NA's and no NAs. 
-  PrepLinePlot(inputdf= tot_m_QCed, day="RecallNo", username="UserName", 
-               all.fn=              "VVKAJ_Tot_m_QCed_wNA.txt",
-               full.days.only.fn=   "VVKAJ_Tot_m_QCed_fullonly.txt",
-               partial.days.only.fn="VVKAJ_Tot_m_QCed_partialonly.txt")
-  
-# Load the files.
-  tot_m_QCed_w_NA <-        read.table("VVKAJ_Tot_m_QCed_wNA.txt", sep="\t", header=T)
-  tot_m_QCed_fullonly <-    read.table("VVKAJ_Tot_m_QCed_fullonly.txt", sep="\t", header=T)
-  tot_m_QCed_partialonly <- read.table("VVKAJ_Tot_m_QCed_partialonly.txt", sep="\t", header=T)
-
-# Make RecallNo (day) as a factor so that it can be used as a variable on the X (or Y) axes.
-  tot_m_QCed$RecallNo <-             as.factor(tot_m_QCed$RecallNo)
-  tot_m_QCed_w_NA$RecallNo <-        as.factor(tot_m_QCed_w_NA$RecallNo)
-  tot_m_QCed_fullonly$RecallNo <-    as.factor(tot_m_QCed_fullonly$RecallNo)
-  tot_m_QCed_partialonly$RecallNo <- as.factor(tot_m_QCed_partialonly$RecallNo)
-
-# Plot points and lines separately.  Specify your "x" and "y" twice.
-# The geom_line function only connects the data of individuals with all days of data.
-  lineplot_1 <- ggplot() + 
-    geom_point(tot_m_QCed,          mapping = aes(x=RecallNo, y=KCAL, group=UserName, color=UserName)) +
-    geom_line( tot_m_QCed_fullonly, mapping = aes(x=RecallNo, y=KCAL, group=UserName, color=UserName), 
-              linetype="dashed") + no_grid +
-    scale_color_manual(values = distinct100colors) 
-  lineplot_1
-
-# Save it as a .pdf file.
-  ggsave("VVKAJ_Tot_m_QCed_KCAL_lineplot.pdf", lineplot_1, device="pdf")
-  
-  
 # ---------------------------------------------------------------------------------------------------------------
 # Come back to the main directory before you start running another script.
   setwd(main_wd)

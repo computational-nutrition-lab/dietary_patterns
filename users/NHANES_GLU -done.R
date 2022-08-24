@@ -22,7 +22,7 @@
   source("lib/ggplot2themes.R") 
 
 # Load the QC-ed total (with food categories), filtered for KCAL, PROT, TFAT, VC. 4207 people.
-  QCtotals <- read.table("eg_data/NHANES/Total_D12_FC_mean_QC.txt", sep="\t", header=T) 
+  QCtotals <- read.table("eg_data/NHANES/Total_D12_FC_QC_mean_QC.txt", sep="\t", header=T) 
   head(QCtotals,1)
   length(unique(QCtotals$SEQN)) # 4207 people. 
   head(unique(QCtotals$SEQN))
