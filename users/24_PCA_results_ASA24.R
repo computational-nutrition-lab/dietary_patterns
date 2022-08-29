@@ -3,25 +3,22 @@
 # Created on 07/15/2022 by Rie Sadohara
 # Version 1
 # ========================================================================================
-# 
-# Define ggplot2 themes
-  library(ggplot2)
+# Set working directory to "dietary_patterns".
+  Session --> Set working direHctory --> Choose directory.  
+  setwd(main_wd)
 
-# Theme black and white, with the base font size 14: change if necessary.
-  theme_set(theme_bw(base_size = 14))
+# Load the ggplot2 themes
+  source("lib/ggplot2themes.R")
+  
+# Call color palette.
+  distinct100colors <- readRDS("lib/distinct100colors.rda")
 
-# No gridlines inside charts
-  no_grid <- theme(panel.grid.major = element_blank(), 
-                   panel.grid.minor = element_blank())
-
-# Insert some space between axes and axes labels. 
-  space_axes <- theme(axis.title.x = element_text(margin=margin(t = 8, r = 0, b = 0, l = 0) ),
-                      axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) 
-
-    
-# ---------------------------------------------------------------------------------------------------------------
+# ===============================================================================================================
+# Nutrients results 
+# ===============================================================================================================
+  
 # Specify the directory where the data is.
-  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/Nut_asis_PCA")
+  SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/PCA_Nut_asis")
 
 # Load the PCA result
   pcares <- read.table("VVKAJ_Nut_asis_PCs.txt", sep="\t", header=T)
@@ -34,21 +31,27 @@
 
   
 # ---------------------------------------------------------------------------------------------------------------
-# Generate a biplot with the users colored by their diets.
-  ggplot(pcares, aes(x=PC1, y=PC2, color=Diet, fill=Diet)) + 
+# Generate a PC1 x PC2 plot with the users colored by their diets.
+  PC12_diet <- ggplot(pcares, aes(x=PC1, y=PC2, color=Diet, fill=Diet)) + 
     geom_point(size=3) +
     no_grid + space_axes +
     scale_fill_manual( values = distinct100colors) +
     scale_color_manual(values = distinct100colors) +
     scale_x_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of X.
     scale_y_continuous(expand = expansion(mult=c(0.1, 0.1))) + # give some space on the lower and the upper limits of Y.
-    labs(x = paste("PC1 (", round(PC_var_exp[1,2]*100, 2), "%)", sep=""),  
-         y = paste("PC2 (", round(PC_var_exp[2,2]*100, 2), "%)", sep=""))
+    labs(x = paste("PC1 (", round(PC_var_exp[1,2]*100, 1), "%)", sep=""),  
+         y = paste("PC2 (", round(PC_var_exp[2,2]*100, 1), "%)", sep="")) +
+    theme(aspect.ratio = 1)
+  PC12_diet
   
+# Save as a .pdf.
+  ggsave("VVKAJ_Nut_asis_PC12_diet.pdf", PC12_diet, 
+         device="pdf", width=7, height=6.5)
+
 
 # ---------------------------------------------------------------------------------------------------------------
   
-
+  
   
   
   
