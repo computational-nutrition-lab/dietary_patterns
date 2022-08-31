@@ -50,6 +50,7 @@
   library(ggplot2)
 
 # Load necessary functions and ggplot formatting themes
+  source("lib/specify_data_dir.R")
   source("lib/unifrac_ordination.R")
   source("lib/ggplot2themes.R")
 

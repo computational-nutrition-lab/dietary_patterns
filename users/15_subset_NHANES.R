@@ -4,7 +4,7 @@
 # Created on 08/24/2022 by Rie Sadohara
 # ===============================================================================================================
 
-##### READY TO BE COPIED TO TUTORIAL 
+##### READY TO BE COPIED TO TUTORIAL --- COPIED TO TUTORIAL on 08/30/2022.
 
 # ===============================================================================================================
 # Load NHANES15-16totals with demographic data
@@ -12,18 +12,20 @@
 # Load necessary packages.
   library(SASxport)
 
-# Set where the NHANES data and food code table are.
+# Set your working directory to the main directory.
+  Session --> Set working directory --> Choose directory.
   setwd("~/GitHub/dietary_patterns")
   
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())  
 
 # Load necessary functions.
-  source("lib/specify_dir_and_check_col.R")
+  source("lib/specify_data_dir.R")
   source("lib/load_clean_NHANES.R")
   source("lib/prep_data_for_clustering.R")
   source("lib/ggplot2themes.R") 
 
+# ---------------------------------------------------------------------------------------------------------------
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
   
@@ -62,7 +64,8 @@
   
 # Explanation of variables can be found here: https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/BMX_I.htm
 # Relevant variables here include:
-  # BMDSTATS - Body Measures Component Status Code: 1	Complete data for age group. 2	Partial: Only height and weight obtained
+  # BMDSTATS - Body Measures Component Status Code: 1	== Complete data for age group. 
+  #            2 ==	Partial: Only height and weight obtained
   # BMXHT - Standing Height (cm) 
   # BMIHT - Standing Height Comment
   # BMXBMI - Body Mass Index (kg/m**2)
@@ -75,11 +78,11 @@
 # Load the metadata of people, which is in Total Day 1.
   metadata_raw <- read.xport("E:/MSU OneDrive 20210829/UMinn/20_NHANES/2015-16/Data/DR1TOT_I.XPT")
   
-# Total Day 1 has data for day 1 and metadata, but we only need the metadata; thus, take out 
+# Total Day 1 has "dietary data for day 1" and "metadata", but we only need the metadata; thus, take out 
 # only the metadata columns (variable) and exclude the day 1 data.
 # Column names' descriptions can be found here: https://wwwn.cdc.gov/Nchs/Nhanes/2015-2016/DR1TOT_I.htm#DRQSPREP
   
-# First, specify the first and the last column names to calculate totals for. 
+# First, specify the first and the last column names to select. 
 # Look for the column number that matches the first and last variable specified.
   sta_col_num_a <- match("DBQ095Z"  , names(metadata_raw))  # Salt-related questions
   end_col_num_a <- match("DRQSPREP" , names(metadata_raw)) 
@@ -88,15 +91,14 @@
   sta_col_num_c <- match("DRD340"   , names(metadata_raw))  # Fish-related questions
   end_col_num_c <- match("DRD370V"  , names(metadata_raw)) 
   
-# Only select the metadata variables we would like to merge.
-# We will also take SEQN, which is in column 1.
+# Only select the metadata variables and SEQN, which is in column 1.
   metadata_only <- metadata_raw[, c(1,    
                                     sta_col_num_a:end_col_num_a, 
                                     sta_col_num_b:end_col_num_b, 
                                     sta_col_num_c:end_col_num_c 
                                     )]
   
-# This should have only the metadata columns.
+# Check that this has only the SEQN and metadata columns.
   head(metadata_only, 1)
     
 # Add meatadata to QCtotal_d_glu_body
@@ -118,7 +120,7 @@
 # Create an empty column to insert glucose level index.
   QCtotal_d_glu_body_meta$GLU_index <- NA
   
-# Add glucose index.
+# Add glucose level index.
   for(i in 1: nrow(QCtotal_d_glu_body_meta)){
     if(     QCtotal_d_glu_body_meta$LBXGLU[i] < 100){ QCtotal_d_glu_body_meta$GLU_index[i] <- "Normal" }
     else if(QCtotal_d_glu_body_meta$LBXGLU[i] < 126){ QCtotal_d_glu_body_meta$GLU_index[i] <- "Prediabetic" }
@@ -138,14 +140,12 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Load the data of those to be used in the diabetes status analysis. 
   glu <- read.delim( file="Laboratory_data/QCtotal_d_glu_body_meta.txt", sep= "\t", header= T )
-  # vis_miss( glu[, c("SEQN", "DRQSDIET")] )
-  # vis_miss( glu[, c("SEQN", "LBXGLU")] )
 
-# make GLU_index as a factor for plotting.
+# Make GLU_index as a factor for plotting.
   glu$GLU_index <- factor(glu$GLU_index, levels = c("Normal", "Prediabetic", "Diabetic"))
     
 # Exclude those who are following special diets.   
-# Extract only those following any specific diet.
+# Look at the number of individuals who are following any specific diet (DRQSDIET==1).
   table(glu$DRQSDIET)
   
 # DRQSDIET==1 is following a special diet, so select only rows with DRQSDIET==2. 
@@ -162,7 +162,7 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Look at the BMI frequency of each group.   
-# The columnname for BMI is BMXBMI
+# The columnname for BMI is BMXBMI.
 
 # Check the summary data - this will also show the number of missing data if any.
   summary(glu_2$BMXBMI)
@@ -231,10 +231,10 @@
          KCALfreq, device="pdf", width=5.3, height=4.5)
 
 # ===============================================================================================================
-# Select only men in their 50s, for example, so that the samples are more uniform and smaller?
+# Select only men in their 50s, for example, so that the samples are more uniform and smaller.
 # ===============================================================================================================
   
-# Age - no missing data. 
+# Age - no missing data, and spread pretty evenly. 
   summary(glu_2$RIDAGEYR)
   hist(glu_2$RIDAGEYR)
   
@@ -263,8 +263,8 @@
 # This uses lighter colors for the subpopulation.
   males50s_BMIfreq <- ggplot(data=glu_2_males50s, aes(x=BMXBMI, group=GLU_index, fill=GLU_index)) +
     geom_density(adjust=1.5, alpha=0.4) + space_axes + no_grid +
-    scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +  
-    labs(x="BMI", y="Density") 
+    scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
+    labs(x="BMI", y="Density")
   males50s_BMIfreq
 
   # Save the chart as .pdf.

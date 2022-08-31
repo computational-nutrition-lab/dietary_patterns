@@ -13,17 +13,11 @@
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
-# Come back to the main directory
-  setwd(main_wd)   
-
 # Load the necessary functions 
-  source("lib/specify_dir_and_check_col.R")
+  source("lib/specify_data_dir.R")
   source("lib/prep_data_for_clustering.R")
-  source("lib/PCA.R")
-  source("lib/k-means.R")
-  source("lib/ggplot2themes.R")
 
-# Specify where the ata is.
+# Specify where the data is.
   SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/")
 
 # ===============================================================================================================
@@ -36,10 +30,6 @@
 # There should be 128 individuals (rows)
   dim(glu_3_males50s)
 
-# make GLU_index as a factor for plotting.
-  glu_3_males50s$GLU_index <- factor(glu_3_males50s$GLU_index, 
-                                   levels = c('Normal', 'Prediabetic', 'Diabetic'))
-
 # Are BMI and body weight correlated? - Yes.
   plot(glu_3_males50s$BMXBMI, glu_3_males50s$BMXWT)
   cor.test(glu_3_males50s$BMXBMI, glu_3_males50s$BMXWT)
@@ -48,23 +38,21 @@
   drops <- c("KCAL","GRMS", "MOIS", "NoOfItems")
 
 # Take only the columns whose names are NOT in the drop vector. 
-  aaa <- glu_3_males50s[ , !(names(glu_3_males50s) %in% drops)]
-  aaa(glu_3_males50s)
+  glu_3_males50s_2 <- glu_3_males50s[ , !(names(glu_3_males50s) %in% drops)]
 
 # ===============================================================================================================
 # Scenario A: PCA with nutrients and body weight
 # ===============================================================================================================
-# Add BMI or (weight) to the PCA input.
+# Add BMI (or weight) to the PCA input.
 # Nutrients
 # Take  start.col="PROT" through end.col="P226" plus, "BMXBMI" and "BMXWT".
-  BMI_col   <- match("BMXBMI" , names(aaa)) 
-  WT_col    <- match("BMXWT" ,  names(aaa)) 
-  start_col <- match("PROT"  , names(aaa))  
-  end_col   <- match("P226"  , names(aaa)) 
+  BMI_col   <- match("BMXBMI" , names(glu_3_males50s_2)) 
+  WT_col    <- match("BMXWT"  , names(glu_3_males50s_2)) 
+  start_col <- match("PROT"   , names(glu_3_males50s_2))  
+  end_col   <- match("P226"   , names(glu_3_males50s_2)) 
   
 # Pick up BMI, weight, and nutrient variables.
-  subsetted <- aaa[ , c(BMI_col, WT_col, start_col:end_col)]
-  head(subsetted, 1)
+  subsetted <- glu_3_males50s_2[ , c(BMI_col, WT_col, start_col:end_col)]
   
 # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
@@ -92,11 +80,7 @@
 # filtered
   head(selected_variables, 1) 
   dim( selected_variables)     
-  
-# original
-  head(subsetted_non0var, 1)
-  dim( subsetted_non0var)
-  
+
 # ---------------------------------------------------------------------------------------------------------------
 # Save the variables after removing correlated variables
   write.table(selected_variables,
@@ -117,14 +101,13 @@
 # The columns specified as start.col, end.col, and all columns in between will be selected.
 # Take  start.col="F_CITMLB" through end.col="A_DRINKS" plus, "BMXBMI" and "BMXWT".
 # The output is a df called "subsetted".
-  BMI_col   <- match("BMXBMI" , names(aaa)) 
-  WT_col    <- match("BMXWT" , names(aaa)) 
-  start_col <- match("F_CITMLB"  , names(aaa))  
-  end_col   <- match("A_DRINKS"  , names(aaa))   
+  BMI_col   <- match("BMXBMI"  , names(glu_3_males50s_2)) 
+  WT_col    <- match("BMXWT"   , names(glu_3_males50s_2)) 
+  start_col <- match("F_CITMLB", names(glu_3_males50s_2))  
+  end_col   <- match("A_DRINKS", names(glu_3_males50s_2))   
   
 # Pick up BMI, weight, and food category variables.
-  subsetted <- aaa[ , c(BMI_col, WT_col, start_col:end_col)]
-  head(subsetted, 1)
+  subsetted <- glu_3_males50s_2[ , c(BMI_col, WT_col, start_col:end_col)]
   
 # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
@@ -152,11 +135,7 @@
 # filtered
   head(selected_variables, 1) 
   dim( selected_variables)     
-  
-# original
-  head(subsetted_non0var, 1)
-  dim( subsetted_non0var)
-  
+
 # ---------------------------------------------------------------------------------------------------------------
 # Save the variables after removing correlated variables
   write.table(selected_variables,
@@ -168,6 +147,8 @@
 # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc,
                  out.fn = "males50s_QCtotal_d_glu_body_meta_demo_Cat_corr_mat.txt")
+
 # ---------------------------------------------------------------------------------------------------------------
-  
+# Come back to the main directory
+  setwd(main_wd)   
   

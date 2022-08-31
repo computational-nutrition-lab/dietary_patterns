@@ -35,7 +35,7 @@
   setwd(main_wd) 
 
 # Import source code to run the analyses to follow.
-  source("lib/specify_dir_and_check_col.R")
+  source("lib/specify_data_dir.R")
   source("lib/k-means.R")
 
 # ---------------------------------------------------------------------------------------------------------------

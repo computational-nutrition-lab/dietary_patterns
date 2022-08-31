@@ -30,12 +30,13 @@
   setwd("~/GitHub/dietary_patterns")
 
 # Name your main directory for future use. 
-  main.wd <- file.path(getwd())
+  main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  # source("lib/specify_dir_and_check_col.R")
-  # source("lib/prep_data_for_clustering.R")
-  source("../../lib/PCA.R")
+  source("lib/specify_data_dir.R")
+  source("lib/prep_data_for_clustering.R")
+  source("lib/PCA.R")
+  source("lib/ggplot2themes.R")
 
 # Define ggplot themes to use in creating plots.
   library(ggplot2)

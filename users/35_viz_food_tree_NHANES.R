@@ -4,7 +4,7 @@
 # Created on 08/29/2022 by Rie Sadohara
 # ===============================================================================================================
 
-# READY TO BE COPIED TO TUTORIAL ============================================
+# READY TO BE COPIED TO TUTORIAL =====COPIED ON 08/30/2022====
 
 # Set your working directory as the main directory (dietary_patterns)
   Session --> Set working directory --> Choose directory.
@@ -14,7 +14,8 @@
   main_wd <- file.path(getwd())
   
 # Load source scripts
-  source("../../../lib/viz_food_tree.r")
+  source("lib/specify_data_dir.R")
+  source("lib/viz_food_tree.r")
 
 # Specify where the data is.
   SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/Foodtree")

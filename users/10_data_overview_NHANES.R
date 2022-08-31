@@ -10,12 +10,13 @@
 
 # Set your working directory to the main directory.
   Session --> Set working directory --> Choose directory.
+  setwd("~/GitHub/dietary_patterns/")
 
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow and generate plots.
-  source("lib/specify_dir_and_check_col.R")  
+  source("lib/specify_data_dir.R")  
   source("lib/data_overview.R")  
   source("lib/ggplot2themes.R")  
 
@@ -36,7 +37,6 @@
 # "_FC_cc_f_d" stands for: "Food category variables added", "column names changed", 
 # "food formatted", and "demographic data merged".  
   food12f_d <- read.table("Food_D12_FC_cc_f_d.txt", sep="\t", header=T) 
-  head(food12f_d, 2)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Summary statistics
@@ -89,7 +89,7 @@
   
   
 # Test if the two variables are correlated.
-# The output should show p-value and R correlation coefficient
+# The output should show p-value and R correlation coefficient.
   cor.test(x=food12f_d$TFAT, y=food12f_d$KCAL, method="pearson")
 
   
@@ -102,7 +102,6 @@
   
 # Load your QC-ed totals with demograhpic data to be analyzed.
                                   
-# QCtotals <- read.table("NHANES1516_total_d12_FC_mean.txt", sep="\t", header=T)
   QCtotals_d <- read.table("Total_D12_FC_QC_mean_QC_d.txt", sep="\t", header=T)
   
 # Note that each row is a total dietary intake of each user on each day. 

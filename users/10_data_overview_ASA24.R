@@ -15,7 +15,7 @@
   main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow and generate plots.
-  source("lib/specify_dir_and_check_col.R")  
+  source("lib/specify_data_dir.R")  
   source("lib/data_overview.R")  
   source("lib/ggplot2themes.R")  
 

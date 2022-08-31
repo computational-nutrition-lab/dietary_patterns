@@ -8,6 +8,7 @@
   setwd(main_wd)
 
 # Load the ggplot2 themes
+  source("lib/specify_data_dir.R")
   source("lib/ggplot2themes.R")
   
 # Call color palette.

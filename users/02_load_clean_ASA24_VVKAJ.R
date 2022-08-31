@@ -17,7 +17,7 @@
   main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  source("lib/specify_dir_and_check_col.R")  
+  source("lib/specify_data_dir.R")  
   source("lib/load_clean_ASA24.R")
   source("lib/format.file.R")
   

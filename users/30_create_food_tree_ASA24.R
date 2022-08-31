@@ -14,9 +14,6 @@
 #  #
 #  &
 
-# use this working directory until this script is complete. 
-  setwd("~/GitHub/dietary_patterns")
-
 # Folder structure 
 # 
 #                          |----- data ---- Food_tree_data
@@ -34,6 +31,7 @@
 
 # Set your working directory as the main directory (dietary_patterns)
   Session --> Set working directory --> Choose directory.
+  setwd("~/GitHub/dietary_patterns")
 
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
@@ -44,7 +42,7 @@
 # ========================================================================================
 # Load source scripts
 # ========================================================================================
-  source("lib/specify_dir_and_check_col.R")
+  source("lib/specify_data_dir.R")
   
   source("lib/Food_tree_scripts/newick.tree.r")
   source("lib/Food_tree_scripts/check.db.r")

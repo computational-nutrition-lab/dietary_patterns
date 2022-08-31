@@ -12,6 +12,7 @@
   main_wd <- file.path(getwd())
 
 # Load source scripts
+  source("lib/specify_data_dir.R")
   source("lib/PCA.R")
 
 # Specify where the data is.

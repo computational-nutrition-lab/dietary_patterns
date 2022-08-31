@@ -4,26 +4,11 @@
 # Created on 08/29/2022 by Rie Sadohara
 # ===============================================================================================================
 
-# READY TO BE COPIED TO TUTORIAL.
+# READY TO BE COPIED TO TUTORIAL. === COPIED ON 08/30/2022.
 
 # ===============================================================================================================
 # Import data from your data directory 
 # ===============================================================================================================
-
-# ---------------------------------------------------------------------------------------------------------------
-# Folder structure 
-# 
-#                          |----- eg_data 
-#                          |
-#                          |----- lib
-#                          |
-#                          |----- users
-#  Main -------------------|
-#  (dietary_patterns)      |----- results
-#                          |
-#                          |----- ...
-#
-
 # Set your working directory as to the main directory.
   Session --> Set working direHctory --> Choose directory.
 
@@ -34,7 +19,7 @@
   setwd(main_wd) 
 
 # Import source code to run the analyses to follow.
-  source("lib/specify_dir_and_check_col.R")
+  source("lib/specify_data_dir.R")
   source("lib/k-means.R")
 
 # ---------------------------------------------------------------------------------------------------------------

@@ -15,7 +15,7 @@
   main.wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
-  source("lib/specify_dir_and_check_col.R")
+  source("lib/specify_data_dir.R")
   source("lib/calc_ASA24totals_by_occasion.R")
 
 # Ensure your input files have no special characters that mess up loading:
