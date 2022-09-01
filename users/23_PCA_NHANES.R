@@ -4,6 +4,9 @@
 # Created on 08/29/2022 by Rie Sadohara
 # ===============================================================================================================
 
+  library(ggplot2)
+  library(ggfortify)
+
 # Set your working directory as the main directory (dietary_patterns)
   Session --> Set working directory --> Choose directory.
   setwd("~/GitHub/dietary_patterns")
@@ -13,6 +16,7 @@
 
 # Load source scripts
   source("lib/specify_data_dir.R")
+  source("lib/ggplot2themes.R")
   source("lib/PCA.R")
 
 # Specify where the data is.
@@ -57,11 +61,8 @@
 # Load the input & PC info.
   Nut_PCs <- read.table("males50s_Nut_PCA/males50s_Nut_PCs.txt", sep="\t", header=T)
 
-# Change to a factor so that factors will be displayed in order.
+# Change GLU_index to a factor so that factors will be displayed in order.
   Nut_PCs$GLU_index <- factor(Nut_PCs$GLU_index, levels= c("Normal", "Prediabetic", "Diabetic"))
-
-  head(Nut_PCs, 1)
-  dim(Nut_PCs)
 
 # Ellipses.
   ell <- ggplot(data= Nut_PCs, aes(x=PC1, y=PC2, color= GLU_index)) +
@@ -73,6 +74,15 @@
   ggsave("males50s_Nut_PCA/males50s_Nut_PCA_by_GLU_index_PC12_ell.png", ell, 
          device="png", width=7, height=6.5)
 # No visual separation between the groups...
+
+# ---------------------------------------------------------------------------------------------------------------
+# Load the glu_3_males50s data. 
+  glu_3_males50s <- read.table("QCtotal_d_glu_body_meta_demo_males50s.txt", 
+                               sep="\t", header=T)
+  
+# Change GLU_index to a factor so that factors will be displayed in order.
+  glu_3_males50s$GLU_index <- factor(glu_3_males50s$GLU_index, 
+                                     levels= c("Normal", "Prediabetic", "Diabetic"))
 
 # Use the autoplot function.
   food_Nut_PCA <- autoplot(scaled_pca, x=2, y=3,    # Specify which PC 
@@ -156,6 +166,15 @@
   ggsave("males50s_Cat_PCA/males50s_Cat_PCA_by_GLU_index_PC12_ell.png", ell, 
         device="png", width=7, height=6.5)
 
+# ---------------------------------------------------------------------------------------------------------------
+# Load the glu_3_males50s data. 
+  glu_3_males50s <- read.table("QCtotal_d_glu_body_meta_demo_males50s.txt", 
+                               sep="\t", header=T)
+  
+# Change GLU_index to a factor so that factors will be displayed in order.
+  glu_3_males50s$GLU_index <- factor(glu_3_males50s$GLU_index, 
+                                     levels= c("Normal", "Prediabetic", "Diabetic"))  
+  
 # Use the autoplot function.
   food_Cat_PCA <- autoplot(scaled_pca, x=2, y=3, # Specify which PC 
                            loadings=T, loadings.label=T, loadings.colour = 'grey50',  # loadings.label=T if want to see it
