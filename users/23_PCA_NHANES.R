@@ -32,7 +32,8 @@
 
 # Ensure your input file has the correct number of rows and columns.
   dim(pca_input)
-
+  head(pca_input)
+  
 # Perform PCA with the subset data, scaled.
   scaled_pca <- prcomp(x= pca_input, scale= TRUE)   
 
