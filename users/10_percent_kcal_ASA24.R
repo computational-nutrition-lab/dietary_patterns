@@ -1,5 +1,3 @@
-# For USERS ==============================================================================
-
 # ========================================================================================
 # Visualize the mean values of %kcal from carbohydrate, protein, and total fat.
 # Version 1
@@ -25,6 +23,7 @@
 
 # Set your working directory as to the main directory.
   Session --> Set working directory --> Choose directory.
+  setwd("~/GitHub/dietary_patterns")
 
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
@@ -42,7 +41,7 @@
   
 # Load the totals data.
   totals <- read.table("VVKAJ_Tot_m_QCed.txt",  sep = "\t", header = T)
- 
+
 # --------------------------------------------------------------------------------------------------------------
 # Calculate the mean and SD of CARB, PROT, and TFAT.
   CPTgramsPerUser(inputfn= totals, user.name = "UserName", recall.no = "RecallNo",
@@ -56,17 +55,9 @@
  
 # Load the %kcal values 
   CPT_kcal <- read.table("VVKAJ_Tot_m_QCed_CPT_kcal.txt", sep="\t", header=T)
-  CPT_kcal
 
 # **NOTE** Do not alter the columnnames of CPT_kcal because the plotting functions below assume that 
 # CPT_kcal has "UserName", "macronutrient", "n", "mean", and "sd" columns in it.
-
-# --------------------------------------------------------------------------------------------------------------
-# Define ggplot2 themes
-  library(ggplot2)
-
-# Theme black and white, with the base font size 14: change if necessary.
-  theme_set(theme_bw(base_size = 14))
 
 # --------------------------------------------------------------------------------------------------------------
 # Plot a barchart without SD. 
@@ -74,11 +65,19 @@
   stacked_wo_SD <- StackedwoSD(data= CPT_kcal) + theme(axis.text.x=element_text(size=11))  
   stacked_wo_SD
   
+# Save as a .pdf.
+  ggsave("VVKAJ_Tot_m_QCed_CPT_kcal_wo_SD.pdf", stacked_wo_SD, 
+         device="pdf", width=6.2, height=4.2, units="in", dpi=300)
+
 # --------------------------------------------------------------------------------------------------------------
  # Plot the "dodge"-type of barchart (3 bars per user, NOT STACKED).
   # Change the font size if necessary.
   dodgedtypebarchart <- DodgedBarchart(data= CPT_kcal) + theme(axis.text.x=element_text(size=11))  
   dodgedtypebarchart
+  
+  # Save as a .pdf.
+  ggsave("VVKAJ_Tot_m_QCed_CPT_kcal_CPT_kcal_dodgedtypebarchart.pdf", dodgedtypebarchart,
+         device="pdf", width=9.0, height=4, units="in", dpi=300)
  
 # --------------------------------------------------------------------------------------------------------------
 # Using CPT_kcal, create a stacked barchart.
@@ -97,14 +96,18 @@
   stacked_with_SD <- StackedWithSD(data=CPT_kcal_forstacked_read) + theme(axis.text.x=element_text(size=11))
   stacked_with_SD
   
+  # Save as a .pdf.
+  ggsave("VVKAJ_Tot_m_QCed_CPT_kcal_CPT_kcal_with_SD.pdf", stacked_with_SD,
+         device="pdf", width=6.2, height=4.3, units="in", dpi=300)
+  
 # Change the Y axis scale if necessary. Note that if the error bars of Carbohydrates disappear 
 # after changing the limits of Y axis, it may be because the error bars are higher than the max Y.
 # Ensure you have enough max Y value to accommodate the error bars.
   
 # You can also change the breakpoints of the Y axis.
   stacked_with_SD + scale_y_continuous(breaks = c(0, 20, 40, 60, 80, 100))
-
   
+# --------------------------------------------------------------------------------------------------------------
 # Come back to the main directory
   setwd(main_wd)
   
