@@ -32,103 +32,33 @@
   source("lib/specify_data_dir.R")
   source("lib/ggplot2themes.R")
   source("lib/percent_kcal.R")
-  
+
 # Call color palette.
   distinct100colors <- readRDS("lib/distinct100colors.rda")
-
+ 
 # --------------------------------------------------------------------------------------------------------------
-# Load example totals data
+# Load example totals data.
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/NHANES/")
-  
+
 # Load the totals with demographic data.
   totals <- read.table("Total_D12_FC_QC_mean_QC_d.txt",  sep = "\t", header = T)
- 
+
 # Totals has the mean dietary intake of two days for each participant and also their metadata. 
 # We are going to use the following columns in totals:
-  # RIAGENDR = gender
-  # RIDAGEYR = age
-  # CARB, PROT, TFAT, KCAL columns.
-  
+# RIAGENDR = gender
+# RIDAGEYR = age
+# CARB, PROT, TFAT, KCAL columns.
+
 # --------------------------------------------------------------------------------------------------------------
-# Add Gender and Age, and Gender_Age for grouping. 
-
-# Check the distribution of gender. 1: male, 2: female.  
-  table(totals$RIAGENDR)
-  
-# Add a new column of Gender.
-  totals$Gender = NA
-  
-# Add gender index to totals. 
-  for(i in 1:nrow(totals)){
-    if(     totals$RIAGENDR[i]==1){totals$Gender[i] <- "M"}
-    else if(totals$RIAGENDR[i]==2){totals$Gender[i] <- "F"}
-  }
-  
-# Ensure the gender distribution is correct.
-  table(totals$Gender)
-  
-# Look at the summary of age. Min is 18 and max is 80.
-  summary(totals$RIDAGEYR)
-  
-# Add a new column of AgeGroup.
-  totals$AgeGroup = NA
-  
-# Add age group index to totals. 
-  for(i in 1:nrow(totals)){
-    if(     totals$RIDAGEYR[i] < 20){totals$AgeGroup[i] <- "18_19"}
-    else if(totals$RIDAGEYR[i] < 30){totals$AgeGroup[i] <- "20s"}
-    else if(totals$RIDAGEYR[i] < 40){totals$AgeGroup[i] <- "30s"}
-    else if(totals$RIDAGEYR[i] < 50){totals$AgeGroup[i] <- "40s"}
-    else if(totals$RIDAGEYR[i] < 60){totals$AgeGroup[i] <- "50s"}
-    else if(totals$RIDAGEYR[i] < 70){totals$AgeGroup[i] <- "60s"}
-    else                                     {totals$AgeGroup[i] <- "70s_80s"}
-  }
-  
-# Combine Age_Group and Gender as a new factor. e.g. "M_40s".
-  totals$Gender_Age <- paste(totals$Gender, totals$AgeGroup, sep="_")
-
-# Function to add gender and age groups to NHANES totals data.
-  AddGenderAgeGroups <- function(input=totals, age.col="RIDAGEYR", gender.col="RIAGENDR"){
-    
-    # Rename input. 
-    totals2 <- input
-    
-    # column number of gender 
-    gender.col.number <- which(colnames(totals2)==gender.col)
-    
-    # Add a new column of Gender.
-    totals2$Gender = NA
-    
-    # Add gender index to totals.
-    for(i in 1:nrow(totals2)){
-      if(     totals2[i, gender.col.number]==1){totals2$Gender[i] <- "M"}
-      else if(totals2[i, gender.col.number]==2){totals2$Gender[i] <- "F"}
-    }  
-    
-    # column number of age 
-    age.col.number <- which(colnames(totals2)==age.col)
-    
-    # Add age group. 
-    
-    #### RESUME FROM HERE. ####
-    
-    
-    
-    print(head(totals2))
-      
-    }
-    
+# Add gender and age_groups to totals. The out put is named "totals_out".
   AddGenderAgeGroups(input=totals, age.col="RIDAGEYR", gender.col="RIAGENDR")
-  colnames(totals)  
-  
-  
   
 # Ensure grouping has been done correctly. 
-  head(totals[, c("RIAGENDR", "Gender", "RIDAGEYR", "AgeGroup", "Gender_Age")])
+  head(totals_out[, c("RIAGENDR", "Gender", "RIDAGEYR", "AgeGroup", "Gender_Age")])
   
-# Check the distribution. 
-  table(totals$Gender_Age)
+# Re-name the output as totals to use in the following code. 
+  totals <- totals_out
   
 # --------------------------------------------------------------------------------------------------------------
 # For NHANES, we will calculate the percentage of calories from each of the three macronutrients in the sum of 
@@ -136,7 +66,8 @@
 # Thus, the percentage of calories from CARB, PROT, and TFAT will add up to 100.   
 
 # Calculate the %kcal of CARB, PROT, and TFAT for each user and take means by Gender_Age.   
-  CPTpctKcalPerUser_NHANES(inputfn=totals, group='Gender_Age', across='SEQN', outfn="Total_D12_FC_QC_mean_QC_d_CPT_kcal.txt")
+  CPTpctKcalPerUser_NHANES(inputfn=totals, group='Gender_Age', across='SEQN', 
+                           outfn="Total_D12_FC_QC_mean_QC_d_CPT_kcal.txt")
   
 # Load the output.
   CPT_kcal <- read.table("Total_D12_FC_QC_mean_QC_d_CPT_kcal.txt", sep="\t", header=T)
@@ -171,7 +102,7 @@
   groups <- unique(CPT_kcal$Group)
   
   # Calculate sd_base and sd_forstacked for stacked barchart. 
-  # Note that this function assumes all users (individuals) have CARB, PROT, and TFAT values.
+  # Note that this function assumes all groups have CARB, PROT, and TFAT values.
   CalcStackedSD_NHANES(input.df= CPT_kcal, out.fn= "Total_D12_FC_QC_mean_QC_d_CPT_kcal_forstacked.txt")
   
   # Load the saved file that has SD for stacked barchart.
