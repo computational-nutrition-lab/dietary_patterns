@@ -17,7 +17,7 @@
 #
 
 # First time only: install the packages you need.
-  install.packages("SASxport")
+  # install.packages("SASxport")
 
 # ===============================================================================================================
 # Load "food items" data and add food descriptions

@@ -52,24 +52,6 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a biplot with the individuals as black dots.
-  # BiplotDots <- function(pca.result = scaled_pca, pca.data = pca_input){
-  #   s <- summary(pca.result)
-  #   PCs <<- pca.result[["x"]]
-  #       # PCs
-  #       # print(s)
-  #       # print(head(PCs)[,1])
-  #   ggplot(PCs, aes(x=PC1, y=PC2)) +
-  #     geom_point(alpha=0.3) +
-  #     theme(panel.grid.major = element_blank()) +
-  #     theme(panel.grid.minor = element_blank()) +
-  #     theme(axis.title.x = element_text(margin=margin(t = 10, r = 0, b = 0, l = 0) ) ) +
-  #     theme(axis.title.y = element_text(margin=margin(t = 0, r = 10, b = 0, l = 0) ) ) +
-  #     theme(aspect.ratio = 1)
-  # } 
-  
-
-# ---------------------------------------------------------------------------------------------------------------
-# Function to create a biplot with the individuals as black dots.
   BiplotDots <- function(pca.result = scaled_pca, pca.data = pca_input, alpha=1){
     require(ggfortify) # Need ggfortify packge to use 'autoplot'.
     autoplot(object = pca.result, data = pca.data,
@@ -284,8 +266,8 @@
   
 # ---------------------------------------------------------------------------------------------------------------
   
-# PerformPCA function to create and save PCA plots and outputs all at once.
-  PerformPCA <- function(pca.data=pca_input, pca.result=scaled_pca, out.dir, out.prefix){
+# OutputPCA function to create and save PCA plots and outputs all at once.
+  OutputPCA <- function(pca.data=pca_input, pca.result=scaled_pca, out.dir, out.prefix){
 
   # Create a scree plot.
     screep <<- LineScreePlot(pca.data = pca_input, pca.result = scaled_pca)

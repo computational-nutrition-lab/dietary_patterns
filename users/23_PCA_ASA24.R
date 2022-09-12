@@ -69,15 +69,15 @@
 # Specify the prefix of filenames to be saved. 
   res_prefix_nut_asis = "VVKAJ_Nut_asis"
   
-# Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+# Save PCA output files in a specified folder (out.dir) and a prefix (out.prefix).
+  OutputPCA(pca.data=pca_input, pca.result=scaled_pca, 
              out.dir= res_dir_nut_asis, out.prefix= res_prefix_nut_asis )
   
 # Combine the input (totals before processing) with all the variables and the PC results. 
   SaveInputAndPCs(input="VVKAJ_Tot_m_QCed.txt", pca.results = scaled_pca, 
                   out.dir= res_dir_nut_asis, out.prefix= res_prefix_nut_asis)
 
-# Note that even though the input file has both nutrients (Nut) and food categories (Cat) data,  
+# [Note] Even though the input file has both nutrients (Nut) and food categories (Cat) data,  
 # PCA was done with only either Nut or Cat, not both.
   
 # ===============================================================================================================
@@ -102,9 +102,9 @@
 # Specify the prefix of filenames to be saved. 
   res_prefix_nut_ave = "VVKAJ_Nut_ave"
   
-# Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
+# Save PCA output files in a specified folder (out.dir) and a prefix (out.prefix).
 # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+  OutputPCA(pca.data=pca_input, pca.result=scaled_pca, 
              out.dir= res_dir_nut_ave, out.prefix= res_prefix_nut_ave)
   
 # Combine the input (totals before processing) with all the variables and the PC results.
@@ -135,15 +135,15 @@
   # Specify the prefix of filenames to be saved. 
   res_prefix_cat_asis = "VVKAJ_Cat_asis"
   
-  # Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+  # Save PCA output files in a specified folder (out.dir) and a prefix (out.prefix).
+  OutputPCA(pca.data=pca_input, pca.result=scaled_pca, 
              out.dir= res_dir_cat_asis, out.prefix= res_prefix_cat_asis )
   
   # Combine the input (totals before processing) with all the variables and the PC results. 
   SaveInputAndPCs(input="VVKAJ_Tot_m_QCed.txt", pca.results = scaled_pca, 
                   out.dir= res_dir_cat_asis, out.prefix= res_prefix_cat_asis)
   
-  # Note that even though the input file has both Nutrients (Nut) and food categories (Cat) data,  
+  # [Note] Even though the input file has both Nutrients (Nut) and food categories (Cat) data,  
   # PCA was done with only either Nut or Cat, not both.
   
 # ===============================================================================================================
@@ -168,9 +168,9 @@
   # Specify the prefix of filenames to be saved. 
   res_prefix_cat_ave = "VVKAJ_Cat_ave"
   
-  # Perform PCA and save the results in a specified folder (out.dir) and a prefix (out.prefix).
+  # Save PCA output files in a specified folder (out.dir) and a prefix (out.prefix).
   # Input is your items/totals input file before any prep for clustering, from which you derived the input for the PCA.
-  PerformPCA(pca.data=pca_input, pca.result=scaled_pca, 
+  OutputPCA(pca.data=pca_input, pca.result=scaled_pca, 
              out.dir= res_dir_cat_ave, out.prefix= res_prefix_cat_ave)
   
   # Combine the input (totals before processing) with all the variables and the PC results. 
@@ -189,7 +189,7 @@
 # ===============================================================================================================
 
 # You can specify different directory and prefix to avoid overwriting files 
-# produced by the PerformPCA function. 
+# produced by the OutputPCA function. 
   
   res_dir =    "PCA_Nut_asis_2" 
   res_prefix = "VVKAJ_Nut_asis_2"
