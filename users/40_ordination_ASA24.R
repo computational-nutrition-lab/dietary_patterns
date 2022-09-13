@@ -1,5 +1,3 @@
-# For USERS =====================================================================================================
-
 # ===============================================================================================================
 # Create a phyloseq object out of dietary and tree data and run ordination.
 # Version 2 - cleaner veresion with just 'Users' plot.

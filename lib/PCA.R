@@ -1,14 +1,12 @@
-# FUNCTIONS ==============================================================================
-
-# ========================================================================================
+# ===============================================================================================================
 # Principal Component Analysis (PCA)    
 # Version 1
 # Created on 12.17.2021 by Rie Sadohara
-# ========================================================================================
+# ===============================================================================================================
 
-# ========================================================================================
+# ===============================================================================================================
 # PCA
-# ========================================================================================
+# ===============================================================================================================
 
 # ---------------------------------------------------------------------------------------------------------------
 # Function to create a scree plot.
@@ -266,6 +264,7 @@
   
 # ---------------------------------------------------------------------------------------------------------------
   
+# ---------------------------------------------------------------------------------------------------------------
 # OutputPCA function to create and save PCA plots and outputs all at once.
   OutputPCA <- function(pca.data=pca_input, pca.result=scaled_pca, out.dir, out.prefix){
 
@@ -342,43 +341,10 @@
                   paste(out.dir, paste(out.prefix, '_PC_loadings.txt', sep=""), sep= .Platform$file.sep),
                   sep = "\t", row.names=F, quote=F)
       
-   # ---------------------------------------------------------------------------------------------------------------
-   # # Probably better to run this function separately because it may be confusing as it uses the totals or averaged
-   #    # data as 'input', not the one processed for clustering (because the processed ones do not have all the variables;
-   #    # some variables are filtered out.)  
-   # 
-   #    # Obtain PC values and save as a txt file together with input file (before processing for clustering.) 
-   # 
-   #      # Define your food input file from which you derived the input for the PCA. 
-   #      pca_input <- read.table(input, sep="\t", header=T)
-   #      # This has food codes and food names.
-   #      
-   #      # extract the PCs
-   #      PCs <- as.data.frame(pca.result[["x"]]) 
-   #      
-   #      # These should have the same number of rows, so their difference should be zero.  
-   #      diff <- nrow(pca_input) - nrow(PCs)
-   #      
-   #      # Gives an error message if the input and pca.result have a different number of rows.
-   #      if(diff != 0){
-   #        
-   #        cat("Error: The input and the PCA results should have the same number of samples.")
-   #      
-   #      }else{
-   #        
-   #      # Add columns
-   #      Input_PCs <- cbind(pca_input, PCs)
-   #        
-   #      # Save as a txt file.
-   #      write.table(Input_PCs, 
-   #                  paste(out.dir, paste(out.prefix, '_input&PC.txt'), sep= .Platform$file.sep),
-   #                  sep="\t", row.names = F, quote = F)
-   #      }
+  # ---------------------------------------------------------------------------------------------------------------
+ 
 
   }
 
   
   
-  
-  
- 

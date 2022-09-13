@@ -1,6 +1,6 @@
 # ===============================================================================================================
-# Unifrac ordination of Males 50s with various GLU index.
-# Add metadata (GLU_index) before making a food object.
+# Create a phyloseq object out of dietary and tree data and run ordination.
+# Add metadata (GLU_index) before making a phyloseq object.
 # Version 2
 # Created on 09/09/2022 by Rie Sadohara
 # ===============================================================================================================
@@ -30,7 +30,7 @@
   source("lib/unifrac_ordination.R")
   source("lib/ggplot2themes.R")
 
-# Set working dir
+# Set working directory.
   SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/")
 
 # ===============================================================================================================
