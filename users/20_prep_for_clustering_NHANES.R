@@ -17,12 +17,15 @@
   source("lib/specify_data_dir.R")
   source("lib/prep_data_for_clustering.R")
 
-# Specify where the data is.
-  SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/")
+# You can come back to the main directory by:
+  setwd(main_wd)
 
 # ===============================================================================================================
 # Prep for PCA with nutrients
 # ===============================================================================================================
+  
+# Specify where the data is.
+  SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/")
 
 # Load the glu_3_males50s data. 
   glu_3_males50s <- read.table("QCtotal_d_glu_body_meta_demo_males50s.txt", 

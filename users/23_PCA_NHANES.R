@@ -4,9 +4,6 @@
 # Created on 08/29/2022 by Rie Sadohara
 # ===============================================================================================================
 
-  library(ggplot2)
-  library(ggfortify)
-
 # Set your working directory as the main directory (dietary_patterns)
   Session --> Set working directory --> Choose directory.
   setwd("~/GitHub/dietary_patterns")
@@ -14,17 +11,23 @@
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
-# Load source scripts
+# Load necessary packages and source scripts
+  library(ggplot2)
+  library(ggfortify)
+  
   source("lib/specify_data_dir.R")
   source("lib/ggplot2themes.R")
   source("lib/PCA.R")
-
-# Specify where the data is.
-  SpecifyDataDirectory("eg_data/NHANES/Laboratory_data")
+  
+# You can come back to the main directory by:
+  setwd(main_wd)
 
 # ===============================================================================================================
 # PCA with nutrients and body weight
 # ===============================================================================================================
+
+# Specify where the data is.
+  SpecifyDataDirectory("eg_data/NHANES/Laboratory_data")
 
 # Your input data should be a data frame with variables with non-zero variance. 
   pca_input <- read.table("males50s_QCtotal_d_glu_body_meta_demo_Nut_rv.txt", 
@@ -107,6 +110,9 @@
 # PCA with food categories and body weight
 # ===============================================================================================================
 
+# Specify where the data is.
+  SpecifyDataDirectory("eg_data/NHANES/Laboratory_data")
+  
 # Your input data should be a data frame with variables with non-zero variance. 
   pca_input <- read.table("males50s_QCtotal_d_glu_body_meta_demo_Cat_rv.txt", 
                           sep="\t", header=T)
@@ -177,5 +183,8 @@
   ggsave("males50s_Cat_PCA/males50s_Cat_PCA_by_GLU_index_PC12.pdf", food_Cat_PCA, 
          device="pdf", width=7, height=6.5)
 
-
+# ---------------------------------------------------------------------------------------------------------------
+  # Come back to the main directory.
+  setwd(main_wd)  
+  
   

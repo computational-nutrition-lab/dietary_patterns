@@ -25,7 +25,10 @@
   source("lib/Food_tree_scripts/make.food.otu.r")
   source("lib/Food_tree_scripts/make.fiber.otu.r")
   source("lib/Food_tree_scripts/make.dhydrt.otu.r")
-
+  
+# You can come back to the main directory by:
+  setwd(main_wd) 
+  
 # ===============================================================================================================
 # Load and prep data for generating food trees 
 # ===============================================================================================================
@@ -114,7 +117,7 @@
 
 # ---------------------------------------------------------------------------------------------------------------
 
-# Come back to the main directory
+# Come back to the main directory.
   setwd(main_wd)
   
   

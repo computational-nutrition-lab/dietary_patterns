@@ -1,25 +1,8 @@
-# ========================================================================================
+# ===============================================================================================================
 # Visualize the mean values of %kcal from carbohydrate, protein, and total fat.
 # Version 1
-# Created on 12.16.2021 by Rie Sadohara
-# ========================================================================================
-
-# ========================================================================================
-# Import data from your data directory 
-# ========================================================================================
-# 
-# Folder structure 
-# 
-#                          |----- eg_data 
-#                          |
-#                          |----- lib
-#                          |
-#                          |----- users
-#  Main -------------------|
-#  (dietary_patterns)      |----- 
-#                          |
-#                          |----- ...
-#
+# Created on 12/16/2021 by Rie Sadohara
+# ===============================================================================================================
 
 # Set your working directory as to the main directory.
   Session --> Set working directory --> Choose directory.
@@ -35,7 +18,13 @@
 # Call color palette.
   distinct100colors <- readRDS("lib/distinct100colors.rda")
 
-# Load example totals data
+# You can come back to the main directory by:
+  setwd(main_wd)
+  
+# ===============================================================================================================
+# Import data from your data directory 
+# ===============================================================================================================
+
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
   

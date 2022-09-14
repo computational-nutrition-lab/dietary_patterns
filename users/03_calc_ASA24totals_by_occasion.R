@@ -1,6 +1,6 @@
 # ========================================================================================
 # Calculate totals by occasion, user, and day. 
-# userful for analyzing dietary intake per occasion (breakfast, lunch, etc..).
+# Useful for analyzing dietary intake per occasion (breakfast, lunch, etc..).
 # Version 1
 # Created on 03/16/2022 by Rie Sadohara
 # ========================================================================================
@@ -12,7 +12,7 @@
   Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
-  main.wd <- file.path(getwd())
+  main_wd <- file.path(getwd())
 
 # Import source code to run the analyses to follow.
   source("lib/specify_data_dir.R")

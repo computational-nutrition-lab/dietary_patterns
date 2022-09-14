@@ -12,30 +12,34 @@
 #  Main -------------------|----- lib -- functions
 #  (dietary_patterns)      |
 #                          |----- users -- where this script is located
-#                          |
-#                          |----- ...
 #
 
-# First time only: install the packages you need.
-  # install.packages("SASxport")
+# Set your working directory to the main directory.
+  Session --> Set working directory --> Choose directory.
+  setwd("~/GitHub/dietary_patterns")
 
-# ===============================================================================================================
-# Load "food items" data and add food descriptions
-# ===============================================================================================================
+# Name your main directory for future use.
+  main_wd <- file.path(getwd())
+  
+# First time only: install the packages you need.
+  install.packages("SASxport")
 
 # Load SASeport, necessary to import NHANES data.
   library(SASxport)
-
-# Set where the NHANES data and food code table are.
-  setwd("~/GitHub/dietary_patterns")
 
 # Load necessary functions.
   source("lib/load_clean_NHANES.R")
   source("lib/prep_data_for_clustering.R")
   source("lib/Food_tree_scripts/format.foods.r")
+  
+# You can come back to the main directory by:
+  setwd(main_wd)
 
-# ---------------------------------------------------------------------------------------------------------------
-# Prep the code table - replace special characters with "_" or "and"
+# ===============================================================================================================
+# Load "food items" data and add food descriptions
+# ===============================================================================================================
+  
+# Prepare the code table - replace special characters with "_" or "and"
   
   # Format the food table and save it as a .txt file.
   PrepareFoodCodeTable(raw.food.code.table = "eg_data/NHANES/Raw_data/FoodCodes_DRXFCD_I.XPT", 
@@ -421,5 +425,7 @@
 # Save QCtotal_d as a .txt file. 
   write.table(QCtotals_d, "eg_data/NHANES/Total_D12_FC_QC_mean_QC_d.txt", sep="\t", quote=F, row.names=F)
   
-  
+# ---------------------------------------------------------------------------------------------------------------
+# Come back to the main directory.
+  setwd(main_wd)  
   

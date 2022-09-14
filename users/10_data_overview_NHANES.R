@@ -101,7 +101,6 @@
   SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
   
 # Load your QC-ed totals with demograhpic data to be analyzed.
-                                  
   QCtotals_d <- read.table("Total_D12_FC_QC_mean_QC_d.txt", sep="\t", header=T)
   
 # Note that each row is a total dietary intake of each user on each day. 
@@ -166,7 +165,7 @@
   cor.test(x=QCtotals_d$TFAT, y=QCtotals_d$KCAL, method="pearson")
 
 # ---------------------------------------------------------------------------------------------------------------
-# Come back to the main directory before you start running another script.
+# Come back to the main directory.
   setwd(main_wd)
   
   

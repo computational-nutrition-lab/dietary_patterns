@@ -8,40 +8,21 @@
   Session --> Set working directory --> Choose directory.
   setwd("~/GitHub/dietary_patterns")
 
-  # Folder structure 
-  # 
-  #                          |----- data ---- Food_tree_data
-  #                          |
-  #                          |----- eg_data 
-  #                          |
-  #                          |----- lib --- source codes are here
-  #  Main -------------------|
-  #   (dietary_patterns)     |----- users --- this script is here
-  #                          |
-  #                          |----- results ---- Food_tree_results
-  #                          |
-  #                          |----- ...
-  #
-
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
   
-# Load the functions necessary to set directories.
-  source("lib/specify_data_dir.R")
+# You can come back to the main directory by:
+  setwd(main_wd)
 
-
-# ===============================================================================================================
-# Load the "ggtree" package and source script for visualizing food trees.
-# ===============================================================================================================
+# If you have not downloaded and installed the ggtree package yet: 
+# You can do so by first installing BiocManager (if you have not done so):
+  if (!require("BiocManager", quietly = TRUE))install.packages("BiocManager")
   
-# If BiocManager has not installed yet, do so.
-  if (!require("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-  
-# Then, use BiocManage to install the "ggree" package.
+# Then, use BiocManager to install the "ggtree" package.
   BiocManager::install("ggtree")
 
-# Load the source script as well.
+# Load the functions necessary to set directories.
+  source("lib/specify_data_dir.R")
   source("lib/viz_food_tree.r")
   
 # ---------------------------------------------------------------------------------------------------------------
@@ -70,5 +51,8 @@
   ggsave("VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.pdf", 
          annotated_tree, device="pdf", width=6, height=6, units="in", dpi=300)
   
+# ---------------------------------------------------------------------------------------------------------------
+# Come back to the main directory.
+  setwd(main_wd)  
   
   

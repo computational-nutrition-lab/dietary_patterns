@@ -1,18 +1,23 @@
-# ========================================================================================
-# Look at the PCA results in detail
-# Created on 07/15/2022 by Rie Sadohara
+# ===============================================================================================================
+# Look at the PCA results in detail.
 # Version 1
-# ========================================================================================
+# Created on 07/15/2022 by Rie Sadohara
+# ===============================================================================================================
+
 # Set working directory to "dietary_patterns".
   Session --> Set working direHctory --> Choose directory.  
   setwd(main_wd)
 
-# Load the ggplot2 themes
+# Load necessary functions.
   source("lib/specify_data_dir.R")
   source("lib/ggplot2themes.R")
   
 # Call color palette.
   distinct100colors <- readRDS("lib/distinct100colors.rda")
+  
+# You can come back to the main directory by:
+  setwd(main_wd)] 
+
 
 # ===============================================================================================================
 # Nutrients results 
@@ -51,7 +56,8 @@
 
 
 # ---------------------------------------------------------------------------------------------------------------
-  
+# Come back to the main directory.
+  setwd(main_wd)    
   
   
   

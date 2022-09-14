@@ -4,43 +4,23 @@
 # Created on 03/25/2022 by Rie Sadohara
 # ===============================================================================================================
 
-# ===============================================================================================================
-# Import data from your data directory and create a phyloseq object.
-# ===============================================================================================================
-
-# Import necessary functions and data
-# Folder structure 
-# 
-#                          |----- data 
-#                          |
-#                          |----- eg_data ---- VVKAJ ---- Unifrac 
-#                          |                          |
-#                          |                           -- Foodtree
-#                          |
-#                          |----- lib s(ource codes)
-#                          |
-#                          |----- users (this script)
-#  Main -------------------|
-#  (dietary_patterns)      |----- results 
-#                          |
-#                          |----- ...
-
 # Set your working directory to the main directory.
   Session --> Set working directory --> Choose directory.
 
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
-# Come back to the main directory (dietary_patterns) if necessary.
+# You can come back to the main directory by:
   setwd(main_wd)
 
 # ---------------------------------------------------------------------------------------------------------------
-# If you have not downloaded and installed the phyloseq package yet, 
-# you can do so by first installing BiocManager (if you have not done so):
+# If you have not downloaded and installed the phyloseq package yet: 
+# You can do so by first installing BiocManager (if you have not done so):
   if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
   
-# Then download and install the phyloseq package.  
-# BiocManager::install("phyloseq")
+# Then download and install the phyloseq package.
+  BiocManager::install("phyloseq")
+# ---------------------------------------------------------------------------------------------------------------
 
 # load the necessary packages.
   library(phyloseq)
@@ -49,22 +29,23 @@
 
 # Load necessary functions and ggplot formatting themes
   source("lib/specify_data_dir.R")
-  source("lib/unifrac_ordination.R")
+  source("lib/ordination.R")
   source("lib/ggplot2themes.R")
 
 # Load the distinct 100 colors for use.   
   distinct100colors <- readRDS("lib/distinct100colors.rda")
   
+# ===============================================================================================================
+# Create a phyloseq object for ordination.
+# ===============================================================================================================
+  
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
   
-# ---------------------------------------------------------------------------------------------------------------
 # Load the necessary files for creating a phyloseq object.  
   
 # Food
   # Load food OTU table - this is our food OTU data
-  # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.dhydrt.otu.txt", row.names = 1)
-  # food <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.dhydrt.otu.txt", row.names = 1)
   food <- read.delim("Foodtree/VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.food.otu.txt", row.names = 1)
   
   # "food" is a matrix of Food descriptions (rows) x SampleID (columns).
@@ -74,25 +55,18 @@
   PrepFood(data= food)
   
 # Taxonomy (tax)
-  # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.taxonomy.txt")
-  # tax <- read.delim("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.taxonomy.txt")
   tax <- read.delim("Foodtree/VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tax.txt")
   
   # Format the tax file and create a taxonomy table called TAX.
   PrepTax(data= tax)
   
 # Sample
-  # meta <- read.csv( "~/GitHub/dietary_patterns/eg_data/dietstudy/food_map_txt_Metadata_2.csv",
-  #                   row.names = 1, check.names = F)
-  # meta <- read.table( "eg_data/VVKAJ/ind_metadata.txt", sep="\t", header=T)
   meta <- read.table( "ind_metadata_UserxDay.txt", sep="\t", header=T)
   
   # Format the metadata file and save it as 'SAMPLES'. 
   PrepMeta(data= meta)
 
 # Food tree
-  # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_ASA24/mct.reduced_4Lv.tree.nwk")
-  # foodtree <- read_tree("~/GitHub/dietary_patterns/results/Food_tree_results/mct.reduced_1Lv.tree.nwk")
   foodtree <- read_tree("Foodtree/VVKAJ_Items_f_id_s_m_ff_reduced_4Lv.tree.nwk")
   # It is OK to see a message saying that
     # "Found more than one class "phylo" in cache; using the first, from namespace 'phyloseq'
@@ -111,8 +85,10 @@
 # Check your metadata
   # Show the sample names. 
   sample_names(phyfoods)  
+  
   # Show metadata. 
   head(sample_data(phyfoods), n=3)
+  
   # Show only the columns of metadata. 
   sample_variables(phyfoods)
 
@@ -128,20 +104,6 @@
 # This may take a few minutes depending on your data size.
 # e.g. a large phyloseq object (7.9 MB) takes ~ 1 min. 
   ordinated <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=TRUE) 
-
-      # NOTE: If it gives a warning with Lv1 saying that:
-      # In matrix(tree$edge[order(tree$edge[, 1]), ][, 2], byrow = TRUE,  :
-      #             data length [1461] is not a sub-multiple or multiple of the number of rows [731]
-      # A solution shared in GitHub discussion forum is to transform all multichotomies into dichotomies with 
-      # branches with length zero: need the age package. 
-      # (https://github.com/joey711/phyloseq/issues/936, see comment by PandengWang on Dec 26, 2019) 
-      new_tre <- ape::multi2di(foodtree)
-      # Prep it again for making a unifrac object.
-      PrepTree(data=new_tre)
-      # With the newly created TREE, create a phyloseq object once again.
-      phyfoods <- phyloseq(OTU, TAX, SAMPLES, TREE)
-      # New object overwritten the old one. Then, run the ordinate function again.
-      # The warning should disappear now. 
 
 # Save the percent variance explained by the axes as a vector to use in plots.  
   eigen_percent <- ordinated$values$Relative_eig
@@ -307,11 +269,7 @@
   
 # Use the same code above for creating plots, but now with ordinated_2 for the ord.object argument.
   
-# ---------------------------------------------------------------------------------------------------------------
-# With a small dataset,
-# Perform Double Principal Coordinate Analysis (DPCoA) which takes into account both distance and weight. 
-  # This may take a long time depending on your data size.
-  ordinated = phyloseq::ordinate(phyfoods, method="DPCoA", distance="unifrac")  
+
   
   
   

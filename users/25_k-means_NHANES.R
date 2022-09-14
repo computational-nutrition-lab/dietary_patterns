@@ -6,24 +6,21 @@
 
 # READY TO BE COPIED TO TUTORIAL. === COPIED ON 08/30/2022.
 
-# ===============================================================================================================
-# Import data from your data directory 
-# ===============================================================================================================
 # Set your working directory as to the main directory.
   Session --> Set working direHctory --> Choose directory.
 
 # Name your main directory for future use.  
   main_wd <- file.path(getwd())
 
-# Come back to the main directory
-  setwd(main_wd) 
-
 # Import source code to run the analyses to follow.
   source("lib/specify_data_dir.R")
   source("lib/k-means.R")
 
+# You can come back to the main directory by:
+  setwd(main_wd) 
+  
 # ---------------------------------------------------------------------------------------------------------------
-# Specify the directory where the data is.
+# Specify the directory where your data is.
   SpecifyDataDirectory(directory.name = "eg_data/NHANES/Laboratory_data/")
 
 # Here, we will run k-means analysis for each of Nutrients and Food categories.
@@ -108,4 +105,7 @@
 # This uses the factoextra and gridExtra packages.  
   MultipleK(myKs = c(3,4,5,6), out.dir = res_dir_cat, out.fn = "males50s_Cat_K3-6")
   
+# ---------------------------------------------------------------------------------------------------------------
+# Come back to the main directory.
+  setwd(main_wd)  
   

@@ -1,8 +1,8 @@
-# ========================================================================================
+# ===============================================================================================================
 # Load and clean ASA24 data.
 # Version 1
 # Created on 02/04/2022 by Rie Sadohara
-# ========================================================================================
+# ===============================================================================================================
 
 # Use Metadata 1 to filter out individuals. 
 # Remove users that has only a small number of totals (days of record). - if you know which one to remove.  
@@ -24,9 +24,9 @@
 # You can come back to the main directory by:
   setwd(main_wd)
 
-# ========================================================================================
+# ===============================================================================================================
 # Load ASA24 data
-# ========================================================================================
+# ===============================================================================================================
 
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name= "eg_data/VVKAJ/")
@@ -62,9 +62,9 @@
 # you can also check the dimension of items_f by using the dim() function.
   dim(items_f_id)
 
-# ========================================================================================
+# ===============================================================================================================
 # <Optional> Use individuals_to_remove.txt to filter out users marked as Remove = yes.  
-# ========================================================================================  
+# ===============================================================================================================
 # Load your metadata that has information about which UserName(s) to remove. 
   ind_to_rm <- read.table("individuals_to_remove.txt", sep="\t", header=T)
 
@@ -92,9 +92,9 @@
 # Show unique usernames in items_f_id_s and confirm "VVKAJ116" has been removed.
   unique(items_f_id_s$UserName)  
   
-# ========================================================================================
+# ===============================================================================================================
 # <Optional> Merge individuals' metadata to items.   
-# ========================================================================================    
+# ===============================================================================================================
   
 # ind_metadata has the participants' gender, age, height, weight, BMI, and Waist.Circumference, etc.
 # If desired, this individual-specific information can be added to items data.
@@ -116,9 +116,9 @@
   write.table(items_f_id_s_m, "VVKAJ_Items_f_id_s_m.txt", sep="\t", row.names=F, quote=F)
 
   
-# ========================================================================================
+# ===============================================================================================================
 # Generate new totals file if any edits were made to the items file. 
-# ======================================================================================== 
+# ===============================================================================================================
 
 # Use one of the input files saved above as an input for calculating totals for.
 # Specify which columns have usernames and Recall.No., which is the number of recorded days. 
@@ -137,9 +137,9 @@
 # View the new_totals
   head(new_totals)
 
-# ========================================================================================
+# ===============================================================================================================
 # <Optional> Add the participants' metadata back to totals.
-# ========================================================================================
+# ===============================================================================================================
 
 # Load ind_metadata.txt if you have not done so.
   ind_metadata <- read.table("ind_metadata.txt", sep="\t", header=T)
@@ -154,10 +154,9 @@
 # Save the merged dataframe as a .txt file.
   write.table(new_totals_m, "VVKAJ_Tot_m.txt", sep="\t", row.names=F, quote=F)
 
-
-# ========================================================================================
+# ===============================================================================================================
 # QC totals data
-# ======================================================================================== 
+# ===============================================================================================================
 # Look for outliers in your totals. 
 # Note that input dataframe (QCtotals) will be overwritten after outlier removal.
   

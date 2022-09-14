@@ -1,29 +1,8 @@
-# For USERS ==============================================================================
-
-# ========================================================================================
-# k-means clustering.
+# ===============================================================================================================
+# k-means clustering with ASA24 data.
 # Version 1
-# Created on 01.06.2022 by Rie Sadohara
-# ========================================================================================
-
-# ========================================================================================
-# Import data from your data directory 
-# ========================================================================================
-
-# ---------------------------------------------------------------------------------------------------------------
-# Import necessary functions and data
-# Folder structure 
-# 
-#                          |----- eg_data 
-#                          |
-#                          |----- lib
-#                          |
-#                          |----- users
-#  Main -------------------|
-#  (dietary_patterns)      |----- results
-#                          |
-#                          |----- ...
-#
+# Created on 01/06/2022 by Rie Sadohara
+# ===============================================================================================================
 
 # Set your working directory as to the main directory.
   Session --> Set working direHctory --> Choose directory.
@@ -31,14 +10,17 @@
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())
 
-# Come back to the main directory
-  setwd(main_wd) 
-
 # Import source code to run the analyses to follow.
   source("lib/specify_data_dir.R")
   source("lib/k-means.R")
+  
+# You can come back to the main directory by:
+  setwd(main_wd) 
+  
+# ===============================================================================================================
+# Import data from your data directory 
+# ===============================================================================================================
 
-# ---------------------------------------------------------------------------------------------------------------
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
 

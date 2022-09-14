@@ -1,27 +1,8 @@
 # ===============================================================================================================
 # PCA analysis with ASA24 data.
 # Version 1
-# Created on 12.16.2021 by Rie Sadohara
+# Created on 12/16/2021 by Rie Sadohara
 # ===============================================================================================================
-
-# ===============================================================================================================
-# Import data from your data directory 
-# ===============================================================================================================
-# 
-# ---------------------------------------------------------------------------------------------------------------
-# Load necessary functions and data
-# Folder structure 
-# 
-#                          |----- eg_data 
-#                          |
-#                          |----- lib
-#                          |
-#                          |----- users
-#  Main -------------------|
-#  (dietary_patterns)      |----- results
-#                          |
-#                          |----- ...
-#
 
 # Set your working directory as to the main directory.
   Session --> Set working direHctory --> Choose directory.
@@ -36,11 +17,11 @@
 # Import source code to run the analyses to follow.
   source("lib/specify_data_dir.R")
   source("lib/prep_data_for_clustering.R")
+  source("lib/ggplot2themes.R")
   source("lib/PCA.R")
 
-# Define ggplot themes to use in creating plots.
-  library(ggplot2)
-  theme_set(theme_bw(base_size = 14))
+# Set the default font size for plots.
+  ggplot2::theme_set(theme_bw(base_size = 14))
 
 # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/VVKAJ/")
@@ -234,3 +215,7 @@
   ggsave( paste(res_dir, paste(res_prefix, "_loadings_PC1.pdf"), sep= .Platform$file.sep),
           loadings_plot, device="pdf", width=8, height=4.8, units="in")
 
+# ---------------------------------------------------------------------------------------------------------------
+# Come back to the main directory.
+  setwd(main_wd)  
+  

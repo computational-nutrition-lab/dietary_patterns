@@ -1,7 +1,0 @@
-SEQN	FoodCode	FoodAmt	Main.food.description	Day
-92880	95322200	507	Sports drink, low calorie (Gatorade G2)	2
-90279	95322200	360	Sports drink, low calorie (Gatorade G2)	2
-89618	95322200	480	Sports drink, low calorie (Gatorade G2)	2
-89158	95322500	960	Sports drink, low calorie (Powerade Zero)	2
-83857	95322500	120	Sports drink, low calorie (Powerade Zero)	2
-92922	95323000	525	Sports drink, low calorie	2

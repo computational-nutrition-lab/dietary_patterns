@@ -17,14 +17,16 @@
   source("lib/specify_data_dir.R")
   source("lib/viz_food_tree.r")
 
-# Specify where the data is.
-  SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/Foodtree")
-  
+# You can come back to the main directory by:
+  setwd(main_wd)
   
 # ===============================================================================================================
 # Visualize food tree.
 # ===============================================================================================================
   
+# Specify where your data is.
+  SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/Foodtree")
+
 # Load your tree object.
   tree <- read.tree("Food_D12_FC_cc_f_males50s_red_Lv4.nwk")
 

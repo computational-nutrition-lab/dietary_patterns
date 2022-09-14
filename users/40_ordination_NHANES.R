@@ -13,22 +13,27 @@
   main_wd <- file.path(getwd())
 
 # ---------------------------------------------------------------------------------------------------------------
-# Install phyloseq package if you have not done so.
-  # BiocManager::install("phyloseq")
+# Install BiocManager in order to install the "phyloseq" package.
+  if (!require("BiocManager", quietly = TRUE))install.packages("BiocManager")
 
-# load the necessary packages.
+# Install the phyloseq package if you have not done so.
+  # BiocManager::install("phyloseq")
+# ---------------------------------------------------------------------------------------------------------------
+
+# load the necessary packages and source code.
   library(phyloseq)
-  library(ggtree)
   library(ggplot2)
+  library(ggtree)
   library(SASxport)
+  source("lib/unifrac_ordination.R")
+  source("lib/specify_data_dir.R")
+  source("lib/ggplot2themes.R")
 
 # Load the distinct 100 colors for use.   
   distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
 
-# Load the necessary scripts.
-  source("lib/specify_data_dir.R")
-  source("lib/unifrac_ordination.R")
-  source("lib/ggplot2themes.R")
+# You can come back to the main directory by:
+  setwd(main_wd)
 
 # Set working directory.
   SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/")
@@ -36,6 +41,7 @@
 # ===============================================================================================================
 # Generate a phyloseq object using food, taxonomy, tree, and sample (metadata) for ordination. 
 # ===============================================================================================================
+  
 # Load the necessary files for creating a phyloseq object.  
   
 # Food
@@ -258,7 +264,10 @@
   ggsave("Food_D12_FC_cc_f_males50s_red_Lv4_ord_UNweighted_Axis12_ellipses.pdf", 
          ellipses_u, device="pdf", width=7, height=5.5, unit="in", dpi=300)
 
-# Generate an UNweighted unifrac distance matrix
+# ---------------------------------------------------------------------------------------------------------------
+# Use beta-diversity and adonis tests to see if they are they actually distinct from one another.
+
+# Generate an UNweighted unifrac distance matrix.
   dist_matrix_u <- phyloseq::distance(phyfoods, method="unifrac")  # UNweighted 
   
 # Dispersion test and plot
@@ -302,5 +311,6 @@
                        output.fn = "Food_D12_FC_cc_f_males50s_red_Lv4_ord_UNweighted_uni_dis.txt")        
   
 # ---------------------------------------------------------------------------------------------------------------
-# Come back to the main directory
+# Come back to the main directory.
   setwd(main_wd)  
+  
