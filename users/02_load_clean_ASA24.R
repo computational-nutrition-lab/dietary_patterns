@@ -5,13 +5,14 @@
 # ===============================================================================================================
 
 # Use Metadata 1 to filter out individuals. 
-# Remove users that has only a small number of totals (days of record). - if you know which one to remove.  
+# Remove users that have only a small number of totals (days of record). - if you know which one to remove.  
 # Look for outliers in your totals by nutrient consumed on each day. 
 
 # Calculate totals by occasion. - extra dataset. 
 
 # Set your working directory to the main directory.
   Session --> Set working directory --> Choose directory.
+
 
 # Name your main directory for future use.
   main_wd <- file.path(getwd())
