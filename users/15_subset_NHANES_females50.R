@@ -1,7 +1,8 @@
 # ===============================================================================================================
 # Look at the fasting glucose, and group individuals if possible. 
-# Version 2
-# Created on 08/24/2022 by Rie Sadohara
+# Then select only for females in their 50s.
+# Version 1
+# Created on 10/13/2022 by Rie Sadohara
 # ===============================================================================================================
 
 # ===============================================================================================================
@@ -12,7 +13,7 @@
 
 # Set your working directory to the main directory.
   Session --> Set working directory --> Choose directory.
-  setwd("~/GitHub/dietary_patterns")
+  setwd("~/GitHub/dietarry_patterns")
   
 # Name your main directory for future use. 
   main_wd <- file.path(getwd())  
@@ -229,7 +230,7 @@
          KCALfreq, device="pdf", width=5.3, height=4.5)
 
 # ===============================================================================================================
-# Select only men in their 50s, for example, so that the samples are more uniform and smaller.
+# Select only WOMEN in their 50s, for example, so that the samples are more uniform and smaller.
 # ===============================================================================================================
   
 # Age - no missing data, and spread pretty evenly. 
@@ -239,72 +240,72 @@
 # Gender - no missing data. 1: male, 2: female.
   table(glu_2$RIAGENDR)     
   
-# Select males in their 50s
-  glu_2_males <-    subset(glu_2, RIAGENDR == 1) 
-  glu_2_males50s <- subset(glu_2_males, RIDAGEYR >= 50 & RIDAGEYR <= 59 ) 
+# Select FEmales in their 50s
+  glu_2_fems <-    subset(glu_2, RIAGENDR == 2) 
+  glu_2_fems50s <- subset(glu_2_fems, RIDAGEYR >= 50 & RIDAGEYR <= 59 ) 
   
-# Check the dimension of the selected data - should be 128 rows.
-  dim(glu_2_males50s)
+# Check the dimension of the selected data - 140 rows.
+  dim(glu_2_fems50s)
 
 # Ensure the ages of the selected subpopulation are between 50-59.  
-  table(glu_2_males50s$RIDAGEYR)
+  table(glu_2_fems50s$RIDAGEYR)
 
 # Look at the distribution of GLU_index among the selected subpopulation.
-  table(glu_2_males50s$GLU_index)
+  table(glu_2_fems50s$GLU_index)
   
-# Save the glu_2_males50s as a txt file.
-  write.table(glu_2_males50s, "Laboratory_data/QCtotal_d_glu_body_meta_demo_males50s.txt", 
+# Save the glu_2_fems50s as a txt file.
+  write.table(glu_2_fems50s, "Laboratory_data/QCtotal_d_glu_body_meta_demo_fems50s.txt", 
               sep="\t", row.names = F, quote = F)
   
 # ----------------------------------------------------------------------------------------------------------------  
 # Look at the BMI frequency of each group.
 # This uses lighter colors for the subpopulation.
-  males50s_BMIfreq <- ggplot(data=glu_2_males50s, aes(x=BMXBMI, group=GLU_index, fill=GLU_index)) +
+  fems50s_BMIfreq <- ggplot(data=glu_2_fems50s, aes(x=BMXBMI, group=GLU_index, fill=GLU_index)) +
     geom_density(adjust=1.5, alpha=0.4) + space_axes + no_grid +
     scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
     labs(x="BMI", y="Density")
-  males50s_BMIfreq
+  fems50s_BMIfreq
 
   # Save the chart as .pdf.
-  ggsave("Laboratory_data/males50s_BMI_by_GLU_index.pdf", 
-         males50s_BMIfreq, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/fems50s_BMI_by_GLU_index.pdf", 
+         fems50s_BMIfreq, device="pdf", width=5.3, height=4.5)
   
 # ----------------------------------------------------------------------------------------------------------------  
 # Body weight
     # Make sure the labels in the legend are correct. 
-  males50s_weightfreq <- ggplot(data=glu_2_males50s, aes(x=BMXWT, group=GLU_index, fill=GLU_index)) +
+  fems50s_weightfreq <- ggplot(data=glu_2_fems50s, aes(x=BMXWT, group=GLU_index, fill=GLU_index)) +
     geom_density(adjust=1.5, alpha=.4) + space_axes + no_grid +
     scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
     labs(x="Body weight (kg)", y="Density") 
-  males50s_weightfreq
+  fems50s_weightfreq
   
-  ggsave("Laboratory_data/males50s_weight_by_GLU_index.pdf", 
-         males50s_weightfreq, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/fems50s_weight_by_GLU_index.pdf", 
+         fems50s_weightfreq, device="pdf", width=5.3, height=4.5)
 
 # ----------------------------------------------------------------------------------------------------------------  
 # Look at the KCAL frequency of each group.   
 # Make sure the labels in the legend are correct. 
-  males50s_KCALfreq <- ggplot(data=glu_2_males50s, aes(x=KCAL, group=GLU_index, color=GLU_index)) +
+  fems50s_KCALfreq <- ggplot(data=glu_2_fems50s, aes(x=KCAL, group=GLU_index, color=GLU_index)) +
     geom_density(adjust=1.5, alpha=0.4, size=1.2, linetype="longdash") + space_axes + no_grid +
     scale_color_manual(values= c("aquamarine3", "lightgoldenrod3", "lightpink1")) +
     labs(x="KCAL", y="Density") +
     scale_y_continuous(labels= function(x) format(x, scientific = FALSE))
-  males50s_KCALfreq
+  fems50s_KCALfreq
   
   # Save the chart as .pdf.
-  ggsave("Laboratory_data/males50s_KCAL_by_GLU_index.pdf", 
-         males50s_KCALfreq, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/fems50s_KCAL_by_GLU_index.pdf", 
+         fems50s_KCALfreq, device="pdf", width=5.3, height=4.5)
   
 # ----------------------------------------------------------------------------------------------------------------  
 # Create a boxplot of KCAL of each GLU_index group.
-  males50s_KCAL <- ggplot(glu_2_males50s, aes(x=GLU_index, y=KCAL, fill=GLU_index)) +
+  fems50s_KCAL <- ggplot(glu_2_fems50s, aes(x=GLU_index, y=KCAL, fill=GLU_index)) +
     geom_boxplot(outlier.shape = NA) + no_grid + space_axes +
     scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
     geom_jitter(width=0.3)
-  males50s_KCAL
+  fems50s_KCAL
   
-  ggsave("Laboratory_data/males50s_KCAL_by_GLU_index_box.pdf", 
-         males50s_KCAL, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/fems50s_KCAL_by_GLU_index_box.pdf", 
+         fems50s_KCAL, device="pdf", width=5.3, height=4.5)
   
 
   
