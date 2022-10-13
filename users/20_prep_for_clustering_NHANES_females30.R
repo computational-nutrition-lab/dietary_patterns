@@ -1,5 +1,5 @@
 # ===============================================================================================================
-# Prepare NHANES fems in their 50s data for PCA and other cluster analysis.
+# Prepare NHANES fems in their 30s data for PCA and other cluster analysis.
 # Just replace "male" with "fem".
 # Version 1
 # Created on 10/13/2022 by Rie Sadohara
@@ -28,21 +28,21 @@
 # Specify where the data is.
   SpecifyDataDirectory("eg_data/NHANES/Laboratory_data/")
 
-# Load the glu_3_fems50s data. 
-  glu_3_fems50s <- read.table("QCtotal_d_glu_body_meta_demo_fems50s.txt", 
+# Load the glu_3_fems30s data. 
+  glu_3_fems30s <- read.table("QCtotal_d_glu_body_meta_demo_fems30s.txt", 
                              sep="\t", header=T)
 # There should be 128 individuals (rows)
-  dim(glu_3_fems50s)
+  dim(glu_3_fems30s)
 
 # Are BMI and body weight correlated? - Yes.
-  plot(    glu_3_fems50s$BMXBMI, glu_3_fems50s$BMXWT)
-  cor.test(glu_3_fems50s$BMXBMI, glu_3_fems50s$BMXWT)
+  plot(    glu_3_fems30s$BMXBMI, glu_3_fems30s$BMXWT)
+  cor.test(glu_3_fems30s$BMXBMI, glu_3_fems30s$BMXWT)
 
 # Define which columns to drop.
   drops <- c("KCAL","GRMS", "MOIS", "NoOfItems")
 
 # Take only the columns whose names are NOT in the drop vector. 
-  glu_3_fems50s_2 <- glu_3_fems50s[ , !(names(glu_3_fems50s) %in% drops)]
+  glu_3_fems30s_2 <- glu_3_fems30s[ , !(names(glu_3_fems30s) %in% drops)]
 
 # ===============================================================================================================
 # Scenario A: PCA with nutrients and body weight
@@ -50,13 +50,13 @@
 # Add BMI (or weight) to the PCA input.
 # Nutrients
 # Take  start.col="PROT" through end.col="P226" plus, "BMXBMI" and "BMXWT".
-  BMI_col   <- match("BMXBMI" , names(glu_3_fems50s_2)) 
-  WT_col    <- match("BMXWT"  , names(glu_3_fems50s_2)) 
-  start_col <- match("PROT"   , names(glu_3_fems50s_2))  
-  end_col   <- match("P226"   , names(glu_3_fems50s_2)) 
+  BMI_col   <- match("BMXBMI" , names(glu_3_fems30s_2)) 
+  WT_col    <- match("BMXWT"  , names(glu_3_fems30s_2)) 
+  start_col <- match("PROT"   , names(glu_3_fems30s_2))  
+  end_col   <- match("P226"   , names(glu_3_fems30s_2)) 
   
 # Pick up BMI, weight, and nutrient variables.
-  subsetted <- glu_3_fems50s_2[ , c(BMI_col, WT_col, start_col:end_col)]
+  subsetted <- glu_3_fems30s_2[ , c(BMI_col, WT_col, start_col:end_col)]
   
 # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
@@ -88,14 +88,14 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Save the variables after removing correlated variables
   write.table(selected_variables,
-              "fems50s_QCtotal_d_glu_body_meta_demo_Nut_rv.txt", 
+              "fems30s_QCtotal_d_glu_body_meta_demo_Nut_rv.txt", 
               sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Save the correlation matrix for record in the results folder.
 # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc,
-                 out.fn= "fems50s_QCtotal_d_glu_body_meta_demo_Nut_corr_mat.txt")
+                 out.fn= "fems30s_QCtotal_d_glu_body_meta_demo_Nut_corr_mat.txt")
   
 # ===============================================================================================================
 # Scenario B: PCA with food category and body weight
@@ -105,13 +105,13 @@
 # The columns specified as start.col, end.col, and all columns in between will be selected.
 # Take  start.col="F_CITMLB" through end.col="A_DRINKS" plus, "BMXBMI" and "BMXWT".
 # The output is a df called "subsetted".
-  BMI_col   <- match("BMXBMI"  , names(glu_3_fems50s_2)) 
-  WT_col    <- match("BMXWT"   , names(glu_3_fems50s_2)) 
-  start_col <- match("F_CITMLB", names(glu_3_fems50s_2))  
-  end_col   <- match("A_DRINKS", names(glu_3_fems50s_2))   
+  BMI_col   <- match("BMXBMI"  , names(glu_3_fems30s_2)) 
+  WT_col    <- match("BMXWT"   , names(glu_3_fems30s_2)) 
+  start_col <- match("F_CITMLB", names(glu_3_fems30s_2))  
+  end_col   <- match("A_DRINKS", names(glu_3_fems30s_2))   
   
 # Pick up BMI, weight, and food category variables.
-  subsetted <- glu_3_fems50s_2[ , c(BMI_col, WT_col, start_col:end_col)]
+  subsetted <- glu_3_fems30s_2[ , c(BMI_col, WT_col, start_col:end_col)]
   
 # Pick up only the columns with non-zero variance, in order to run PCA, cluster analysis etc.
 # The removed columns will be shown if any.
@@ -143,14 +143,14 @@
 # ---------------------------------------------------------------------------------------------------------------
 # Save the variables after removing correlated variables
   write.table(selected_variables,
-              "fems50s_QCtotal_d_glu_body_meta_demo_Cat_rv.txt", 
+              "fems30s_QCtotal_d_glu_body_meta_demo_Cat_rv.txt", 
               sep="\t", row.names=F, quote=F)
   
 # ---------------------------------------------------------------------------------------------------------------
 # Save the correlation matrix for record in the results folder.
 # cc is the correlation matrix produced when variables are collapsed by correlation. 
   SaveCorrMatrix(x=cc,
-                 out.fn = "fems50s_QCtotal_d_glu_body_meta_demo_Cat_corr_mat.txt")
+                 out.fn = "fems30s_QCtotal_d_glu_body_meta_demo_Cat_corr_mat.txt")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Come back to the main directory
