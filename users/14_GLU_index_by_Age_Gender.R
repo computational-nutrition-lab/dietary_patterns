@@ -1,33 +1,36 @@
 # ===============================================================================================================
 # Look at the fasting glucose, and group individuals if possible. 
-# Then select only for males in their 60s.
+# Then select only for males in their 60s plus.
 # Version 1
-# Created on 10/13/2022 by Rie Sadohara
+# Created on 10/14/2022 by Rie Sadohara
 # ===============================================================================================================
 
 # ===============================================================================================================
 # Load NHANES15-16totals with demographic data
 # ===============================================================================================================
 # Load necessary packages.
-  library(SASxport)
+library(SASxport)
 
 # Set your working directory to the main directory.
-  Session --> Set working directory --> Choose directory.
-  setwd("~/GitHub/dietarry_patterns")
-  
+Session --> Set working directory --> Choose directory.
+setwd("~/GitHub/dietarry_patterns")
+
 # Name your main directory for future use. 
-  main_wd <- file.path(getwd())  
+main_wd <- file.path(getwd())  
 
 # Load necessary functions.
-  source("lib/specify_data_dir.R")
-  source("lib/load_clean_NHANES.R")
-  source("lib/prep_data_for_clustering.R")
-  source("lib/ggplot2themes.R") 
+source("lib/specify_data_dir.R")
+source("lib/load_clean_NHANES.R")
+source("lib/prep_data_for_clustering.R")
+source("lib/ggplot2themes.R") 
+
+# Load the distinct 100 colors for use.   
+distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Specify the directory where the data is.
-  SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
-  
+SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
+
 # # Load the QC-ed total (with food categories), filtered for KCAL, PROT, TFAT, VC. 4207 people.
 #   QCtotals_d <- read.table("Total_D12_FC_QC_mean_QC_d.txt", sep="\t", header=T) 
 # 
@@ -138,26 +141,26 @@
 #   
 # ---------------------------------------------------------------------------------------------------------------
 # Load the data of those to be used in the diabetes status analysis. 
-  glu <- read.delim( file="Laboratory_data/QCtotal_d_glu_body_meta.txt", sep= "\t", header= T )
+glu <- read.delim( file="Laboratory_data/QCtotal_d_glu_body_meta.txt", sep= "\t", header= T )
 
 # Make GLU_index as a factor for plotting.
-  glu$GLU_index <- factor(glu$GLU_index, levels = c("Normal", "Prediabetic", "Diabetic"))
-    
+glu$GLU_index <- factor(glu$GLU_index, levels = c("Normal", "Prediabetic", "Diabetic"))
+
 # Exclude those who are following special diets.   
 # Look at the number of individuals who are following any specific diet (DRQSDIET==1).
-  table(glu$DRQSDIET)
-  
+table(glu$DRQSDIET)
+
 # DRQSDIET==1 is following a special diet, so select only rows with DRQSDIET==2. 
-  glu_2 <- subset(glu, DRQSDIET == 2)
+glu_2 <- subset(glu, DRQSDIET == 2)
 
 # How many people remained? -- 1625 remained.
-  table(glu_2$DRQSDIET)
-  
+table(glu_2$DRQSDIET)
+
 # Check the sample size of each category.
-  table(glu_2$GLU_index)
-  
-  # Normal Prediabetic    Diabetic 
-  # 684         730         211 
+table(glu_2$GLU_index)
+
+# Normal Prediabetic    Diabetic 
+# 684         730         211 
 
 # # ---------------------------------------------------------------------------------------------------------------
 # # Look at the BMI frequency of each group.   
@@ -230,139 +233,99 @@
 #          KCALfreq, device="pdf", width=5.3, height=4.5)
 
 # ===============================================================================================================
-# Select only MEN in their 60s, for example, so that the samples are more uniform and smaller.
+# Build a stacked bar chart of diabetics by age and gender.
 # ===============================================================================================================
-  
-# Age - no missing data, and spread pretty evenly. 
-  summary(glu_2$RIDAGEYR)
-  hist(glu_2$RIDAGEYR)
-  
-# Gender - no missing data. 1: male, 2: female.
-  table(glu_2$RIAGENDR)     
-  
-# Select FEmales in their 50s
-  glu_2_males <-    subset(glu_2, RIAGENDR == 1) 
-  glu_2_males60s <- subset(glu_2_males, RIDAGEYR >= 60 & RIDAGEYR <= 69 ) 
-  
-# Check the dimension of the selected data - 151 rows.
-  dim(glu_2_males60s)
 
-# Ensure the ages of the selected subpopulation are between 50-59.  
-  table(glu_2_males60s$RIDAGEYR)
+# Add age group label.
+  glu_2$agegroup <- NA
+  
+  for(i in 1: nrow(glu_2)){
+    if(     glu_2$RIDAGEYR[i] < 30){ glu_2$agegroup[i] <- "29_and_below" }
+    else if(glu_2$RIDAGEYR[i] < 40){ glu_2$agegroup[i] <- "30s" }
+    else if(glu_2$RIDAGEYR[i] < 50){ glu_2$agegroup[i] <- "40s" }
+    else if(glu_2$RIDAGEYR[i] < 60){ glu_2$agegroup[i] <- "50s" }
+    else{                            glu_2$agegroup[i] <- "60s_and_over" }
+  }
+  table(glu_2$agegroup)
 
-# Look at the distribution of GLU_index among the selected subpopulation.
-  table(glu_2_males60s$GLU_index)
-  
-# Save the glu_2_males60s as a txt file.
-  write.table(glu_2_males60s, "Laboratory_data/QCtotal_d_glu_body_meta_demo_males60s.txt", 
-              sep="\t", row.names = F, quote = F)
-  
-# ----------------------------------------------------------------------------------------------------------------  
-# Look at the BMI frequency of each group.
-# This uses lighter colors for the subpopulation.
-  males60s_BMIfreq <- ggplot(data=glu_2_males60s, aes(x=BMXBMI, group=GLU_index, fill=GLU_index)) +
-    geom_density(adjust=1.5, alpha=0.4) + space_axes + no_grid +
-    scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
-    labs(x="BMI", y="Density")
-  males60s_BMIfreq
+# ---------------------------------------------------------------------------------------------------------------
+# male
+# Select males 
+  glu_2_males <- subset(glu_2, RIAGENDR == 1) 
 
-  # Save the chart as .pdf.
-  ggsave("Laboratory_data/males60s_BMI_by_GLU_index.pdf", 
-         males60s_BMIfreq, device="pdf", width=5.3, height=4.5)
-  
-# ----------------------------------------------------------------------------------------------------------------  
-# Body weight
-    # Make sure the labels in the legend are correct. 
-  males60s_weightfreq <- ggplot(data=glu_2_males60s, aes(x=BMXWT, group=GLU_index, fill=GLU_index)) +
-    geom_density(adjust=1.5, alpha=.4) + space_axes + no_grid +
-    scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
-    labs(x="Body weight (kg)", y="Density") 
-  males60s_weightfreq
-  
-  ggsave("Laboratory_data/males60s_weight_by_GLU_index.pdf", 
-         males60s_weightfreq, device="pdf", width=5.3, height=4.5)
+# Check the dimension of the selected data - 774 rows.
+  dim(glu_2_males)
 
-# ----------------------------------------------------------------------------------------------------------------  
-# Look at the KCAL frequency of each group.   
-# Make sure the labels in the legend are correct. 
-  males60s_KCALfreq <- ggplot(data=glu_2_males60s, aes(x=KCAL, group=GLU_index, color=GLU_index)) +
-    geom_density(adjust=1.5, alpha=0.4, size=1.2, linetype="longdash") + space_axes + no_grid +
-    scale_color_manual(values= c("aquamarine3", "lightgoldenrod3", "lightpink1")) +
-    labs(x="KCAL", y="Density") +
-    scale_y_continuous(labels= function(x) format(x, scientific = FALSE))
-  males60s_KCALfreq
+# Create summary for plotting a barchart.  
+  library(dplyr)
+
+  mycolors = c("aquamarine3", "lightgoldenrod3", "lightpink1")
   
-  # Save the chart as .pdf.
-  ggsave("Laboratory_data/males60s_KCAL_by_GLU_index.pdf", 
-         males60s_KCALfreq, device="pdf", width=5.3, height=4.5)
-  
-# ----------------------------------------------------------------------------------------------------------------  
-# Create a boxplot of KCAL of each GLU_index group.
-  males60s_KCAL <- ggplot(glu_2_males60s, aes(x=GLU_index, y=KCAL, fill=GLU_index)) +
-    geom_boxplot(outlier.shape = NA) + no_grid + space_axes +
-    scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
-    geom_jitter(width=0.3)
-  males60s_KCAL
-  
-  ggsave("Laboratory_data/males60s_KCAL_by_GLU_index_box.pdf", 
-         males60s_KCAL, device="pdf", width=5.3, height=4.5)
+  perc <- ggplot(glu_2_males %>% count(agegroup, GLU_index) %>%    
+           group_by(agegroup) %>% 
+           mutate(pct=n/sum(n)),              
+         aes(agegroup, n, fill=GLU_index)) +
+    geom_bar(stat="identity") +
+    geom_text(aes(label=paste0(sprintf("%1.0f", pct*100),"%")), 
+              position=position_stack(vjust=0.5)) +
+    scale_fill_manual(values = mycolors) +
+    labs(x="Age Group (Male)") +
+    rotate_X_labels + space_axes + no_grid
+  perc
+  ggsave("Laboratory_data/GLU_index_by_age_male.png", 
+         perc, device="png", width=5.3, height=4.5)
   
 
-# ===============================================================================================================
-# Test the difference between groups.
-# ===============================================================================================================
-  
-# BMI
-# Remove samples (rows) that have missing data in BMXBMI
-  df <- glu_2_males60s[complete.cases(glu_2_males60s$BMXBMI), ]
-  
-# Run ANOVA
-  mytest <- aov(BMXBMI ~ GLU_index, data=df)
-  summary(mytest)
-  plot(mytest) # makes QQplot and residuals plot. Look at pred1 vs res1 chart.
-  
-# If want to test assumptions manually...
-  # create a new dataset
-  fitresults <- lm(df$BMXBMI ~ df$GLU_index)  
-  fitresults
-  pred1 <- predict(fitresults)
+# WITHOUT dplyr
+# Change the color order --> blue, yellow, red.
 
-  res1 <- residuals(mytest)
+  countbar <- ggplot(glu_2_males, aes(agegroup)) +
+    geom_bar(aes(fill=GLU_index)) + 
+    scale_fill_manual(values = mycolors) +
+    labs(x="Age Group") +
+    rotate_X_labels + space_axes + no_grid 
+  countbar
   
-## check normality assumption
-  hist(res1)
-  qqnorm(res1, plot.it=TRUE)
-  qqline(res1)
+# percentage 
+  stacked <- ggplot(glu_2_males, aes(agegroup)) +
+    geom_bar(aes(fill= GLU_index), position = "fill") + 
+    scale_fill_manual(values = mycolors) +
+    scale_y_continuous(labels = scales::percent) +
+    geom_text(aes(label = paste0(agegroup*100,"%")), 
+              position = position_stack(vjust = 0.5), size = 2) +    
+    rotate_X_labels + space_axes + no_grid 
+  stacked
+# hmmmm 
   
-## check equal residuals 
-  # side-by-side boxplots of the residuals
-  boxplot(res1 ~ df$GLU_index)
-  ## plot prediction against residual
-  plot(pred1, res1)
+# ---------------------------------------------------------------------------------------------------------------
+# FEmale
+# Select FEmales 
+  glu_2_fems <- subset(glu_2, RIAGENDR == 2) 
   
-  # Levene's test
-  res1sq <- res1*res1
-  ## Run ANOVA for squred residuals as the response
-  anova(lm(res1sq ~ df$GLU_index))
-  ## if Pr>0.05, residuals are normally distributed. 
+  # Check the dimension of the selected data - 774 rows.
+  dim(glu_2_fems)
   
-## Asumption is satisfied -> run ANOVA
-  summary(aov(BMXBMI ~ GLU_index, data=df))
+  # Create summary for plotting a barchart.  
+  library(dplyr)
   
-# If ANOVA is significant, then pairwise t-test (same as LSD)
-  pairwise.t.test(df$BMXBMI, df$GLU_index)
+  mycolors = c("aquamarine3", "lightgoldenrod3", "lightpink1")
   
-# ----------------------------------------------------------------------------------------------------------------  
-# KCAL
-  # Remove samples (rows) that have missing data in BMXBMI
-  df <- glu_2_males60s[complete.cases(glu_2_males60s$KCAL), ]
+  perc <- ggplot(glu_2_fems %>% count(agegroup, GLU_index) %>%    
+                   group_by(agegroup) %>% 
+                   mutate(pct=n/sum(n)),              
+                 aes(agegroup, n, fill=GLU_index)) +
+    geom_bar(stat="identity") +
+    geom_text(aes(label=paste0(sprintf("%1.0f", pct*100),"%")), 
+              position=position_stack(vjust=0.5)) +
+    scale_fill_manual(values = mycolors) +
+    labs(x="Age Group (Female)") +
+    rotate_X_labels + space_axes + no_grid
+  perc
+  ggsave("Laboratory_data/GLU_index_by_age_female.png", 
+         perc, device="png", width=5.3, height=4.5)
   
-  # Run ANOVA
-  mytest <- aov(KCAL ~ GLU_index, data=df)
-  summary(mytest)
-  plot(mytest) # makes QQplot and residuals plot. Look at pred1 vs res1 chart.  
-  
-  
-  
-  
+# Show HEX code to use in Excel
+  gplots::col2hex("aquamarine3")
+  gplots::col2hex("lightgoldenrod3")
+  gplots::col2hex("lightpink1")
   

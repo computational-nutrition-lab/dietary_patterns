@@ -1,8 +1,8 @@
 # ===============================================================================================================
 # Look at the fasting glucose, and group individuals if possible. 
-# Then select only for males in their 60s.
+# Then select only for males in their 60plus plus.
 # Version 1
-# Created on 10/13/2022 by Rie Sadohara
+# Created on 10/14/2022 by Rie Sadohara
 # ===============================================================================================================
 
 # ===============================================================================================================
@@ -23,6 +23,9 @@
   source("lib/load_clean_NHANES.R")
   source("lib/prep_data_for_clustering.R")
   source("lib/ggplot2themes.R") 
+  
+# Load the distinct 100 colors for use.   
+  distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Specify the directory where the data is.
@@ -229,8 +232,9 @@
 #   ggsave("Laboratory_data/QCtotal_d_glu_body_meta_demo_n1625_KCAL_by_GLU_index_line.pdf", 
 #          KCALfreq, device="pdf", width=5.3, height=4.5)
 
+
 # ===============================================================================================================
-# Select only MEN in their 60s, for example, so that the samples are more uniform and smaller.
+# Select only MEN in their 60s or higher, for example, so that the samples are more uniform and smaller.
 # ===============================================================================================================
   
 # Age - no missing data, and spread pretty evenly. 
@@ -240,72 +244,76 @@
 # Gender - no missing data. 1: male, 2: female.
   table(glu_2$RIAGENDR)     
   
-# Select FEmales in their 50s
+# Select males in their 50s
   glu_2_males <-    subset(glu_2, RIAGENDR == 1) 
-  glu_2_males60s <- subset(glu_2_males, RIDAGEYR >= 60 & RIDAGEYR <= 69 ) 
+  glu_2_males60plus <- subset(glu_2_males, RIDAGEYR >= 60 ) 
   
 # Check the dimension of the selected data - 151 rows.
-  dim(glu_2_males60s)
+  dim(glu_2_males60plus)
 
 # Ensure the ages of the selected subpopulation are between 50-59.  
-  table(glu_2_males60s$RIDAGEYR)
+  table(glu_2_males60plus$RIDAGEYR)
 
 # Look at the distribution of GLU_index among the selected subpopulation.
-  table(glu_2_males60s$GLU_index)
+  table(glu_2_males60plus$GLU_index)
   
-# Save the glu_2_males60s as a txt file.
-  write.table(glu_2_males60s, "Laboratory_data/QCtotal_d_glu_body_meta_demo_males60s.txt", 
+  twoway = table(glu_2_males60plus$`RIDAGEYR`, glu_2_males60plus$GLU_index)
+  write.table(twoway, "clipboard", sep="\t", row.names = T)
+  
+  
+# Save the glu_2_males60plus as a txt file.
+  write.table(glu_2_males60plus, "Laboratory_data/QCtotal_d_glu_body_meta_demo_males60plus.txt", 
               sep="\t", row.names = F, quote = F)
   
 # ----------------------------------------------------------------------------------------------------------------  
 # Look at the BMI frequency of each group.
 # This uses lighter colors for the subpopulation.
-  males60s_BMIfreq <- ggplot(data=glu_2_males60s, aes(x=BMXBMI, group=GLU_index, fill=GLU_index)) +
+  males60plus_BMIfreq <- ggplot(data=glu_2_males60plus, aes(x=BMXBMI, group=GLU_index, fill=GLU_index)) +
     geom_density(adjust=1.5, alpha=0.4) + space_axes + no_grid +
     scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
     labs(x="BMI", y="Density")
-  males60s_BMIfreq
+  males60plus_BMIfreq
 
   # Save the chart as .pdf.
-  ggsave("Laboratory_data/males60s_BMI_by_GLU_index.pdf", 
-         males60s_BMIfreq, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/males60plus_BMI_by_GLU_index.pdf", 
+         males60plus_BMIfreq, device="pdf", width=5.3, height=4.5)
   
 # ----------------------------------------------------------------------------------------------------------------  
 # Body weight
     # Make sure the labels in the legend are correct. 
-  males60s_weightfreq <- ggplot(data=glu_2_males60s, aes(x=BMXWT, group=GLU_index, fill=GLU_index)) +
+  males60plus_weightfreq <- ggplot(data=glu_2_males60plus, aes(x=BMXWT, group=GLU_index, fill=GLU_index)) +
     geom_density(adjust=1.5, alpha=.4) + space_axes + no_grid +
     scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
     labs(x="Body weight (kg)", y="Density") 
-  males60s_weightfreq
+  males60plus_weightfreq
   
-  ggsave("Laboratory_data/males60s_weight_by_GLU_index.pdf", 
-         males60s_weightfreq, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/males60plus_weight_by_GLU_index.pdf", 
+         males60plus_weightfreq, device="pdf", width=5.3, height=4.5)
 
 # ----------------------------------------------------------------------------------------------------------------  
 # Look at the KCAL frequency of each group.   
 # Make sure the labels in the legend are correct. 
-  males60s_KCALfreq <- ggplot(data=glu_2_males60s, aes(x=KCAL, group=GLU_index, color=GLU_index)) +
+  males60plus_KCALfreq <- ggplot(data=glu_2_males60plus, aes(x=KCAL, group=GLU_index, color=GLU_index)) +
     geom_density(adjust=1.5, alpha=0.4, size=1.2, linetype="longdash") + space_axes + no_grid +
     scale_color_manual(values= c("aquamarine3", "lightgoldenrod3", "lightpink1")) +
     labs(x="KCAL", y="Density") +
     scale_y_continuous(labels= function(x) format(x, scientific = FALSE))
-  males60s_KCALfreq
+  males60plus_KCALfreq
   
   # Save the chart as .pdf.
-  ggsave("Laboratory_data/males60s_KCAL_by_GLU_index.pdf", 
-         males60s_KCALfreq, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/males60plus_KCAL_by_GLU_index.pdf", 
+         males60plus_KCALfreq, device="pdf", width=5.3, height=4.5)
   
 # ----------------------------------------------------------------------------------------------------------------  
 # Create a boxplot of KCAL of each GLU_index group.
-  males60s_KCAL <- ggplot(glu_2_males60s, aes(x=GLU_index, y=KCAL, fill=GLU_index)) +
+  males60plus_KCAL <- ggplot(glu_2_males60plus, aes(x=GLU_index, y=KCAL, fill=GLU_index)) +
     geom_boxplot(outlier.shape = NA) + no_grid + space_axes +
     scale_fill_manual(values= c("aquamarine2", "lightgoldenrod1", "lightpink1") ) +
     geom_jitter(width=0.3)
-  males60s_KCAL
+  males60plus_KCAL
   
-  ggsave("Laboratory_data/males60s_KCAL_by_GLU_index_box.pdf", 
-         males60s_KCAL, device="pdf", width=5.3, height=4.5)
+  ggsave("Laboratory_data/males60plus_KCAL_by_GLU_index_box.pdf", 
+         males60plus_KCAL, device="pdf", width=5.3, height=4.5)
   
 
 # ===============================================================================================================
@@ -314,7 +322,7 @@
   
 # BMI
 # Remove samples (rows) that have missing data in BMXBMI
-  df <- glu_2_males60s[complete.cases(glu_2_males60s$BMXBMI), ]
+  df <- glu_2_males60plus[complete.cases(glu_2_males60plus$BMXBMI), ]
   
 # Run ANOVA
   mytest <- aov(BMXBMI ~ GLU_index, data=df)
@@ -355,7 +363,7 @@
 # ----------------------------------------------------------------------------------------------------------------  
 # KCAL
   # Remove samples (rows) that have missing data in BMXBMI
-  df <- glu_2_males60s[complete.cases(glu_2_males60s$KCAL), ]
+  df <- glu_2_males60plus[complete.cases(glu_2_males60plus$KCAL), ]
   
   # Run ANOVA
   mytest <- aov(KCAL ~ GLU_index, data=df)
