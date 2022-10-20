@@ -29,10 +29,11 @@
   library(ggplot2)
   library(ggtree)
   library(SASxport)
-  # source("lib/unifrac_ordination.R")
+  library(vegan)
   source("lib/ordination.R")
   source("lib/specify_data_dir.R")
   source("lib/ggplot2themes.R")
+  source("lib/adonis_pairwise_fn.R")
 
 # Load the distinct 100 colors for use.   
   distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
@@ -273,7 +274,15 @@
   
 # Use adonis to test whether there is a difference between groups' composition. 
   # i.e., composition among groups (food they consumed) is similar or not.
-  vegan::adonis(dist_matrix_w ~ phyloseq::sample_data(phyfoods)$GLU_index) 
+  vegan::adonis(dist_matrix_w ~ phyloseq::sample_data(phyfoods)$GLU_index, permutations = 5000) 
+  
+# If adonis is significant, do a pairwise comparison.
+  PairwiseAdonisNHANES(food.otu.table= food,   # food otu table loaded above.
+                       demog= demog_glu,       # demographic data loaded above.
+                       factor= "GLU_index", 
+                       similarity.method = 'wunifrac',    # method to compute similarity. Details - vegan::vegdist 
+                       p.adj= 'bonferroni',  # p-value adjustment for multiple comparisons.
+                       perm.n = 5000) 
   
 
 # ===============================================================================================================
@@ -428,6 +437,62 @@
 # Use adonis to test whether there is a difference between groups' composition. 
   # i.e., composition among groups (food they consumed) is similar or not.
   vegan::adonis(dist_matrix_u ~ phyloseq::sample_data(phyfoods)$GLU_index) 
+
+# If adonis is significant, do a pairwise comparison.
+  PairwiseAdonisNHANES(food.otu.table= food,   # food otu table loaded above.
+                       demog= demog_glu,       # demographic data loaded above.
+                       factor= "GLU_index", 
+                       similarity.method = 'bray',     # method to compute similarity. Details - vegan::vegdist 
+                       p.adj= 'bonferroni',      # p-value adjustment for multiple comparisons.
+                       perm.n = 5000)  
+
+####### UNDER CONSTRUCTION ################################  
+# use distance matrix in adonis. 
+  adonis(iris[, 1:4] ~ iris$Species, data=iris ) #, method = "unifrac", )
+  adonis(iris[, 1:4] ~ iris$Species , method = "unifrac" ) # does not work.
+  install.packages("devtools")
+  library(devtools)
+  # install pairwise adonis function from Github. (https://github.com/pmartinezarbizu/pairwiseAdonis)
+  devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+  library(pairwiseAdonis)
+  pairwise.adonis(iris[,1:4],iris$Species)
+  
+  # prep input data
+    # food is an OTU table with taxonomy at the end..
+    colnames(food)
+    # remove the last column that contains taxonomy.
+    foodotu <- food[, -ncol(food)]
+    colnames(foodotu)
+    dim(foodotu)
+    head(foodotu,1)
+    
+    # Transform so that samples (individuals) will be rows.
+    foodotu_t <- as.data.frame(t(foodotu))
+    view(foodotu_t)
+    # This has xSEQN as row names.
+    
+    head(demog_glu, 1)
+    # This has xSEQN as row names, so they match.
+    dim(demog_glu)
+    # This has all the 1943 people.
+    # Take only the individuals in the OTU table (men in 60plus).
+    
+    individuals <- colnames(foodotu)
+    # Need to remove the "X" prefix. - remove the first character.
+    individuals_num <- sub('.', '', individuals)
+    
+    # Get TRUE or FALSE for all the rows of df.
+    indTF <- demog_glu[, 'SEQN'] %in% individuals_num
+    table(indTF)
+    
+    # Pick up only those with TRUE (rows with SEQN in individuals_num)
+    demog_glu_sel <- demog_glu[indTF, ]
+    head(demog_glu_sel,1)
+    dim(demog_glu_sel)
+  
+  # Pairwise adonis with imported distance matrix.
+  pairwise.adonis(dist_matrix_u, demog_glu_sel$GLU_index, perm = 5000)
+  pairwise.adonis(dist_matrix_w, demog_glu_sel$GLU_index, perm = 5000)
   
   
 # ===============================================================================================================
