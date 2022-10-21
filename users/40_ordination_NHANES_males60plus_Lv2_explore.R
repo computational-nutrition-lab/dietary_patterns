@@ -5,7 +5,7 @@
 # factor .... typo "labels" --> replaced with "levels"!!  (occurs 2 times)
 # colors "turquoise2", "goldenrod3", "mediumvioletred" --> replaced with "steelblue3", "gold3", "hotpink" (8 times)
 # to be consistent with PCA.
-# Version 1
+# Version 1 messy version, need to make a clean ver. if to be published.
 # Created on 10/19/2022 by Rie Sadohara
 # ===============================================================================================================
 
@@ -17,24 +17,30 @@
   main_wd <- file.path(getwd())
 
 # ---------------------------------------------------------------------------------------------------------------
-# Install BiocManager in order to install the "phyloseq" package.
-  if (!require("BiocManager", quietly = TRUE))install.packages("BiocManager")
-
+# Install the BiocManager package necessary for installing the phyloseq package. 
+  if (!require("BiocManager",    quietly = TRUE))install.packages("BiocManager")
 # Install the phyloseq package if you have not done so.
-  # BiocManager::install("phyloseq")
+  BiocManager::install("phyloseq")
+  
+# Install the devtools package necessary for installing the pairwiseAdonis package. 
+  if (!require("devtools",    quietly = TRUE))install.packages("devtools")
+# install pairwise adonis function from Github. (https://github.com/pmartinezarbizu/pairwiseAdonis)
+  devtools::install_github("pmartinezarbizu/pairwiseAdonis/pairwiseAdonis")
+  
 # ---------------------------------------------------------------------------------------------------------------
 
 # load the necessary packages and source code.
+  library(vegan)
   library(phyloseq)
   library(ggplot2)
   library(ggtree)
   library(SASxport)
-  library(vegan)
-  source("lib/ordination.R")
+  library(pairwiseAdonis)
   source("lib/specify_data_dir.R")
+  source("lib/ordination.R")
   source("lib/ggplot2themes.R")
-  source("lib/adonis_pairwise_fn.R")
-
+  source("lib/prep_for_adonis_pairwise.R")
+  
 # Load the distinct 100 colors for use.   
   distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
 
@@ -277,12 +283,7 @@
   vegan::adonis(dist_matrix_w ~ phyloseq::sample_data(phyfoods)$GLU_index, permutations = 5000) 
   
 # If adonis is significant, do a pairwise comparison.
-  PairwiseAdonisNHANES(food.otu.table= food,   # food otu table loaded above.
-                       demog= demog_glu,       # demographic data loaded above.
-                       factor= "GLU_index", 
-                       similarity.method = 'wunifrac',    # method to compute similarity. Details - vegan::vegdist 
-                       p.adj= 'bonferroni',  # p-value adjustment for multiple comparisons.
-                       perm.n = 5000) 
+  pairwise.adonis(dist_matrix_w ~ phyloseq::sample_data(phyfoods)$GLU_index, perm = 5000) 
   
 
 # ===============================================================================================================
@@ -433,20 +434,11 @@
   
 # Use dispr to do a permutation test for homogeneity of multivariate dispersion.
   vegan::permutest(dispr_u)
-  
-# Use adonis to test whether there is a difference between groups' composition. 
-  # i.e., composition among groups (food they consumed) is similar or not.
-  vegan::adonis(dist_matrix_u ~ phyloseq::sample_data(phyfoods)$GLU_index) 
 
 # If adonis is significant, do a pairwise comparison.
-  PairwiseAdonisNHANES(food.otu.table= food,   # food otu table loaded above.
-                       demog= demog_glu,       # demographic data loaded above.
-                       factor= "GLU_index", 
-                       similarity.method = 'bray',     # method to compute similarity. Details - vegan::vegdist 
-                       p.adj= 'bonferroni',      # p-value adjustment for multiple comparisons.
-                       perm.n = 5000)  
-
-####### UNDER CONSTRUCTION ################################  
+  pairwise.adonis(dist_matrix_u ~ phyloseq::sample_data(phyfoods)$GLU_index, perm=5000) 
+  
+####### NOT NEEDED ################################  
 # use distance matrix in adonis. 
   adonis(iris[, 1:4] ~ iris$Species, data=iris ) #, method = "unifrac", )
   adonis(iris[, 1:4] ~ iris$Species , method = "unifrac" ) # does not work.
@@ -489,11 +481,13 @@
     demog_glu_sel <- demog_glu[indTF, ]
     head(demog_glu_sel,1)
     dim(demog_glu_sel)
+    colnames(demog_glu_sel)
   
   # Pairwise adonis with imported distance matrix.
   pairwise.adonis(dist_matrix_u, demog_glu_sel$GLU_index, perm = 5000)
   pairwise.adonis(dist_matrix_w, demog_glu_sel$GLU_index, perm = 5000)
-  
+  View(pairwise.adonis)
+####### NOT NEEDED TILL HERE ################################  
   
 # ===============================================================================================================
 # Save unifrac distance (UNweighted or WEIGHTED) matrices. 
