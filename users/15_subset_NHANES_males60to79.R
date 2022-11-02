@@ -235,7 +235,7 @@
 
 
 # ===============================================================================================================
-# Select only MEN in their 60s or higher, for example, so that the samples are more uniform and smaller.
+# Select only MEN 60-79 yo, so that the samples are more uniform and smaller.
 # ===============================================================================================================
   
 # Age - no missing data, and spread pretty evenly. 

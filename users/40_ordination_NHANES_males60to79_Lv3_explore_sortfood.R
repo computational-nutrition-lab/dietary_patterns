@@ -88,7 +88,7 @@
   # The column name of "food" is SEQN preceded with an 'X'.
   food[1:8, 1:8]
   
-  # Format the food file and create a otu_table called OTU.
+  # Format the food file and create an otu_table called OTU.
   PrepFood(data = food)
   head(OTU,1) # X83755 X83789 X83820 X83834 X83886 ....
   
@@ -533,7 +533,15 @@
 # Generate and save an UNweighted unifrac distance matrix of "Samples". 
   UnweightedUnifracDis(input.phyloseq.obj = phyfoods, 
                        output.fn = "Food_D12_FC_cc_f_males60to79_red_Lv3_ord_UNweighted_uni_dis.txt")        
-  
+
+        
+# ===============================================================================================================
+# 
+# ===============================================================================================================
+        
+
+# ---------------------------------------------------------------------------------------------------------------
+          
 # ---------------------------------------------------------------------------------------------------------------
 # Come back to the main directory.
   setwd(main_wd)  
