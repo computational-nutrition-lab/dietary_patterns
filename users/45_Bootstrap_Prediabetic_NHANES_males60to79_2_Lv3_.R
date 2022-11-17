@@ -196,11 +196,11 @@ read_n165 <- read.table("Laboratory_data/QCtotal_d_glu_body_meta_demo_males60to7
 
 # ----------------------------------------------------------------------------------------------------------------  
 # put into a loop.
-  counttable_u <- data.frame(number=seq(1:10), Dia_vs_Nor=NA, Dia_vs_Pre=NA, Pre_vs_Nor=NA) 
-  pvalue_table_u <- data.frame(number= seq(1:10), dist.p=NA, adonis.p=NA)
+  counttable_u <- data.frame(number=seq(1:50), Dia_vs_Nor=NA, Dia_vs_Pre=NA, Pre_vs_Nor=NA) 
+  pvalue_table_u <- data.frame(number= seq(1:50), dist.p=NA, adonis.p=NA)
   pairwise_adonis_list_u <- list()
 
-for(i in 1:10){
+for(i in 1:50){
   
   # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
@@ -590,11 +590,11 @@ for(i in 1:10){
   
 }
   
-write.table(pvalue_table_u_ave, "clipboard", sep="\t", quote=F, row.names = F)
-write.table(counttable_u_sum, "clipboard", sep="\t", quote=F, row.names = F)
+write.table(pvalue_table_u, "clipboard", sep="\t", quote=F, row.names = F)
+write.table(counttable_u, "clipboard", sep="\t", quote=F, row.names = F)
 
-pvalue_table_u
-pairwise_adonis_list_u
+pvalue_table_u_50_1 <- pvalue_table_u
+counttable_u_50_1 <-  counttable_u
 
 
 # Plot Axis 1 and Axis 2 to show the separation of samples colored by Groups as in the metadata.
