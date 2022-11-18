@@ -323,7 +323,7 @@
   
 # ---------------------------------------------------------------------------------------------------------------
 # The GLU_index groups look different. Use beta-diversity and adonis tests to see
-# if they are they actually distinct from one another.
+# if they are actually distinct from one another.
 
 # Generate a weighted unifrac distance matrix.
   dist_matrix_w <- phyloseq::distance(phyfoods, method = "wunifrac") # weighted

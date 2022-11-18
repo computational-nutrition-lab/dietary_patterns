@@ -54,7 +54,7 @@ library(pairwiseAdonis)
 source("lib/specify_data_dir.R")
 source("lib/ordination.R")
 source("lib/ggplot2themes.R")
-source("lib/prep_for_adonis_pairwise.R")
+# source("lib/prep_for_adonis_pairwise.R")
 
 
 
@@ -83,7 +83,7 @@ source("lib/prep_for_adonis_pairwise.R")
 # 
 # # ---------------------------------------------------------------------------------------------------------------
 # # Specify the directory where the data is.
-# SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
+  SpecifyDataDirectory(directory.name = "eg_data/NHANES")
 # 
 # # ---------------------------------------------------------------------------------------------------------------
 # # Load the data of those to be used in the diabetes status analysis. 
@@ -159,48 +159,59 @@ table(glu_2_males60to79$GLU_index)
 # 47         127          63  
 
 # ===============================================================================================================
-# Bootstrapping to take random samples of Prediabetic.
+# Take a random sample of Prediabetic. (just one time of sampling)
 # ===============================================================================================================
-# Subset Prediabetics/  
-Prediabetics <- subset(glu_2_males60to79, GLU_index=="Prediabetic")
-
-# scramble.a <- dtA.feats[sample(nrow(dtA.feats)),] 
-scramble.Predia <- Prediabetics[sample(nrow(Prediabetics)), ] 
-# this is shuffling all the rows in Prediabetics.
-
-Prediabetics[1:5, 1:5]
-scramble.Predia[1:5, 1:5]
-
-# Take the first 55 Prediabetic rows.
-Predia_55 <- scramble.Predia[1:55, ]
-
-# Take normal and diabetic to merge with Predia_55. 
-Normal <- subset(glu_2_males60to79, GLU_index=="Normal")
-Dia <-    subset(glu_2_males60to79, GLU_index=="Diabetic")
-
-# Merge 
-glu_2_males60to79Pred55 <- rbind(Normal, Predia_55, Dia) 
-
-# Check. 
-table(glu_2_males60to79Pred55$GLU_index)
-
-#  glu_2_males60to79Pred55 has 165 rows (samples) and 263 columns. 
-dim(glu_2_males60to79Pred55)
-
-# Save glu_2_males60to79Pred55 as a txt file.
-write.table(glu_2_males60to79Pred55, "Laboratory_data/QCtotal_d_glu_body_meta_demo_males60to79Pred55.txt", 
-            sep="\t", row.names = F, quote = F)
-
-read_n165 <- read.table("Laboratory_data/QCtotal_d_glu_body_meta_demo_males60to79Pred55.txt", 
-                        sep="\t", header = F)
+# # Subset Prediabetics/  
+# Prediabetics <- subset(glu_2_males60to79, GLU_index=="Prediabetic")
+# 
+# # scramble.a <- dtA.feats[sample(nrow(dtA.feats)),] 
+# scramble.Predia <- Prediabetics[sample(nrow(Prediabetics)), ] 
+# # this is shuffling all the rows in Prediabetics.
+# 
+# Prediabetics[1:5, 1:5]
+# scramble.Predia[1:5, 1:5]
+# 
+# # Take the first 55 Prediabetic rows.
+# Predia_55 <- scramble.Predia[1:55, ]
+# 
+# # Take normal and diabetic to merge with Predia_55. 
+# Normal <- subset(glu_2_males60to79, GLU_index=="Normal")
+# Dia <-    subset(glu_2_males60to79, GLU_index=="Diabetic")
+# 
+# # Merge 
+# glu_2_males60to79Pred55 <- rbind(Normal, Predia_55, Dia) 
+# 
+# # Check. 
+# table(glu_2_males60to79Pred55$GLU_index)
+# 
+# #  glu_2_males60to79Pred55 has 165 rows (samples) and 263 columns. 
+# dim(glu_2_males60to79Pred55)
+# 
+# # Save glu_2_males60to79Pred55 as a txt file.
+# write.table(glu_2_males60to79Pred55, "Laboratory_data/QCtotal_d_glu_body_meta_demo_males60to79Pred55.txt", 
+#             sep="\t", row.names = F, quote = F)
+# 
+# read_n165 <- read.table("Laboratory_data/QCtotal_d_glu_body_meta_demo_males60to79Pred55.txt", 
+#                         sep="\t", header = F)
 
 # ----------------------------------------------------------------------------------------------------------------  
-# put into a loop.
-  counttable_u <- data.frame(number=seq(1:50), Dia_vs_Nor=NA, Dia_vs_Pre=NA, Pre_vs_Nor=NA) 
-  pvalue_table_u <- data.frame(number= seq(1:50), dist.p=NA, adonis.p=NA)
-  pairwise_adonis_list_u <- list()
+# Specify the directory where the data is.
+  SpecifyDataDirectory(directory.name = "eg_data/NHANES")
 
-for(i in 1:50){
+# ===============================================================================================================
+# Bootstrapping to take random samples of Prediabetic in a loop.
+# ===============================================================================================================
+# Make tables to store results for WEIGHTED.
+  counttable_w           <- data.frame(number=seq(1:100), Dia_vs_Nor=NA, Dia_vs_Pre=NA, Pre_vs_Nor=NA) 
+  pvalue_table_w         <- data.frame(number= seq(1:100), dist.p=NA, adonis.p=NA)
+  pairwise_adonis_list_w <- list()
+
+# # Make tables to store results for UNweighted.
+#   counttable_u           <- data.frame(number=seq(1:2), Dia_vs_Nor=NA, Dia_vs_Pre=NA, Pre_vs_Nor=NA) 
+#   pvalue_table_u         <- data.frame(number= seq(1:2), dist.p=NA, adonis.p=NA)
+#   pairwise_adonis_list_u <- list()
+
+for(i in 1:100){
   
   # Specify the directory where the data is.
   SpecifyDataDirectory(directory.name = "eg_data/NHANES")  
@@ -398,35 +409,151 @@ for(i in 1:50){
   # Change to the folder called "Ordination" in your "Ordination" folder.
   SpecifyDataDirectory(directory.name = "eg_data/NHANES/Laboratory_data/Ordination/")
   
+  # ===============================================================================================================
+  # Use your phyloseq object and perform ordination - WEIGHTED unifrac distance
+  # ===============================================================================================================
+
+  # Perform Principal Coordinate Analysis (PCoA) with WEIGHTED unifrac distance of your food data.
+  # This may take a few minutes depending on your data size.
+  # e.g. a large phyloseq object (7.9 MB) could take a few minutes.
+  ordinated_w <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=TRUE)
+
+  # Save the percent variance explained by the axes as a vector to use in plots.
+  eigen_percent_w <- ordinated_w$values$Relative_eig
+
+  # Save the percent variance explained as a txt file.
+  Eigen(eigen.input = eigen_percent_w,
+        output.fn="Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_WEIGHTED_eigen.txt")
+
+  # Merge the first n axes to the metadata and save it as a txt file.
+  # The merged dataframe, 'meta_usersdf', will be used for plotting.
+  MergeAxesAndMetadata_NHANES(ord.object= ordinated_w, number.of.axes= 10, meta.data= demog_glu,
+                              output.fn= "Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_WEIGHTED_meta_users.txt")
+  # View(MergeAxesAndMetadata_NHANES)
+
+  # Load the output again for plotting.
+  loaded_glu_w <- read.table("Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_WEIGHTED_meta_users.txt",
+                             sep="\t", header=T)
+
+  # Convert the GLU_index as a factor to plot it in order.
+  loaded_glu_w$GLU_index <- factor(loaded_glu_w$GLU_index, levels= c("Normal", "Prediabetic", "Diabetic"))
+  print(table(loaded_glu_w$GLU_index))
+
+  ### beta-dispersion test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  # The GLU_index groups look different. Use beta-diversity and adonis tests to see
+  # if they are they actually distinct from one another.
+
+  # Generate a weighted unifrac distance matrix.
+  dist_matrix_w <- phyloseq::distance(phyfoods, method = "wunifrac") # weighted
+
+  # Dispersion test and plot
+  # vegan::betadisper computes centeroids and distance of each datapoint from it.
+  dispr_w <- vegan::betadisper(d=dist_matrix_w, phyloseq::sample_data(phyfoods)$GLU_index)
+
+  # ---------------------------------------------------------------------------------------------------------------
+  # # Can show the centroids and dispersion of each group.
+  # plot(dispr_w)
+
+  # # Or show the distance to centroid of each datapoint.
+  # boxplot(dispr_w, xlab = "")
+
+  # Use dispr to do a permutation test for homogeneity of multivariate dispersion
+  perm_res <- vegan::permutest(dispr_w, perm=5000)
+
+  # Save the p-value for Groups
+  perm_res_w_p <- perm_res$tab$`Pr(>F)`[1]
+
+  pvalue_table_w[i, 2] <- perm_res_w_p
+
+  ### adonis test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  adonis_res <- vegan::adonis(dist_matrix_w ~ phyloseq::sample_data(phyfoods)$GLU_index, permutations = 5000)
+
+  # Check
+  head(dist_matrix_w)
+
+  adonis_res_w_p <- adonis_res$aov.tab$`Pr(>F)`[1]
+
+  # Save it to pvalue_table.
+  pvalue_table_w[i, 3] <- adonis_res_w_p
+
+  # If overall adonis is significant, you can run pairwise adonis to see which group pairs are different.
+  if(adonis_res_w_p < 0.05){
+
+    pairwise_adonis_res <- pairwise.adonis(dist_matrix_w, phyloseq::sample_data(phyfoods)$GLU_index, perm = 5000,
+                                           p.adjust.m = "fdr")
+
+    # Sort it in the order of pairs.
+    pairwise_adonis_res_sorted <- pairwise_adonis_res[order(pairwise_adonis_res$pairs) , ]
+
+    # Take out the p-value for each combination.
+    Dia_vs_Nor_p <- pairwise_adonis_res_sorted[1, 6]
+    Dia_vs_Pre_p <- pairwise_adonis_res_sorted[2, 6]
+    Pre_vs_Nor_p <- pairwise_adonis_res_sorted[3, 6]
+
+    # Put 1 if p-value for each comparison is less than 0.05, and put 0 if not.
+    if(Dia_vs_Nor_p < 0.05){counttable_w[i, "Dia_vs_Nor"] <- 1}else{counttable_w[i, "Dia_vs_Nor"] <- 0 }
+    if(Dia_vs_Pre_p < 0.05){counttable_w[i, "Dia_vs_Pre"] <- 1}else{counttable_w[i, "Dia_vs_Pre"] <- 0 }
+    if(Dia_vs_Pre_p < 0.05){counttable_w[i, "Pre_vs_Nor"] <- 1}else{counttable_w[i, "Pre_vs_Nor"] <- 0 }
+
+    # Save it to mylist.
+    pairwise_adonis_list_w[[i]] <- pairwise_adonis_res_sorted
+
+  }else{  # if adonis p-value >= 0.05, put NAs.
+
+    # Put 1 if the p-value for each comparison is less than 0.05, and put 0 if not.
+    counttable_w[i, "Dia_vs_Nor"] <- NA
+    counttable_w[i, "Dia_vs_Pre"] <- NA
+    counttable_w[i, "Pre_vs_Nor"] <- NA
+
+    # Save NA to the list.
+    pairwise_adonis_list_w[[i]] <- NA
+
+  }
+
+  # Add average at the last row of the p-value table.
+  pvalue_table_w_ave <- rbind(pvalue_table_w, c("Mean", colMeans(pvalue_table_w[, -1], na.rm = T)))
+
+  # Add total at the last row in counttable.
+  counttable_w_sum <- rbind(counttable_w, c("Total", colSums(counttable_w[, -1], na.rm = T)))
+
+  print(pvalue_table_w_ave)
+  print(pairwise_adonis_list_w)
+  print(counttable_w_sum)
+
+  print(paste0( i, " was done."))
+  
   # # ===============================================================================================================
-  # # Use your phyloseq object and perform ordination - WEIGHTED unifrac distance
+  # # ===============================================================================================================
+  # # Use your phyloseq object and perform ordination - UNweighted unifrac distance
+  # # ===============================================================================================================
   # # ===============================================================================================================
   # 
-  # # Perform Principal Coordinate Analysis (PCoA) with WEIGHTED unifrac distance of your food data.
+  # # Perform Principal Coordinate Analysis (PCoA) with UNweighted unifrac distance of your food data.
   # # This may take a few minutes depending on your data size.
   # # e.g. a large phyloseq object (7.9 MB) could take a few minutes.
-  # ordinated_w <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted=TRUE) 
+  # ordinated_u <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted= FALSE)
   # 
   # # Save the percent variance explained by the axes as a vector to use in plots.  
-  # eigen_percent_w <- ordinated_w$values$Relative_eig
+  # eigen_percent_u <- ordinated_u$values$Relative_eig
   # 
   # # Save the percent variance explained as a txt file.
-  # Eigen(eigen.input = eigen_percent_w, 
-  #       output.fn="Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_WEIGHTED_eigen.txt")
+  # Eigen(eigen.input = eigen_percent_u, 
+  #       output.fn="Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_UNweighted_eigen.txt")
   # 
   # # Merge the first n axes to the metadata and save it as a txt file. 
   # # The merged dataframe, 'meta_usersdf', will be used for plotting.
-  # MergeAxesAndMetadata_NHANES(ord.object= ordinated_w, number.of.axes= 10, meta.data= demog_glu, 
-  #                             output.fn= "Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_WEIGHTED_meta_users.txt")
+  # MergeAxesAndMetadata_NHANES(ord.object= ordinated_u, number.of.axes= 10, meta.data= demog_glu, 
+  #                             output.fn= "Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_UNweighted_meta_users.txt")
   # # View(MergeAxesAndMetadata_NHANES)
   # 
   # # Load the output again for plotting.
-  # loaded_glu_w <- read.table("Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_WEIGHTED_meta_users.txt",
+  # loaded_glu_u <- read.table("Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_UNweighted_meta_users.txt",
   #                            sep="\t", header=T)
   # 
   # # Convert the GLU_index as a factor to plot it in order.
-  # loaded_glu_w$GLU_index <- factor(loaded_glu_w$GLU_index, levels= c("Normal", "Prediabetic", "Diabetic"))
-  # print(table(loaded_glu_w$GLU_index))
+  # loaded_glu_u$GLU_index <- factor(loaded_glu_u$GLU_index, levels= c("Normal", "Prediabetic", "Diabetic"))
+  # print(table(loaded_glu_u$GLU_index))
   # 
   # ### beta-dispersion test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # 
@@ -434,174 +561,86 @@ for(i in 1:50){
   # # if they are they actually distinct from one another.
   # 
   # # Generate a weighted unifrac distance matrix.
-  # dist_matrix_w <- phyloseq::distance(phyfoods, method = "wunifrac") # weighted
+  # dist_matrix_u <- phyloseq::distance(phyfoods, method = "unifrac") # UNweighted
   # 
   # # Dispersion test and plot
   # # vegan::betadisper computes centeroids and distance of each datapoint from it. 
-  # dispr_w <- vegan::betadisper(d=dist_matrix_w, phyloseq::sample_data(phyfoods)$GLU_index)
+  # dispr_u <- vegan::betadisper(d=dist_matrix_u, phyloseq::sample_data(phyfoods)$GLU_index)
   # 
   # # ---------------------------------------------------------------------------------------------------------------
   # # # Can show the centroids and dispersion of each group. 
-  # # plot(dispr_w)
+  # # plot(dispr_u)
   # 
   # # # Or show the distance to centroid of each datapoint.
-  # # boxplot(dispr_w, xlab = "")
+  # # boxplot(dispr_u, xlab = "")
   # 
   # # Use dispr to do a permutation test for homogeneity of multivariate dispersion
-  # perm_res <- vegan::permutest(dispr_w, perm=5000)
+  # perm_res <- vegan::permutest(dispr_u, perm=5000)
   # 
   # # Save the p-value for Groups
-  # perm_res_p <- perm_res$tab$`Pr(>F)`[1] 
+  # perm_res_u_p <- perm_res$tab$`Pr(>F)`[1] 
   # 
-  # pvalue_table[i, 2] <- perm_res_p
+  # pvalue_table_u[i, 2] <- perm_res_u_p
   # 
   # ### adonis test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # adonis_res <- vegan::adonis(dist_matrix_w ~ phyloseq::sample_data(phyfoods)$GLU_index, permutations = 5000)
+  # adonis_res <- vegan::adonis(dist_matrix_u ~ phyloseq::sample_data(phyfoods)$GLU_index, permutations = 5000)
   # 
-  # adonis_res_p <- adonis_res$aov.tab$`Pr(>F)`[1]
+  # # Check
+  # head(dist_matrix_u)
+  # 
+  # adonis_res_u_p <- adonis_res$aov.tab$`Pr(>F)`[1]
   # 
   # # Save it to pvalue_table.
-  # pvalue_table[i, 3] <- adonis_res_p
+  # pvalue_table_u[i, 3] <- adonis_res_u_p
   # 
   # # If overall adonis is significant, you can run pairwise adonis to see which group pairs are different.
-  # pairwise_adonis_res <- pairwise.adonis(dist_matrix_w, phyloseq::sample_data(phyfoods)$GLU_index, perm = 5000)    
+  # if(adonis_res_u_p < 0.05){
   # 
-  # # Save it to mylist.
-  # pairwise_adonis_list[[i]] <- pairwise_adonis_res
+  #   pairwise_adonis_res <- pairwise.adonis(dist_matrix_u, phyloseq::sample_data(phyfoods)$GLU_index, perm = 5000,
+  #                                          p.adjust.m = "fdr")    
   #   
-  # print(pvalue_table)
-  # print(pairwise_adonis_list)
+  #   # Sort it in the order of pairs.
+  #   pairwise_adonis_res_sorted <- pairwise_adonis_res[order(pairwise_adonis_res$pairs) , ]
+  #   
+  #   # Take out the p-value for each combination.
+  #   Dia_vs_Nor_p <- pairwise_adonis_res_sorted[1, 6]
+  #   Dia_vs_Pre_p <- pairwise_adonis_res_sorted[2, 6]
+  #   Pre_vs_Nor_p <- pairwise_adonis_res_sorted[3, 6]
+  #   
+  #   # Put 1 if p-value for each comparison is less than 0.05, and put 0 if not. 
+  #   if(Dia_vs_Nor_p < 0.05){counttable_u[i, "Dia_vs_Nor"] <- 1}else{counttable_u[i, "Dia_vs_Nor"] <- 0 }
+  #   if(Dia_vs_Pre_p < 0.05){counttable_u[i, "Dia_vs_Pre"] <- 1}else{counttable_u[i, "Dia_vs_Pre"] <- 0 }
+  #   if(Dia_vs_Pre_p < 0.05){counttable_u[i, "Pre_vs_Nor"] <- 1}else{counttable_u[i, "Pre_vs_Nor"] <- 0 }
+  #   
+  #   # Save it to mylist.
+  #   pairwise_adonis_list_u[[i]] <- pairwise_adonis_res_sorted
+  # 
+  # }else{  # if adonis p-value >= 0.05, put NAs. 
+  # 
+  #   # Put 1 if the p-value for each comparison is less than 0.05, and put 0 if not. 
+  #   counttable_u[i, "Dia_vs_Nor"] <- NA 
+  #   counttable_u[i, "Dia_vs_Pre"] <- NA 
+  #   counttable_u[i, "Pre_vs_Nor"] <- NA
+  #   
+  #   # Save it to the list.
+  #   pairwise_adonis_list_u[[i]] <- NA
+  #   
+  # }
+  # 
+  # # Add average at the last row of the p-value table.
+  # pvalue_table_u_ave <- rbind(pvalue_table_u, c("Mean", colMeans(pvalue_table_u[, -1], na.rm = T))) 
+  # 
+  # # Add total at the last row in counttable.
+  # counttable_u_sum <- rbind(counttable_u, c("Total", colSums(counttable_u[, -1], na.rm = T))) 
+  # 
+  # print(pvalue_table_u_ave)
+  # print(pairwise_adonis_list_u)
+  # print(counttable_u_sum)
   # 
   # print(paste0( i, " was done."))
   
-  # ===============================================================================================================
-  # Use your phyloseq object and perform ordination - UNweighted unifrac distance
-  # ===============================================================================================================
-  
-  # Perform Principal Coordinate Analysis (PCoA) with UNweighted unifrac distance of your food data.
-  # This may take a few minutes depending on your data size.
-  # e.g. a large phyloseq object (7.9 MB) could take a few minutes.
-  ordinated_u <- phyloseq::ordinate(phyfoods, method="PCoA", distance="unifrac", weighted= FALSE)
-  
-  # Save the percent variance explained by the axes as a vector to use in plots.  
-  eigen_percent_u <- ordinated_u$values$Relative_eig
-  
-  # Save the percent variance explained as a txt file.
-  Eigen(eigen.input = eigen_percent_u, 
-        output.fn="Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_UNweighted_eigen.txt")
-  
-  # Merge the first n axes to the metadata and save it as a txt file. 
-  # The merged dataframe, 'meta_usersdf', will be used for plotting.
-  MergeAxesAndMetadata_NHANES(ord.object= ordinated_u, number.of.axes= 10, meta.data= demog_glu, 
-                              output.fn= "Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_UNweighted_meta_users.txt")
-  # View(MergeAxesAndMetadata_NHANES)
-  
-  # Load the output again for plotting.
-  loaded_glu_u <- read.table("Food_D12_FC_cc_f_males60to79Pred55_red_Lv3_ord_UNweighted_meta_users.txt",
-                             sep="\t", header=T)
-  
-  # Convert the GLU_index as a factor to plot it in order.
-  loaded_glu_u$GLU_index <- factor(loaded_glu_u$GLU_index, levels= c("Normal", "Prediabetic", "Diabetic"))
-  print(table(loaded_glu_u$GLU_index))
-  
-  ### beta-dispersion test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  
-  # The GLU_index groups look different. Use beta-diversity and adonis tests to see
-  # if they are they actually distinct from one another.
-  
-  # Generate a weighted unifrac distance matrix.
-  dist_matrix_u <- phyloseq::distance(phyfoods, method = "unifrac") # UNweighted
-  
-  # Dispersion test and plot
-  # vegan::betadisper computes centeroids and distance of each datapoint from it. 
-  dispr_u <- vegan::betadisper(d=dist_matrix_u, phyloseq::sample_data(phyfoods)$GLU_index)
-  
-  # ---------------------------------------------------------------------------------------------------------------
-  # # Can show the centroids and dispersion of each group. 
-  # plot(dispr_u)
-  
-  # # Or show the distance to centroid of each datapoint.
-  # boxplot(dispr_u, xlab = "")
-  
-  # Use dispr to do a permutation test for homogeneity of multivariate dispersion
-  perm_res <- vegan::permutest(dispr_u, perm=5000)
-  
-  # Save the p-value for Groups
-  perm_res_u_p <- perm_res$tab$`Pr(>F)`[1] 
-  
-  pvalue_table_u[i, 2] <- perm_res_u_p
-  
-  ### adonis test ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  adonis_res <- vegan::adonis(dist_matrix_u ~ phyloseq::sample_data(phyfoods)$GLU_index, permutations = 5000)
-  
-  # Check
-  head(dist_matrix_u)
-  
-  adonis_res_u_p <- adonis_res$aov.tab$`Pr(>F)`[1]
-  
-  # Save it to pvalue_table.
-  pvalue_table_u[i, 3] <- adonis_res_u_p
-  
-  # If overall adonis is significant, you can run pairwise adonis to see which group pairs are different.
-  if(adonis_res_u_p < 0.05){
-
-    pairwise_adonis_res <- pairwise.adonis(dist_matrix_u, phyloseq::sample_data(phyfoods)$GLU_index, perm = 5000,
-                                           p.adjust.m = "fdr")    
-    
-    # Sort it in the order of pairs.
-    pairwise_adonis_res_sorted <- pairwise_adonis_res[order(pairwise_adonis_res$pairs) , ]
-    
-    # Take out the p-value for each combination.
-    Dia_vs_Nor_p <- pairwise_adonis_res_sorted[1, 6]
-    Dia_vs_Pre_p <- pairwise_adonis_res_sorted[2, 6]
-    Pre_vs_Nor_p <- pairwise_adonis_res_sorted[3, 6]
-    
-    # Put 1 if p-value for each comparison is less than 0.05, and put 0 if not. 
-    if(Dia_vs_Nor_p < 0.05){counttable_u[i, "Dia_vs_Nor"] <- 1}else{counttable_u[i, "Dia_vs_Nor"] <- 0 }
-    if(Dia_vs_Pre_p < 0.05){counttable_u[i, "Dia_vs_Pre"] <- 1}else{counttable_u[i, "Dia_vs_Pre"] <- 0 }
-    if(Dia_vs_Pre_p < 0.05){counttable_u[i, "Pre_vs_Nor"] <- 1}else{counttable_u[i, "Pre_vs_Nor"] <- 0 }
-    
-    # Save it to mylist.
-    pairwise_adonis_list_u[[i]] <- pairwise_adonis_res_sorted
-  
-  }else{  # if adonis p-value >= 0.05, put NAs. 
-  
-    # Put 1 if the p-value for each comparison is less than 0.05, and put 0 if not. 
-    counttable_u[i, "Dia_vs_Nor"] <- NA 
-    counttable_u[i, "Dia_vs_Pre"] <- NA 
-    counttable_u[i, "Pre_vs_Nor"] <- NA
-    
-    # Save it to the list.
-    pairwise_adonis_list_u[[i]] <- NA
-    
-  }
-  
-  # Add average at the last row of the p-value table.
-  pvalue_table_u_ave <- rbind(pvalue_table_u, c("Mean", colMeans(pvalue_table_u[, -1], na.rm = T))) 
-  
-  # Add total at the last row in counttable.
-  counttable_u_sum <- rbind(counttable_u, c("Total", colSums(counttable_u[, -1], na.rm = T))) 
-  
-  print(pvalue_table_u_ave)
-  print(pairwise_adonis_list_u)
-  print(counttable_u_sum)
-  
-  print(paste0( i, " was done."))
-  
 }
   
-write.table(pvalue_table_u, "clipboard", sep="\t", quote=F, row.names = F)
-write.table(counttable_u, "clipboard", sep="\t", quote=F, row.names = F)
+write.table(pvalue_table_w_ave, "clipboard", sep="\t", quote=F, row.names = F)
+write.table(counttable_w_sum, "clipboard", sep="\t", quote=F, row.names = F)
 
-pvalue_table_u_50_1 <- pvalue_table_u
-counttable_u_50_1 <-  counttable_u
-
-
-# Plot Axis 1 and Axis 2 to show the separation of samples colored by Groups as in the metadata.
-p1_u <- ggplot(loaded_glu_u, aes(x=Axis.1, y=Axis.2, color=GLU_index)) +
-  geom_point(aes(color = GLU_index), size=3) +
-  scale_color_manual( values= c("steelblue3", "gold3", "hotpink") ) +
-  xlab( paste("Axis.1 (", paste(round(eigen_percent_u[1]*100, 1)), "%)", sep="") ) +
-  ylab( paste("Axis.2 (", paste(round(eigen_percent_u[2]*100, 1)), "%)", sep="") ) +
-  no_grid + space_axes + theme(aspect.ratio = 1)
-p1_u 
