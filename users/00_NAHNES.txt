@@ -1,0 +1,21 @@
+\dietarry_patterns\users
+
+02_load_clean_NHANES_food.R ... in DietR, separated to -1 and -2.
+
+10_data_overview_NHANES.R ... 9/26, in DietR, 10/19 
+
+10_percent_kcal_NHANES_9.26.R ... OLD, DO NOT USE.
+
+10_percent_kcal_NHANES.R in DietR This one is the latest. Has up-to-date functions to sort barcharts by median etc.
+
+12_add_meta_GLU_index_NHANES.R ... add metadata, GLU_index, choose no special diet.
+
+13_overview_GLU_index_NHANES.R ... overview of those with GLU_index data.
+
+14_GLU_index_by_Age_Gender.R ... add agegroup and look at diabetic status dist.
+
+15_subset_NHANES_males60to79.R ... subset.
+
+
+
+

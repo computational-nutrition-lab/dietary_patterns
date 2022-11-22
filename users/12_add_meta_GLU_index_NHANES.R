@@ -1,5 +1,5 @@
 # ===============================================================================================================
-# Add metadata and GLU_index (Normal, Prediabetic, and Diabetic) to the mean totals. 
+# Add metadata, Age and Gender, and GLU_index (Normal, Prediabetic, and Diabetic) to the mean totals. 
 # Version 1
 # Created on 11/21/2022 by Rie Sadohara
 # ===============================================================================================================
@@ -17,8 +17,9 @@
 # Load necessary functions.
   source("lib/specify_data_dir.R")
   source("lib/load_clean_NHANES.R")
-  source("lib/prep_data_for_clustering.R")
+  # source("lib/prep_data_for_clustering.R")
   source("lib/ggplot2themes.R") 
+  source("~/GitHub/DietR/lib/percent_kcal.R") # to use AddGenderAgeGroups function.  
   
 # Load the distinct 100 colors for use.   
   distinct100colors <- readRDS("~/GitHub/R_Toolbox/distinct100colors.rda")
@@ -32,35 +33,37 @@
 # ===============================================================================================================
   
 # Load the QC-ed total (with food categories), filtered for KCAL, PROT, TFAT, VC. 4207 people.
-  QCtotals_d <- read.table("Total_D12_FC_QC_mean_QC_d.txt", sep="\t", header=T)
+  QCtotal_d <- read.table("Total_D12_FC_QC_mean_QC_d.txt", sep="\t", header=T)
 
 # Check the number of participants in the QCtotals - should be 4,207 people.
-  length(unique(QCtotals_d$SEQN))
+  length(unique(QCtotal_d$SEQN))
+
+    
+# ===============================================================================================================
+# Add Gender and Age, body measure, and metadata.
+# ===============================================================================================================
+
+# Add Age and Gender. 
+  
+# We are going to use the following columns:
+# RIAGENDR = gender
+# RIDAGEYR = age
+  
+# Add gender and age_groups to QCtotal_d_glu_body_meta. The output is named "totals_out".
+  AddGenderAgeGroups(input=QCtotal_d, age.col="RIDAGEYR", gender.col="RIAGENDR")
+
+# Rename the output as QCtotal_d_ga. 
+  QCtotal_d_ga <- totals_out  
+    
+# Ensure grouping has been done correctly. 
+  head(QCtotal_d_ga[, c("RIAGENDR", "Gender", "RIDAGEYR", "AgeGroup", "Gender_Age")])
+  
+# Also you want to look at the frequency of the groups. As expected, people aged 18-19 are less frequent.
+  table(QCtotal_d_ga$Gender_Age)  
+  table(QCtotal_d_ga$AgeGroup)    
 
 # ---------------------------------------------------------------------------------------------------------------
-# Load the blood glucose data and see.
-  glu <- read.xport("Raw_data/GLU_I.XPT")
-
-# glu has LBXGLU - Fasting Glucose (mg/dL).
-  head(glu)
-
-# Count the number of rows with no missing data.
-# 2972 individuals have glucose data.
-  sum(complete.cases(glu))
-
-# Take out only the rows with no missing data in LBXGLU.
-  glu_comp <- glu[!is.na(glu$LBXGLU), ]
-
-# Take a quick look at the distribution of LBXGLU.
-  hist(glu_comp$LBXGLU)
-
-# Use default of merge to only keep SEQNs found in both datasets.
-  QCtotal_d_glu <- merge(x=QCtotals_d, y=glu_comp, by="SEQN")
-
-# Check the dimension of QCtotal_d_glu - should be 1,943 rows.
-  dim(QCtotal_d_glu)
-
-# ---------------------------------------------------------------------------------------------------------------
+# Add body measure data.
 # Load the body measure data.
   bodymea <- read.xport("Raw_data/BMX_I.XPT")
 
@@ -73,8 +76,8 @@
   # BMXBMI - Body Mass Index (kg/m**2)
   # BMXWAIST - Waist Circumference (cm)
 
-# Add body measure to QCtotal_d_glu
-  QCtotal_d_glu_body <- merge(x=QCtotal_d_glu, y=bodymea, by="SEQN")
+# Add body measure to QCtotal_d.
+  QCtotal_d_ga_body <- merge(x=QCtotal_d_ga, y=bodymea, by="SEQN")
 
 # ---------------------------------------------------------------------------------------------------------------
 # Load the metadata of people, which is in Total Day 1.
@@ -104,39 +107,64 @@
   head(metadata_only, 1)
 
 # Add meatadata to QCtotal_d_glu_body
-  QCtotal_d_glu_body_meta <- merge(x=QCtotal_d_glu_body, y=metadata_only, by="SEQN")
+  QCtotal_d_ga_body_meta <- merge(x=QCtotal_d_ga_body, y=metadata_only, by="SEQN")
 
-### In summary, individuals were kept who were in the QCtotal_d AND also had glucose test measurements.
-  # bodymeasures and metadata were added in a way that only individuals present in all the datasets
-  # will be kept. 1943 individuals were kept.
 
 # ===============================================================================================================
-# Use QCtotal_d_glu_body_meta dataframe for further analysis.
+# Load the blood glucose data, add GLU_index, and filter out rows containing missing data
 # ===============================================================================================================
+  
+# Load the blood glucose data and see.
+  glu <- read.xport("Raw_data/GLU_I.XPT")
 
-# Add index according to their glucose level: Normal, Prediabetic, and Diabetic.
+# glu has LBXGLU - Fasting Glucose (mg/dL).
+  head(glu)
+
+# Check its distribution.
+  hist(glu$LBXGLU)
+  
+# Add glu to QCtotal_d_ga_body_meta.
+  QCtotal_d_ga_body_meta_glu <- merge(x=QCtotal_d_ga_body_meta, y=glu, by="SEQN")
+
+# ---------------------------------------------------------------------------------------------------------------
+# Add GLU_index according to their glucose level: Normal, Prediabetic, and Diabetic.
   # Norm: 99 mg/dL or lower
   # Pred: 100 to 125 mg/dL
   # Diab: 126 mg/dL or higher
 
 # Create an empty column to insert glucose level index.
-  QCtotal_d_glu_body_meta$GLU_index <- NA
-
-# Add glucose level index.
-  for(i in 1: nrow(QCtotal_d_glu_body_meta)){
-    if(     QCtotal_d_glu_body_meta$LBXGLU[i] < 100){ QCtotal_d_glu_body_meta$GLU_index[i] <- "Normal" }
-    else if(QCtotal_d_glu_body_meta$LBXGLU[i] < 126){ QCtotal_d_glu_body_meta$GLU_index[i] <- "Prediabetic" }
-    else{                                             QCtotal_d_glu_body_meta$GLU_index[i] <- "Diabetic" }
-  }
-
-# Check the first 10 rows of glucose and GLU_index columns in QCtotal_d_glu_body_meta.
-  QCtotal_d_glu_body_meta[1:10, c("LBXGLU", "GLU_index")]
-
-# Look at the frequency of GLU_index.
-  table(QCtotal_d_glu_body_meta$GLU_index)
+  QCtotal_d_ga_body_meta_glu$GLU_index <- NA
   
+# If LBXGLU is missing, put "NA", if it has a value, add GLU_index.
+  for(i in 1: nrow(QCtotal_d_ga_body_meta_glu)){
+    if(is.na(QCtotal_d_ga_body_meta_glu$LBXGLU[i]) == TRUE ){
+       QCtotal_d_ga_body_meta_glu$LBXGLU[i] <- NA  
+    }else{
+      if(     QCtotal_d_ga_body_meta_glu$LBXGLU[i] < 100){ QCtotal_d_ga_body_meta_glu$GLU_index[i] <- "Normal" }
+      else if(QCtotal_d_ga_body_meta_glu$LBXGLU[i] < 126){ QCtotal_d_ga_body_meta_glu$GLU_index[i] <- "Prediabetic" }
+      else{                                                QCtotal_d_ga_body_meta_glu$GLU_index[i] <- "Diabetic" }
+    }  
+  }
+  
+# Check the first 30 rows of glucose and GLU_index columns in QCtotal_d_glu_body_meta.
+  QCtotal_d_ga_body_meta_glu[1:30, c("LBXGLU", "GLU_index")]
+  
+# ---------------------------------------------------------------------------------------------------------------
+# There are some missing data, so check the frequenncy with useNA argument to show NAs.
+  table(QCtotal_d_ga_body_meta_glu$GLU_index, useNA="always")
+  
+# Select individuals that have no missing data in the LBXGLU column.
+  QCtotal_d_ga_body_meta_glu_comp <- QCtotal_d_ga_body_meta_glu[!is.na(QCtotal_d_ga_body_meta_glu$LBXGLU), ]
+  
+# Check the resultant dataframe dimension - should have 1943 rows.   
+  dim(QCtotal_d_ga_body_meta_glu_comp)
+  
+# Double-check there is no missing data in GLU_index.
+  table(QCtotal_d_ga_body_meta_glu_comp$GLU_index, useNA="always")
+      
+
 # ===============================================================================================================
-# Exclude individuals who are following special diets.
+# Exclude individuals who are following special diets
 # ===============================================================================================================
 
 # There may be some participants following special diets such as low-sodium or gluten-free. Detailed explanation 
@@ -145,22 +173,22 @@
 # For this demonstration, we will select only those who are eating freely without following any diet.  
   
 # Check the number of individuals who are following any specific diet (DRQSDIET==1).
-  table(QCtotal_d_glu_body_meta$DRQSDIET)
+  table(QCtotal_d_ga_body_meta_glu_comp$DRQSDIET, useNA="always")
   
 # DRQSDIET==1 is following a special diet, so select only rows with DRQSDIET==2. 
-  QCtotal_d_glu_body_meta_2 <- subset(QCtotal_d_glu_body_meta, DRQSDIET == 2)
+  QCtotal_d_ga_body_meta_glu_comp_2 <- subset(QCtotal_d_ga_body_meta_glu_comp, DRQSDIET == 2)
   
 # How many people remained? -- 1625 remained.
-  table(QCtotal_d_glu_body_meta_2$DRQSDIET)
+  table(QCtotal_d_ga_body_meta_glu_comp_2$DRQSDIET)
   
 # Check the sample size of each category.
-  table(QCtotal_d_glu_body_meta_2$GLU_index)
+  table(QCtotal_d_ga_body_meta_glu_comp_2$GLU_index)
   
   # Diabetic      Normal Prediabetic 
   # 211         684         730 
   
 # Save the dataset as a .txt file.
-  write.table(QCtotal_d_glu_body_meta_2, file="Laboratory_data/QCtotal_d_glu_body_meta_2.txt",
+  write.table(QCtotal_d_ga_body_meta_glu_comp_2, file="Laboratory_data/QCtotal_d_ga_body_meta_glu_comp_2.txt",
               sep= "\t", row.names=F, quote= F)
 
 # ---------------------------------------------------------------------------------------------------------------
