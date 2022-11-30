@@ -6,7 +6,8 @@
 
 10_percent_kcal_NHANES_9.26.R ... OLD, DO NOT USE.
 
-10_percent_kcal_NHANES.R in DietR This one is the latest. Has up-to-date functions to sort barcharts by median etc.
+
+
 
 12_add_meta_GLU_index_NHANES.R ... add metadata, GLU_index, choose no special diet.
 
@@ -16,6 +17,9 @@
 
 15_subset_NHANES_males60to79.R ... subset.
 
+16_percent_kcal_NHANES.R in DietR This one is the latest. Has up-to-date functions to sort barcharts by median etc and added the group.order argument.
 
+11/30/2022 
+Copied the updated veresions of user  scripts to DietR/gh-pages to have all the scripts in one place.  DO NOT MAKE FURTHER EDITS IN DIETARRY_PATTERNS FOLDER.
 
 
